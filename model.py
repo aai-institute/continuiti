@@ -1,63 +1,26 @@
-import numpy as np
 import keras_core as keras
-from data import Observation
 from numpy import ndarray
 
-class Model(keras.Model):
-    """Base model mapping observations to evaluations."""
 
-    def __init__(
-            self,
-            coordinate_dim: int,
-            num_channels: int,
-            num_sensors: int
-        ):
-        """A model maps observations to evaluations.
-        
-        Args:
-            coordinate_dim: Dimension of coordinate space (d)
-            num_channels: Number of channels (c)
-            num_sensors: Number of input sensors (s)
-        """
+class ResidualBlock(keras.layers.Layer):
+    """Fully connected residual block layer."""
+    def __init__(self, width: int):
         super().__init__()
 
-        # Dimension of coordinate space
-        self.d = coordinate_dim
+        self.input_layer = keras.layers.Input((width,))
+        self.inner_layer = keras.layers.Dense(width)
+        self.activation = keras.layers.Activation("tanh")
+        self.outer_layer = keras.layers.Dense(width)
 
-        # Number of channels
-        self.c = num_channels
-
-        # Number of sensors
-        self.s = num_sensors
-
-
-    def model(self, _):
-        """Model implementation."""
-        raise NotImplementedError
+    def call(self, x):
+        f = self.inner_layer(x)
+        f = self.activation(f)
+        f = self.outer_layer(f)
+        return f + x
 
 
-    def call(self, obs_pos: ndarray) -> ndarray:
-        """Map batch of observations and positions to evaluations.
-        
-        Args:
-            obs_pos: tensor of shape (batch_size, s * (d + c) + d)
-
-        Returns:
-            evals: tensor of shape (batch_size, c)
-        """
-        batch_size = obs_pos.shape[0]
-        assert obs_pos.shape == (batch_size, 
-                                 self.s * (self.d + self.c) + self.d)
-
-        evals = self.model(obs_pos)
-        assert evals.shape == (batch_size, self.c)
-
-        return evals
-    
-
-
-class FNNModel(Model):
-    """Fully connected neural network model."""
+class ContinuityModel(keras.Model):
+    """Continuity model mapping observations to evaluation."""
 
     def __init__(
             self,
@@ -67,19 +30,35 @@ class FNNModel(Model):
             width: int,
             depth: int,
         ):
-        super().__init__(coordinate_dim, num_channels, num_sensors)
+        """A model maps observations to evaluations.
+        
+        Args:
+            coordinate_dim: Dimension of coordinate space
+            num_channels: Number of channels
+            num_sensors: Number of input sensors
+            width: Width of network
+            depth: Depth of network
+        """
+        super().__init__()
 
-        self.input_layer = keras.layers.Dense(width, activation="tanh")
-        self.hidden_layers = [
-            keras.layers.Dense(width, activation="tanh")
-            for _ in range(depth)
-        ]
-        self.output_layer = keras.layers.Dense(self.c)
+        input_size = coordinate_dim + num_sensors * num_channels
 
-    def model(self, x):
-        x = self.input_layer(x)
-            
+        self.input_layer = keras.layers.Input((input_size,))
+        self.first_layer = keras.layers.Dense(width)
+        self.hidden_layers = [ResidualBlock(width) for _ in range(depth)]
+        self.last_layer = keras.layers.Dense(num_channels)
+
+
+    def call(self, x: ndarray) -> ndarray:
+        """Map batch of observations and positions to evaluations.
+        
+        Args:
+            obs_pos: batch of flattened observation and position tensors
+
+        Returns:
+            evaluation at position
+        """
+        x = self.first_layer(x)
         for layer in self.hidden_layers:
-            x = layer(x) + x
-
-        return self.output_layer(x)
+            x = layer(x)
+        return self.last_layer(x)
