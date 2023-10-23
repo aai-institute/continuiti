@@ -58,14 +58,14 @@ class DataSet(keras.utils.PyDataset):
 
     def __getitem__(self, idx: int):
         """Return batch of observations"""
-        # Select random observation
-        obs_idx = np.random.randint(len(self.observations))
-        observation = self.observations[obs_idx]
-
         obs_pos = []
         evals = []
 
         for _ in range(self.batch_size):
+            # Select random observation
+            obs_idx = np.random.randint(len(self.observations))
+            observation = self.observations[obs_idx]
+
             # Select random sensor
             sen_idx = np.random.randint(len(observation.sensors))
 
