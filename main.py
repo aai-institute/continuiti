@@ -13,7 +13,7 @@ def main():
     num_sensors = 32
 
     # Size of data set
-    size = 4
+    size = 8
 
     # Create data set
     dataset = SineWaves(num_sensors, size, batch_size=1)
@@ -25,8 +25,8 @@ def main():
         coordinate_dim=coordinate_dim,
         num_channels=num_channels,
         num_sensors=num_sensors,
-        width=64,
-        depth=32,
+        width=128,
+        depth=128,
     )
     
     # Train model
@@ -34,6 +34,9 @@ def main():
     if load:
         model.load_weights("model.weights.h5")
     else:
+        optimizer = keras.optimizers.SGD(learning_rate=1e-6)
+        model.compile(loss="mse", optimizer=optimizer)
+    
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         model.fit(dataset, epochs=1000, callbacks=[
             keras.callbacks.TensorBoard(log_dir=f'./logs/{timestamp}'),
