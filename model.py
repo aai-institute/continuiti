@@ -2,21 +2,37 @@ import keras_core as keras
 from numpy import ndarray
 
 
-class ResidualBlock(keras.layers.Layer):
-    """Fully connected residual block layer."""
+class ResidualLayer(keras.layers.Layer):
+    """Fully connected residual layer."""
     def __init__(self, width: int):
         super().__init__()
-
-        self.input_layer = keras.layers.Input((width,))
-        self.inner_layer = keras.layers.Dense(width)
-        self.activation = keras.layers.Activation("tanh")
-        self.outer_layer = keras.layers.Dense(width)
+        self.layer = keras.layers.Dense(width, activation="tanh")
 
     def call(self, x):
-        f = self.inner_layer(x)
-        f = self.activation(f)
-        f = self.outer_layer(f)
-        return f + x
+        return self.layer(x) + x
+
+
+class DNN(keras.Model):
+    """Fully connected deep neural network."""
+    def __init__(
+            self,
+            input_size: int,
+            output_size: int,
+            width: int,
+            depth: int,
+        ):
+        super().__init__()
+
+        self.input_layer = keras.layers.Input((input_size,))
+        self.first_layer = keras.layers.Dense(width)
+        self.hidden_layers = [ResidualLayer(width) for _ in range(depth)]
+        self.last_layer = keras.layers.Dense(output_size)
+
+    def call(self, x):
+        x = self.first_layer(x)
+        for layer in self.hidden_layers:
+            x = layer(x)
+        return self.last_layer(x)
 
 
 class ContinuityModel(keras.Model):
@@ -42,12 +58,7 @@ class ContinuityModel(keras.Model):
         super().__init__()
 
         input_size = coordinate_dim + num_sensors * num_channels
-
-        self.input_layer = keras.layers.Input((input_size,))
-        self.first_layer = keras.layers.Dense(width)
-        self.hidden_layers = [ResidualBlock(width) for _ in range(depth)]
-        self.last_layer = keras.layers.Dense(num_channels)
-
+        self.dnn = DNN(input_size, num_channels, width, depth)
 
     def call(self, x: ndarray) -> ndarray:
         """Map batch of observations and positions to evaluations.
@@ -58,7 +69,4 @@ class ContinuityModel(keras.Model):
         Returns:
             evaluation at position
         """
-        x = self.first_layer(x)
-        for layer in self.hidden_layers:
-            x = layer(x)
-        return self.last_layer(x)
+        return self.dnn(x)
