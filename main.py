@@ -3,6 +3,10 @@ from data import SineWaves
 from plotting import plot_observation, plot_evaluation
 from model import ContinuityModel
 import keras_core as keras
+from datetime import datetime
+
+# Set random seed
+keras.utils.set_random_seed(316)
 
 def main():
     # Number of sensors in observation
@@ -30,10 +34,9 @@ def main():
     if load:
         model.load_weights("model.weights.h5")
     else:
-        adam = keras.optimizers.SGD(learning_rate=1e-5)
-        model.compile(loss="mse", optimizer=adam)
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         model.fit(dataset, epochs=1000, callbacks=[
-            keras.callbacks.TensorBoard(log_dir='./logs'),
+            keras.callbacks.TensorBoard(log_dir=f'./logs/{timestamp}'),
             keras.callbacks.LearningRateScheduler(lambda _, lr: lr * 0.999)
         ])
         model.save_weights("model.weights.h5")
