@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from data import SineWaves
+from data import Flame
 from plotting import plot_observation, plot_evaluation
 from model import ContinuityModel
 import keras_core as keras
@@ -9,14 +9,11 @@ from datetime import datetime
 keras.utils.set_random_seed(316)
 
 def main():
-    # Number of sensors in observation
-    num_sensors = 32
-
     # Size of data set
-    size = 8
+    size = 1
 
     # Create data set
-    dataset = SineWaves(num_sensors, size, batch_size=1)
+    dataset = Flame(size, batch_size=32)
     coordinate_dim = dataset.coordinate_dim
     num_channels = dataset.num_channels
 
@@ -24,8 +21,8 @@ def main():
     model = ContinuityModel(
         coordinate_dim=coordinate_dim,
         num_channels=num_channels,
-        num_sensors=num_sensors,
-        width=128,
+        num_sensors=dataset.num_sensors,
+        width=2048,
         depth=128,
     )
     
@@ -34,11 +31,11 @@ def main():
     if load:
         model.load_weights("model.weights.h5")
     else:
-        optimizer = keras.optimizers.SGD(learning_rate=1e-6)
+        optimizer = keras.optimizers.SGD(learning_rate=1e-8)
         model.compile(loss="mse", optimizer=optimizer)
     
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        model.fit(dataset, epochs=1000, callbacks=[
+        model.fit(dataset, epochs=100, callbacks=[
             keras.callbacks.TensorBoard(log_dir=f'./logs/{timestamp}'),
             keras.callbacks.LearningRateScheduler(lambda _, lr: lr * 0.999)
         ])
@@ -48,8 +45,8 @@ def main():
     for i in range(size):
         obs = dataset.get_observation(i)
         plt.cla()
-        plot_observation(obs)
         plot_evaluation(model, dataset, obs)
+        plot_observation(obs)
         plt.savefig(f"plot_{i}.png")
 
 if __name__ == '__main__':

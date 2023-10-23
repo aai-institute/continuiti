@@ -3,3 +3,5 @@ venv
 *.weights.h5
 plot*.png
 logs
+*.dat
+*.csv
