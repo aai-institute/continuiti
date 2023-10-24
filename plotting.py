@@ -30,20 +30,20 @@ def plot_evaluation(model, dataset, observation, ax=plt.gca()):
         ax.plot(x, u, 'k-')
 
     if dim == 2:
-        n = 32
+        n = 128
         x = np.linspace(-1, 1, n)
         y = np.linspace(-1, 1, n)
         xx, yy = np.meshgrid(x, y)
         u = np.zeros_like(xx)
-        for i in range(n):
-            for j in range(n):
-                print(f"\rPlotting... {i*j}/{n*n}", end="")
-                obs_pos = dataset.flatten(
-                    observation, 
-                    np.array([xx[i, j], yy[i, j]])
-                )
-                obs_pos = obs_pos.reshape(1, -1)
-                u[i, j] = model(obs_pos)
-        cb = ax.contourf(xx, yy, u, cmap='jet')
+        obs_pos = np.array([
+            dataset.flatten(
+                observation, 
+                np.array([xx[i, j], yy[i, j]])
+            )
+            for i in range(n)
+            for j in range(n)
+        ])
+        u = model(obs_pos)
+        u = np.reshape(u, (n, n))
+        ax.contourf(xx, yy, u, cmap='jet', levels=100)
         ax.set_aspect('equal')
-        plt.colorbar(cb, ax=ax)
