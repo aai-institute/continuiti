@@ -43,6 +43,24 @@ class DataSet(keras.utils.PyDataset):
         self.observations = observations
         self.batch_size = batch_size
 
+        # Build data tensors x and y
+        obs_pos = []
+        evals = []
+
+        for i in range(len(self.observations)):
+            observation = self.observations[i]
+
+            for j in range(len(observation.sensors)):
+                # Take one sensor as label
+                sensor = observation.sensors[j]
+                x, u = sensor.x, sensor.u
+                ox = self.flatten(observation, x)
+                obs_pos.append(ox)
+                evals.append(u)
+
+        self.x = np.array(obs_pos)
+        self.y = np.array(evals)
+
 
     def get_observation(self, idx: int) -> Observation:
         """Return observation at index"""
@@ -51,33 +69,14 @@ class DataSet(keras.utils.PyDataset):
 
     def __len__(self) -> int:
         """Return number of batches"""
-        num_obs = len(self.observations)
-        num_sensors = len(self.observations[0].sensors)
-        return math.ceil(num_obs * num_sensors / self.batch_size)
+        return math.ceil(len(self.x) / self.batch_size)
     
 
     def __getitem__(self, idx: int):
         """Return batch of observations"""
-        obs_pos = []
-        evals = []
-
-        for _ in range(self.batch_size):
-            # Select random observation
-            obs_idx = np.random.randint(len(self.observations))
-            observation = self.observations[obs_idx]
-
-            # Select random sensor
-            sen_idx = np.random.randint(len(observation.sensors))
-
-            # Take one sensor as label
-            sensor = observation.sensors[sen_idx]
-            x, u = sensor.x, sensor.u
-
-            # Append observation, x and u
-            obs_pos.append(self.flatten(observation, x))
-            evals.append(u)
-
-        return np.array(obs_pos), np.array(evals)
+        low = idx * self.batch_size
+        high = min(low + self.batch_size, len(self.x))
+        return self.x[low:high], self.y[low:high]
     
 
     def flatten(self, observation: Observation, position: ndarray) -> ndarray:
