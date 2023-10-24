@@ -10,7 +10,7 @@ keras.utils.set_random_seed(316)
 
 def main():
     # Size of data set
-    size = 1
+    size = 8
 
     # Create data set
     dataset = Flame(size, batch_size=32)
@@ -25,17 +25,23 @@ def main():
         width=2048,
         depth=128,
     )
+
+    # Load model
+    load = True
+    if load:
+        # Build model and load weights
+        model(dataset[0][0])  
+        model.load_weights("model.weights.h5")
     
     # Train model
-    load = False
-    if load:
-        model.load_weights("model.weights.h5")
-    else:
-        optimizer = keras.optimizers.SGD(learning_rate=1e-8)
+    train = True
+    if train:
+        # Setup optimizer and fit model
+        optimizer = keras.optimizers.SGD(learning_rate=1e-9)
         model.compile(loss="mse", optimizer=optimizer)
     
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        model.fit(dataset, epochs=100, callbacks=[
+        model.fit(dataset, epochs=100, shuffle=True, callbacks=[
             keras.callbacks.TensorBoard(log_dir=f'./logs/{timestamp}'),
             keras.callbacks.LearningRateScheduler(lambda _, lr: lr * 0.999)
         ])
