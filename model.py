@@ -6,7 +6,11 @@ class ResidualLayer(keras.layers.Layer):
     """Fully connected residual layer."""
     def __init__(self, width: int):
         super().__init__()
-        self.layer = keras.layers.Dense(width, activation="tanh")
+        self.width = width
+
+    def build(self, input_shape=None):
+        assert input_shape is None or input_shape[-1] == self.width
+        self.layer = keras.layers.Dense(self.width, activation="tanh")
 
     def call(self, x):
         return self.layer(x) + x
@@ -23,10 +27,18 @@ class DNN(keras.Model):
         ):
         super().__init__()
 
-        self.input_layer = keras.layers.Input((input_size,))
-        self.first_layer = keras.layers.Dense(width)
-        self.hidden_layers = [ResidualLayer(width) for _ in range(depth)]
-        self.last_layer = keras.layers.Dense(output_size)
+        self.input_size = input_size
+        self.output_size = output_size
+        self.width = width
+        self.depth = depth
+
+    def build(self, input_shape=None):
+        self.input_layer = keras.layers.Input(input_shape)
+        self.first_layer = keras.layers.Dense(self.width)
+        self.hidden_layers = [
+            ResidualLayer(self.width) for _ in range(self.depth)
+        ]
+        self.last_layer = keras.layers.Dense(self.output_size)
 
     def call(self, x):
         x = self.first_layer(x)
@@ -57,8 +69,22 @@ class ContinuityModel(keras.Model):
         """
         super().__init__()
 
-        input_size = coordinate_dim + num_sensors * num_channels
-        self.dnn = DNN(input_size, num_channels, width, depth)
+        self.coordinate_dim = coordinate_dim
+        self.num_channels = num_channels
+        self.num_sensors = num_sensors
+        self.width = width
+        self.depth = depth
+
+        self.input_shape = (None, coordinate_dim + num_sensors * num_channels)
+
+    def build(self, input_shape=None):
+        assert input_shape is None or input_shape[1] == self.input_shape[1]
+        self.dnn = DNN(
+            self.input_shape,
+            self.num_channels,
+            self.width,
+            self.depth,
+        )
 
     def call(self, x: ndarray) -> ndarray:
         """Map batch of observations and positions to evaluations.
