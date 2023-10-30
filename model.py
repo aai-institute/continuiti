@@ -1,5 +1,4 @@
 import keras_core as keras
-from numpy import ndarray
 
 
 class ResidualLayer(keras.layers.Layer):
@@ -67,32 +66,60 @@ class ContinuityModel(keras.Model):
             width: Width of network
             depth: Depth of network
         """
-        super().__init__()
-
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
         self.num_sensors = num_sensors
         self.width = width
         self.depth = depth
 
-        self.input_shape = (None, coordinate_dim + num_sensors * num_channels)
-
-    def build(self, input_shape=None):
-        assert input_shape is None or input_shape[1] == self.input_shape[1]
-        self.dnn = DNN(
-            self.input_shape,
+        input_size = coordinate_dim + num_sensors * num_channels
+        self.inputs = keras.Input(shape=(input_size,))
+        self.outputs = DNN(
+            (None, input_size),
             self.num_channels,
             self.width,
             self.depth,
-        )
+        )(self.inputs)
 
-    def call(self, x: ndarray) -> ndarray:
-        """Map batch of observations and positions to evaluations.
+        super().__init__(inputs=self.inputs, outputs=self.outputs)
+
+
+    def compile(self, optimizer):
+        """Compile the model.
         
         Args:
-            obs_pos: batch of flattened observation and position tensors
+            optimizer: optimizer
+        """
+        super().compile(loss="mse")
+        self.loss_fn = keras.losses.MeanSquaredError()
+        self.optimizer = optimizer
+        self.optimizer.built = True
+
+
+    def train_step(self, data):
+        """Train step.
+
+        Args:
+            data: batch of observations and evaluations
 
         Returns:
-            evaluation at position
+            dict mapping metric names to current value
         """
-        return self.dnn(x)
+        x, y = data
+
+        self.optimizer.zero_grad()
+
+        y_pred = self(x, training=True)
+
+        loss = self.loss_fn(y, y_pred)
+        loss.backward()
+
+        self.optimizer.step()
+
+        for metric in self.metrics:
+            if metric.name == "loss":
+                metric.update_state(loss)
+            else:
+                metric.update_state(y, y_pred)
+
+        return {m.name: m.result() for m in self.metrics}
