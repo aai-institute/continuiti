@@ -17,6 +17,9 @@ class Sensor:
         self.coordinate_dim = x.shape[0]
         self.num_channels = u.shape[0]
 
+    def __str__(self):
+        return f"Sensor(x={self.x}, u={self.u})"
+
 
 class Observation:
     """Observation
@@ -26,6 +29,12 @@ class Observation:
     def __init__(self, sensors: List[Optional[Sensor]]):
         self.sensors = sensors
 
+    def __str__(self):
+        s = f"Observation(sensors=\n"
+        for sensor in self.sensors:
+            s += f"  {sensor}, \n"
+        s += ")"
+        return s
 
 class DataSet(keras.utils.PyDataset):
     """DataSet
@@ -120,7 +129,7 @@ class SineWaves(DataSet):
 
         # Generate observations
         observations = [
-            self._generate_observation(i)
+            self._generate_observation(i / (self.size-1))
             for i in range(self.size)
         ]
         
