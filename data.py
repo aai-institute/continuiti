@@ -1,9 +1,14 @@
 import math
 import numpy as np
 from numpy import ndarray
-import keras_core as keras
 from typing import List, Optional
 import pandas as pd
+import torch
+
+
+def tensor(x):
+    return torch.tensor(x, dtype=torch.float32)
+
 
 class Sensor:
     """Sensor
@@ -28,6 +33,10 @@ class Observation:
     """
     def __init__(self, sensors: List[Optional[Sensor]]):
         self.sensors = sensors
+        self.num_sensors = len(sensors)
+        assert self.num_sensors > 0
+        self.coordinate_dim = self.sensors[0].coordinate_dim
+        self.num_channels = self.sensors[0].num_channels
 
     def __str__(self):
         s = f"Observation(sensors=\n"
@@ -35,40 +44,65 @@ class Observation:
             s += f"  {sensor}, \n"
         s += ")"
         return s
+    
+    def to_tensor(self):
+        """Convert observation to tensor"""
+        u = torch.zeros(
+            (self.num_sensors, self.coordinate_dim + self.num_channels)
+        )
+        for i, sensor in enumerate(self.sensors):
+            u[i] = torch.concat(
+                [tensor(sensor.x), tensor(sensor.u)]
+            )
+        return u
 
-class DataSet(keras.utils.PyDataset):
+        
+
+
+class DataSet:
     """DataSet
     
-    A data set is a set of observations.
+    A data set is constructed from a set of observations and exports batches of observations and labels for self-supervised learning.
     """
     def __init__(
             self,
             observations: List[Observation],
             batch_size: int,
-            **kwargs
         ):
-        super().__init__(**kwargs)
 
         self.observations = observations
         self.batch_size = batch_size
 
-        # Build data tensors x and y
-        obs_pos = []
-        evals = []
+        num_sensors = observations[0].num_sensors
+        coordinate_dim = observations[0].sensors[0].coordinate_dim
+        num_channels = observations[0].sensors[0].num_channels
 
-        for i in range(len(self.observations)):
-            observation = self.observations[i]
+        self.u = []
+        self.v = []
+        self.x = []
+      
+        for observation in self.observations:
+            u = observation.to_tensor()
+            v = torch.zeros((num_sensors, num_channels))
+            x = torch.zeros((num_sensors, coordinate_dim))
 
-            for j in range(len(observation.sensors)):
-                # Take one sensor as label
-                sensor = observation.sensors[j]
-                x, u = sensor.x, sensor.u
-                ox = self.flatten(observation, x)
-                obs_pos.append(ox)
-                evals.append(u)
+            for i, sensor in enumerate(observation.sensors):
+                v[i] = tensor(sensor.u) # v = u
+                x[i] = tensor(sensor.x) # y = x
 
-        self.x = np.array(obs_pos)
-        self.y = np.array(evals)
+            self.u.append(u)
+            self.v.append(v)
+            self.x.append(x)
+
+        self.u = torch.stack(self.u)
+        self.v = torch.stack(self.v)
+        self.x = torch.stack(self.x)
+
+        # Randomize
+        idx = torch.randperm(len(self.u))
+        self.u = self.u[idx]
+        self.v = self.v[idx]
+        self.x = self.x[idx]
 
 
     def get_observation(self, idx: int) -> Observation:
@@ -85,37 +119,8 @@ class DataSet(keras.utils.PyDataset):
         """Return batch of observations"""
         low = idx * self.batch_size
         high = min(low + self.batch_size, len(self.x))
-        return self.x[low:high], self.y[low:high]
+        return self.u[low:high], self.v[low:high], self.x[low:high]
     
-
-    def flatten(self, observation: Observation, position: ndarray) -> ndarray:
-        """Convert observation and position into ndarray.
-        
-        Args:
-            observation: observation object with s sensors with u of shape (c,)
-            position: a single position p of shape (d,)
-
-        Returns:
-            tensor: a tensor of shape (s * c + d,)
-                that contains (u_1, u_2, ... u_s, p)
-        """
-        s = self.num_sensors
-        d = self.coordinate_dim
-        c = self.num_channels
-        assert position.shape == (d,)
-
-        # Concatenate u for each sensor
-        tensor = np.zeros((s * c + d,))
-        for i, sensor in enumerate(observation.sensors):
-            u = sensor.u
-            assert u.shape == (c,)
-            tensor[i * c : (i+1) * c] = u
-
-        # Append position
-        tensor[-d:] = position
-
-        return tensor
-
 
 class SineWaves(DataSet):
     """Sine waves"""
@@ -146,53 +151,53 @@ class SineWaves(DataSet):
 
 
 
-class Flame(DataSet):
-    """Turbulent flow samples from flame dataset"""
+# class Flame(DataSet):
+#     """Turbulent flow samples from flame dataset"""
 
-    def __init__(self, size, batch_size):
-        self.num_sensors = 16 * 16
-        self.size = size
+#     def __init__(self, size, batch_size):
+#         self.num_sensors = 16 * 16
+#         self.size = size
 
-        self.coordinate_dim = 2
-        self.num_channels = 1
+#         self.coordinate_dim = 2
+#         self.num_channels = 1
 
-        # Generate observations
-        observations = [
-            self._generate_observation(i)
-            for i in range(self.size)
-        ]
+#         # Generate observations
+#         observations = [
+#             self._generate_observation(i)
+#             for i in range(self.size)
+#         ]
         
-        super().__init__(observations, batch_size)
+#         super().__init__(observations, batch_size)
 
-    def _generate_observation(self, i: int):
-        # Load data
-        input_path = 'flame/'
-        res = 'LR'
+#     def _generate_observation(self, i: int):
+#         # Load data
+#         input_path = 'flame/'
+#         res = 'LR'
 
-        df = pd.read_csv(input_path + 'train.csv')
-        data_path = input_path + f"flowfields/{res}/train"
+#         df = pd.read_csv(input_path + 'train.csv')
+#         data_path = input_path + f"flowfields/{res}/train"
 
-        filename = df[f'ux_filename'][i+1]
-        u = np.fromfile(
-            data_path + "/" + filename, dtype="<f4"
-        ).reshape(16, 16, 1)
+#         filename = df[f'ux_filename'][i+1]
+#         u = np.fromfile(
+#             data_path + "/" + filename, dtype="<f4"
+#         ).reshape(16, 16, 1)
 
-        # Normalize
-        u = (u - u.mean()) / u.std()
+#         # Normalize
+#         u = (u - u.mean()) / u.std()
 
-        # Positions
-        x = np.stack(
-            np.meshgrid(
-                np.linspace(-1, 1, 16),
-                np.linspace(-1, 1, 16),
-            ),
-            axis=2
-        )
+#         # Positions
+#         x = np.stack(
+#             np.meshgrid(
+#                 np.linspace(-1, 1, 16),
+#                 np.linspace(-1, 1, 16),
+#             ),
+#             axis=2
+#         )
 
-        # Sensors
-        sensors = [
-            Sensor(x[i][j], u[i][j])
-            for i in range(16) for j in range(16)
-        ]
-        return Observation(sensors)
+#         # Sensors
+#         sensors = [
+#             Sensor(x[i][j], u[i][j])
+#             for i in range(16) for j in range(16)
+#         ]
+#         return Observation(sensors)
 

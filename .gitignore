@@ -5,3 +5,4 @@ plot*.png
 logs
 *.dat
 *.csv
+*.pth

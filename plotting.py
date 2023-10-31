@@ -1,3 +1,4 @@
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,13 +22,10 @@ def plot_evaluation(model, dataset, observation, ax=plt.gca()):
 
     if dim == 1:
         n = 200
-        x = np.linspace(-1, 1, n)
-        u = np.zeros_like(x)
-        for i in range(n):
-            obs_pos = dataset.flatten(observation, np.array([x[i]]))
-            obs_pos = obs_pos.reshape(1, -1)
-            u[i] = model(obs_pos)
-        ax.plot(x, u, 'k-')
+        x = torch.linspace(-1, 1, n).reshape(1, -1, 1)
+        u = observation.to_tensor().unsqueeze(0)
+        v = model(u, x).detach().numpy()
+        ax.plot(x.flatten(), v.flatten(), 'k-')
 
     if dim == 2:
         n = 128
