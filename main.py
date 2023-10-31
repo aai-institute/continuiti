@@ -1,17 +1,18 @@
 import matplotlib.pyplot as plt
 from data import SineWaves
 from plotting import plot_observation, plot_evaluation
-from model import ContinuityModel
+from model import ContinuityModel, DeepONet
 import keras_core as keras
 from datetime import datetime
 from dadaptation import DAdaptSGD
+import os
 
 # Set random seed
 keras.utils.set_random_seed(316)
 
 def main():
     # Size of data set
-    size = 32
+    size = 4
 
     # Create data set
     dataset = SineWaves(32, size, batch_size=1)
@@ -19,14 +20,33 @@ def main():
     num_channels = dataset.num_channels
 
     # Create model
-    model = ContinuityModel(
-        coordinate_dim=coordinate_dim,
-        num_channels=num_channels,
-        num_sensors=dataset.num_sensors,
-        width=64,
-        depth=32,
-    )
+    fnn = False
+    if fnn:
+        model = ContinuityModel(
+            coordinate_dim=coordinate_dim,
+            num_channels=num_channels,
+            num_sensors=dataset.num_sensors,
+            width=32,
+            depth=32,
+        )
+    else:
+        model = DeepONet(
+            coordinate_dim=coordinate_dim,
+            num_channels=num_channels,
+            num_sensors=dataset.num_sensors,
+            branch_width=1024,
+            branch_depth=128,
+            trunk_width=1024,
+            trunk_depth=128,
+            basis_functions=128,
+        )
 
+    # Create log dir
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = f"./logs/{timestamp}"
+    print(f"Logging to {log_dir}")
+    os.makedirs(log_dir)
+       
     # Load model
     load = False
     if load:
@@ -41,8 +61,6 @@ def main():
         optimizer = DAdaptSGD(model.parameters())
         model.compile(optimizer)
     
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        log_dir = f"./logs/{timestamp}"
         model.fit(dataset, epochs=100, shuffle=True, callbacks=[
             keras.callbacks.TensorBoard(log_dir=log_dir),
         ])

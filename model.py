@@ -46,8 +46,62 @@ class DNN(keras.Model):
         return self.last_layer(x)
 
 
-class ContinuityModel(keras.Model):
-    """Continuity model mapping observations to evaluation."""
+class TorchModel(keras.Model):
+    """Keras Core model specialized for PyTorch."""
+
+    def __init__(
+            self,
+            inputs: tuple,
+            outputs: tuple,
+        ):
+        """A model maps observations to evaluations.
+        
+        Args:
+            inputs: Shape of input tensor
+            outputs: Shape of output tensor
+        """
+        super().__init__(inputs=inputs, outputs=outputs)
+
+
+    def compile(self, optimizer):
+        """Compile the model.
+        
+        Args:
+            optimizer: optimizer
+        """
+        super().compile(loss="mse")
+        self.loss_fn = keras.losses.MeanSquaredError()
+        self.optimizer = optimizer
+        self.optimizer.built = True
+
+
+    def train_step(self, data):
+        """Train step.
+
+        Args:
+            data: batch of observations and evaluations
+
+        Returns:
+            dict mapping metric names to current value
+        """
+        x, y = data
+        self.optimizer.zero_grad()
+        y_pred = self(x, training=True)
+        loss = self.loss_fn(y, y_pred)
+        loss.backward()
+        self.optimizer.step()
+
+        for metric in self.metrics:
+            if metric.name == "loss":
+                metric.update_state(loss)
+            else:
+                metric.update_state(y, y_pred)
+
+        return {m.name: m.result() for m in self.metrics}
+    
+
+class ContinuityModel(TorchModel):
+    """Fully-connected architecture."""
 
     def __init__(
             self,
@@ -84,42 +138,56 @@ class ContinuityModel(keras.Model):
         super().__init__(inputs=self.inputs, outputs=self.outputs)
 
 
-    def compile(self, optimizer):
-        """Compile the model.
+class DeepONet(TorchModel):
+    """DeepONet architecture."""
+
+    def __init__(
+            self,
+            coordinate_dim: int,
+            num_channels: int,
+            num_sensors: int,
+            branch_width: int,
+            branch_depth: int,
+            trunk_width: int,
+            trunk_depth: int,
+            basis_functions: int,
+        ):
+        """A model maps observations to evaluations.
         
         Args:
-            optimizer: optimizer
+            coordinate_dim: Dimension of coordinate space
+            num_channels: Number of channels
+            num_sensors: Number of input sensors
+            branch_width: Width of branch network
+            branch_depth: Depth of branch network
+            trunk_width: Width of trunk network
+            trunk_depth: Depth of trunk network
+            basis_functions: Number of basis functions
         """
-        super().compile(loss="mse")
-        self.loss_fn = keras.losses.MeanSquaredError()
-        self.optimizer = optimizer
-        self.optimizer.built = True
+        self.coordinate_dim = coordinate_dim
+        self.num_channels = num_channels
+        self.num_sensors = num_sensors
 
+        branch_input = num_sensors * num_channels
+        trunk_input = coordinate_dim
 
-    def train_step(self, data):
-        """Train step.
+        self.inputs = keras.Input(shape=(branch_input + trunk_input,))
 
-        Args:
-            data: batch of observations and evaluations
+        self.branch = DNN(
+            (None, branch_input),
+            self.num_channels * basis_functions,
+            branch_width,
+            branch_depth,
+        )(self.inputs[:, :branch_input])
 
-        Returns:
-            dict mapping metric names to current value
-        """
-        x, y = data
+        self.trunk = DNN(
+            (None, trunk_input),
+            self.num_channels * basis_functions,
+            trunk_width,
+            trunk_depth,
+        )(self.inputs[:, -trunk_input:])
 
-        self.optimizer.zero_grad()
+        self.outputs = keras.ops.einsum("ij,ik->i", self.branch, self.trunk)
+        self.outputs = keras.layers.Reshape((self.num_channels,))(self.outputs)
 
-        y_pred = self(x, training=True)
-
-        loss = self.loss_fn(y, y_pred)
-        loss.backward()
-
-        self.optimizer.step()
-
-        for metric in self.metrics:
-            if metric.name == "loss":
-                metric.update_state(loss)
-            else:
-                metric.update_state(y, y_pred)
-
-        return {m.name: m.result() for m in self.metrics}
+        super().__init__(inputs=self.inputs, outputs=self.outputs)

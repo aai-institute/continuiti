@@ -129,7 +129,7 @@ class SineWaves(DataSet):
 
         # Generate observations
         observations = [
-            self._generate_observation(i / (self.size-1))
+            self._generate_observation(i / max(1, self.size-1))
             for i in range(self.size)
         ]
         
