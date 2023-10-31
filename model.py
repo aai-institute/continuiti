@@ -173,60 +173,65 @@ class FullyConnectedModel(TorchModel):
 #         super().__init__(inputs=self.inputs, outputs=self.outputs)
 
 
-# class NeuralOperator(TorchModel):
-#     """Neural operator architecture."""
+class NeuralOperator(TorchModel):
+    """Neural operator architecture."""
 
-#     def __init__(
-#             self,
-#             coordinate_dim: int,
-#             num_channels: int,
-#             num_sensors: int,
-#             width: int,
-#             depth: int,
-#         ):
-#         """A model maps observations to evaluations.
+    def __init__(
+            self,
+            coordinate_dim: int,
+            num_channels: int,
+            num_sensors: int,
+            width: int,
+            depth: int,
+        ):
+        """Maps observations and positions to evaluations.
         
-#         Args:
-#             coordinate_dim: Dimension of coordinate space
-#             num_channels: Number of channels
-#             num_sensors: Number of input sensors
-#             width: Width of kernel network
-#             depth: Depth of kernel network
-#         """
-#         self.coordinate_dim = coordinate_dim
-#         self.num_channels = num_channels
-#         self.num_sensors = num_sensors
+        Args:
+            coordinate_dim: Dimension of coordinate space
+            num_channels: Number of channels
+            num_sensors: Number of input sensors
+            width: Width of kernel network
+            depth: Depth of kernel network
+        """
+        self.coordinate_dim = coordinate_dim
+        self.num_channels = num_channels
+        self.num_sensors = num_sensors
 
-#         super().__init__()
-#         self.kernel = DNN((None, 1), 1, width, depth)
-
-
-#     def call(self, obs_pos):
-#         obs, x = obs_pos
-#         batch_size = x.shape[0]
-
-#         print(obs)
-#         quit()
-
-#         # Sensor positions
-#         y = np.linspace(-1, 1, self.num_sensors) # TODO dim
-#         assert y.shape == (self.num_sensors,) 
-
-#         # Compute radial coordinates
-#         assert x.shape == (batch_size, self.coordinate_dim)
-#         r = keras.ops.abs(x - y)
-#         assert r.shape == (batch_size, self.num_sensors) # TODO dim
-
-#         # Kernel operation
-#         r = keras.ops.reshape(r, (-1, 1))
-#         k = self.kernel(r)
-#         k = keras.ops.reshape(k, (-1, self.num_sensors))
-#         sum = keras.ops.einsum("bs,bs->b", k, u) / self.num_sensors
-
-#         self.outputs = keras.ops.reshape(sum, (-1, self.num_channels))
-#         super().__init__(inputs=self.inputs, outputs=self.outputs)
+        super().__init__()
+        self.kernel = DeepResidualNetwork(1, 1, width, depth)
 
 
+    def forward(self, yu, x):
+        """Forward pass."""
+        batch_size = yu.shape[0]
+        num_sensors = yu.shape[1]
+        assert batch_size == x.shape[0]
+        x_size = x.shape[1]
+        
+        # Sensors
+        y = yu[:, :, -self.coordinate_dim:]
+        u = yu[:, :, :-self.coordinate_dim]
+        assert y.shape == (batch_size, num_sensors, self.coordinate_dim) 
+        assert u.shape == (batch_size, num_sensors, self.num_channels) 
 
+        # Compute radial coordinates
+        assert x.shape == (batch_size, x_size, self.coordinate_dim)
+        x = x.unsqueeze(1)
+        y = y.unsqueeze(2)
+        r = torch.sum((x - y)**2, axis=-1)
+        assert r.shape == (batch_size, num_sensors, x_size)
 
+        # Flatten to 1D
+        r = r.reshape((-1, 1))
+
+        # Kernel operation
+        k = self.kernel(r)
+
+        # Reshape to 3D
+        k = k.reshape((batch_size, num_sensors, x_size))
+
+        # Compute integral
+        integral = torch.einsum("bsx,bsc->bxc", k, u) / num_sensors
+
+        return integral
 

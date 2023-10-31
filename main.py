@@ -4,7 +4,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from data import SineWaves
 from plotting import plot_observation, plot_evaluation
-from model import FullyConnectedModel
+from model import NeuralOperator
 from dadaptation import DAdaptSGD
 
 # Set random seed
@@ -18,12 +18,12 @@ def main():
     dataset = SineWaves(32, size, batch_size=1)
 
     # Create model
-    model = FullyConnectedModel(
+    model = NeuralOperator(
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
         num_sensors=dataset.num_sensors,
-        width=128,
-        depth=32,
+        width=32,
+        depth=1,
     )
 
     # Create log dir
@@ -43,7 +43,7 @@ def main():
     train = True
     if train:
         # Setup optimizer and fit model
-        optimizer = DAdaptSGD(model.parameters())
+        optimizer = DAdaptSGD(model.parameters(), lr=0.1)
         criterion = torch.nn.MSELoss()
 
         model.compile(optimizer, criterion)
