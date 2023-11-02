@@ -1,6 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
-from data import SineWaves
+from data import SineWaves, Flame
 from plotting import *
 from model import FullyConnected, DeepONet, NeuralOperator
 from dadaptation import DAdaptSGD
@@ -11,10 +11,11 @@ torch.manual_seed(0)
 
 def main():
     # Size of data set
-    size = 32
+    size = 2
 
     # Create data set
-    dataset = SineWaves(32, size, batch_size=1)
+    # dataset = SineWaves(32, size, batch_size=1)
+    dataset = Flame(size, batch_size=1)
 
     # Create model
     # model = FullyConnected(
@@ -38,9 +39,9 @@ def main():
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
         num_sensors=dataset.num_sensors,
-        layers=4,
-        kernel_width=8,
-        kernel_depth=1,
+        layers=16,
+        kernel_width=32,
+        kernel_depth=4,
     )
 
     # Load model
@@ -76,7 +77,7 @@ def main():
             plot_to_tensorboard(writer, "Plot/train", i)
 
         # Test observation
-        obs = dataset._generate_observation(0.5)
+        obs = dataset._generate_observation(size)
         plt.cla()
         plot_evaluation(model, dataset, obs)
         plot_observation(obs)

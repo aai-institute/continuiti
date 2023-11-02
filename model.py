@@ -3,10 +3,10 @@ from time import time
 
 device = torch.device("cpu")
 
-# if torch.backends.mps.is_available():
-#     device = torch.device("mps")
-# elif torch.cuda.is_available():
-#     device = torch.device("cuda")
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
 
 print("Device:", device)
 
@@ -245,7 +245,7 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         self.num_channels = num_channels
         self.num_sensors = num_sensors
 
-        self.kernel = DeepResidualNetwork(self.coordinate_dim, 1, width, depth)
+        self.kernel = DeepResidualNetwork(1, 1, width, depth)
 
 
     def forward(self, yu, x):
@@ -254,10 +254,10 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         num_sensors = yu.shape[1]
         assert batch_size == x.shape[0]
         x_size = x.shape[1]
-        
-        # Sensors
-        y = yu[:, :, :-self.coordinate_dim]
-        u = yu[:, :, -self.coordinate_dim:]
+
+        # Sensors are (x, u)
+        y = yu[:, :, -self.coordinate_dim:]
+        u = yu[:, :, :-self.coordinate_dim]
         assert y.shape == (batch_size, num_sensors, self.coordinate_dim) 
         assert u.shape == (batch_size, num_sensors, self.num_channels) 
 
@@ -265,6 +265,7 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         assert x.shape == (batch_size, x_size, self.coordinate_dim)
         x = x.unsqueeze(1)
         y = y.unsqueeze(2)
+        
         r = torch.sum((x - y)**2, axis=-1)
         assert r.shape == (batch_size, num_sensors, x_size)
 
@@ -344,10 +345,10 @@ class NeuralOperator(TorchModel):
         yv = yu
 
         # Sensors positions are equal across all layers
-        y = yv[:, :, :-self.coordinate_dim]
+        y = yv[:, :, -self.coordinate_dim:]
 
         # Initial value
-        v = yv[:, :, -self.coordinate_dim:]
+        v = yv[:, :, :-self.coordinate_dim]
 
         # Layers
         for layer in self.layers:

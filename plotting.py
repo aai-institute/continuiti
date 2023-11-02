@@ -34,16 +34,13 @@ def plot_evaluation(model, dataset, observation, ax=plt.gca()):
         x = np.linspace(-1, 1, n)
         y = np.linspace(-1, 1, n)
         xx, yy = np.meshgrid(x, y)
-        u = np.zeros_like(xx)
-        obs_pos = np.array([
-            dataset.flatten(
-                observation, 
-                np.array([xx[i, j], yy[i, j]])
-            )
+        u = observation.to_tensor().unsqueeze(0).to(device)
+        x = torch.tensor(np.array([
+            np.array([xx[i, j], yy[i, j]])
             for i in range(n)
             for j in range(n)
-        ])
-        u = model(obs_pos)
+        ]), dtype=u.dtype).unsqueeze(0).to(device)
+        u = model(u, x).detach().cpu()
         u = np.reshape(u, (n, n))
         ax.contourf(xx, yy, u, cmap='jet', levels=100)
         ax.set_aspect('equal')
