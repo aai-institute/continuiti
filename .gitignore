@@ -2,7 +2,7 @@ __pycache__
 venv
 *.weights.h5
 plot*.png
-logs
+runs
 *.dat
 *.csv
 *.pth

@@ -4,7 +4,7 @@ from numpy import ndarray
 from typing import List, Optional
 import pandas as pd
 import torch
-
+from model import device
 
 def tensor(x):
     return torch.tensor(x, dtype=torch.float32)
@@ -56,8 +56,6 @@ class Observation:
             )
         return u
 
-        
-
 
 class DataSet:
     """DataSet
@@ -103,6 +101,9 @@ class DataSet:
         self.u = self.u[idx]
         self.v = self.v[idx]
         self.x = self.x[idx]
+        
+        # Move to device
+        self.to(device=device)
 
 
     def get_observation(self, idx: int) -> Observation:
@@ -120,6 +121,13 @@ class DataSet:
         low = idx * self.batch_size
         high = min(low + self.batch_size, len(self.x))
         return self.u[low:high], self.v[low:high], self.x[low:high]
+
+
+    def to(self, device):
+        """Move data set to device"""
+        self.u = self.u.to(device)
+        self.v = self.v.to(device)
+        self.x = self.x.to(device)
     
 
 class SineWaves(DataSet):

@@ -1,4 +1,14 @@
 import torch
+from time import time
+
+device = torch.device("cpu")
+
+# if torch.backends.mps.is_available():
+#     device = torch.device("mps")
+# elif torch.cuda.is_available():
+#     device = torch.device("cuda")
+
+print("Device:", device)
 
 
 class ResidualLayer(torch.nn.Module):
@@ -38,17 +48,26 @@ class DeepResidualNetwork(torch.nn.Module):
 
 class TorchModel(torch.nn.Module):
     """Torch model."""
-    
+
     def compile(self, optimizer, criterion):
         """Compile model."""
         self.optimizer = optimizer
         self.criterion = criterion
+
+        # Move to device
+        self.to(device)
+
+        # Print number of model parameters
+        num_params = sum(p.numel() for p in self.parameters())
+        print(f"Model parameters: {num_params}")
     
 
-    def fit(self, dataset, epochs):
+    def fit(self, dataset, epochs, writer=None):
         """Fit model to data set."""
         for epoch in range(epochs+1):
             mean_loss = 0
+
+            start = time()
             for i in range(len(dataset)):
                 u, v, x = dataset[i]
                 self.optimizer.zero_grad()
@@ -57,9 +76,15 @@ class TorchModel(torch.nn.Module):
                 loss.backward()
                 self.optimizer.step()
                 mean_loss += loss.item()
-
+            end = time()
             mean_loss /= len(dataset)
-            print(f'\rEpoch {epoch}:  loss = {mean_loss:.4e}', end='')
+
+            if writer is not None:
+                writer.add_scalar("Loss/train", mean_loss, epoch)
+
+            iter_per_second = len(dataset) / (end - start)
+            print(f"\rEpoch {epoch}:  loss = {mean_loss:.4e}  "
+                  f"({iter_per_second:.2f} it/s)", end='')
         print("")
 
 
@@ -91,11 +116,11 @@ class FullyConnected(TorchModel):
         self.width = width
         self.depth = depth
 
-        input_size = num_sensors * (num_channels + coordinate_dim) \
+        self.input_size = num_sensors * (num_channels + coordinate_dim) \
             + coordinate_dim
         output_size = num_channels
         self.drn = DeepResidualNetwork(
-            input_size,
+            self.input_size,
             output_size,
             self.width,
             self.depth,
@@ -106,15 +131,21 @@ class FullyConnected(TorchModel):
         """Forward pass."""
         batch_size = u.shape[0]
         assert batch_size == x.shape[0]
-        num_sensors = x.shape[1]
+        num_positions = x.shape[1]
+        d = self.coordinate_dim
 
-        v = torch.zeros((batch_size, num_sensors, self.num_channels))
-        for j in range(num_sensors):
-            ux = torch.stack([
-                torch.cat([u[i].flatten(), x[i, j]])
-                for i in range(batch_size)
-            ])
-            v[:, j] = self.drn(ux)
+        ux = torch.empty(
+            (batch_size, num_positions, self.input_size),
+            device=device,
+        )
+
+        for i, u_tensor in enumerate(u):
+            ux[i, :, :-d] = u_tensor.flatten()
+        ux[:, :, -d:] = x
+
+        ux = ux.reshape((batch_size * num_positions, -1))
+        v = self.drn(ux)
+        v = v.reshape((batch_size, num_positions, self.num_channels))
         return v
 
 
@@ -144,6 +175,8 @@ class DeepONet(TorchModel):
             trunk_depth: Depth of trunk network
             basis_functions: Number of basis functions
         """
+        super().__init__()
+
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
         self.num_sensors = num_sensors
@@ -151,8 +184,6 @@ class DeepONet(TorchModel):
 
         branch_input = num_sensors * (num_channels + coordinate_dim)
         trunk_input = coordinate_dim
-
-        super().__init__()
 
         self.branch = DeepResidualNetwork(
             branch_input,

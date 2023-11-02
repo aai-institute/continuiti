@@ -1,55 +1,67 @@
-import os
 import torch
-from datetime import datetime
 import matplotlib.pyplot as plt
 from data import SineWaves
-from plotting import plot_observation, plot_evaluation
-from model import NeuralOperator
+from plotting import *
+from model import FullyConnected, DeepONet, NeuralOperator
 from dadaptation import DAdaptSGD
+from torch.utils.tensorboard import SummaryWriter
 
 # Set random seed
 torch.manual_seed(0)
 
 def main():
     # Size of data set
-    size = 1
+    size = 4
 
     # Create data set
     dataset = SineWaves(32, size, batch_size=1)
 
     # Create model
-    model = NeuralOperator(
+    model = FullyConnected(
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
         num_sensors=dataset.num_sensors,
-        width=32,
-        depth=1,
+        width=128,
+        depth=128,
     )
+    # model = DeepONet(
+    #     coordinate_dim=dataset.coordinate_dim,
+    #     num_channels=dataset.num_channels,
+    #     num_sensors=dataset.num_sensors,
+    #     branch_width=32,
+    #     branch_depth=1,
+    #     trunk_width=32,
+    #     trunk_depth=1,
+    #     basis_functions=32,
+    # )
+    # model = NeuralOperator(
+    #     coordinate_dim=dataset.coordinate_dim,
+    #     num_channels=dataset.num_channels,
+    #     num_sensors=dataset.num_sensors,
+    #     width=32,
+    #     depth=1,
+    # )
 
-    # Create log dir
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = f"./logs/{timestamp}"
-    print(f"Logging to {log_dir}")
-    os.makedirs(log_dir)
-       
     # Load model
     load = False
     if load:
-        model.load_state_dict(torch.load('model_weights.pth'))
+        log_dir = 'runs/<log_dir>'
+        model.load_state_dict(torch.load(f'{log_dir}/model_weights.pth'))
     
     # Train model
-    epochs = 1000
+    epochs = 100
+    writer = SummaryWriter()
 
     train = True
     if train:
         # Setup optimizer and fit model
-        optimizer = DAdaptSGD(model.parameters(), lr=0.1)
+        optimizer = DAdaptSGD(model.parameters(), lr=1)
         criterion = torch.nn.MSELoss()
 
         model.compile(optimizer, criterion)
-        model.fit(dataset, epochs)
+        model.fit(dataset, epochs, writer)
 
-        torch.save(model.state_dict(), 'model_weights.pth')
+        torch.save(model.state_dict(), f'{writer.log_dir}/model_weights.pth')
 
     # Plot
     plot = True
@@ -59,14 +71,14 @@ def main():
             plt.cla()
             plot_evaluation(model, dataset, obs)
             plot_observation(obs)
-            plt.savefig(f"{log_dir}/plot_{i}.png")
+            plot_to_tensorboard(writer, "Plot/train", i)
 
         # Test observation
         obs = dataset._generate_observation(0.5)
         plt.cla()
         plot_evaluation(model, dataset, obs)
         plot_observation(obs)
-        plt.savefig(f"{log_dir}/plot_test.png")
+        plot_to_tensorboard(writer, "Plot/validation")
 
 
 if __name__ == '__main__':
