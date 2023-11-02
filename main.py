@@ -11,36 +11,37 @@ torch.manual_seed(0)
 
 def main():
     # Size of data set
-    size = 4
+    size = 32
 
     # Create data set
     dataset = SineWaves(32, size, batch_size=1)
 
     # Create model
-    model = FullyConnected(
-        coordinate_dim=dataset.coordinate_dim,
-        num_channels=dataset.num_channels,
-        num_sensors=dataset.num_sensors,
-        width=128,
-        depth=128,
-    )
+    # model = FullyConnected(
+    #     coordinate_dim=dataset.coordinate_dim,
+    #     num_channels=dataset.num_channels,
+    #     num_sensors=dataset.num_sensors,
+    #     width=128,
+    #     depth=128,
+    # )
     # model = DeepONet(
     #     coordinate_dim=dataset.coordinate_dim,
     #     num_channels=dataset.num_channels,
     #     num_sensors=dataset.num_sensors,
     #     branch_width=32,
-    #     branch_depth=1,
-    #     trunk_width=32,
-    #     trunk_depth=1,
-    #     basis_functions=32,
+    #     branch_depth=4,
+    #     trunk_width=128,
+    #     trunk_depth=32,
+    #     basis_functions=4,
     # )
-    # model = NeuralOperator(
-    #     coordinate_dim=dataset.coordinate_dim,
-    #     num_channels=dataset.num_channels,
-    #     num_sensors=dataset.num_sensors,
-    #     width=32,
-    #     depth=1,
-    # )
+    model = NeuralOperator(
+        coordinate_dim=dataset.coordinate_dim,
+        num_channels=dataset.num_channels,
+        num_sensors=dataset.num_sensors,
+        layers=4,
+        kernel_width=8,
+        kernel_depth=1,
+    )
 
     # Load model
     load = False
@@ -49,13 +50,14 @@ def main():
         model.load_state_dict(torch.load(f'{log_dir}/model_weights.pth'))
     
     # Train model
-    epochs = 100
+    epochs = 1000
     writer = SummaryWriter()
 
     train = True
     if train:
         # Setup optimizer and fit model
-        optimizer = DAdaptSGD(model.parameters(), lr=1)
+        # optimizer = DAdaptSGD(model.parameters())
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         criterion = torch.nn.MSELoss()
 
         model.compile(optimizer, criterion)

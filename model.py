@@ -219,8 +219,8 @@ class DeepONet(TorchModel):
         return sum
 
 
-class NeuralOperator(TorchModel):
-    """Neural operator architecture."""
+class ContinuousConvolutionLayer(torch.nn.Module):
+    """Continuous convolution layer."""
 
     def __init__(
             self,
@@ -230,7 +230,7 @@ class NeuralOperator(TorchModel):
             width: int,
             depth: int,
         ):
-        """Maps observations and positions to evaluations.
+        """Maps continuous functions via convolution with a trainable kernel to another continuous functions using point-wise evaluations.
         
         Args:
             coordinate_dim: Dimension of coordinate space
@@ -239,12 +239,13 @@ class NeuralOperator(TorchModel):
             width: Width of kernel network
             depth: Depth of kernel network
         """
+        super().__init__()
+
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
         self.num_sensors = num_sensors
 
-        super().__init__()
-        self.kernel = DeepResidualNetwork(1, 1, width, depth)
+        self.kernel = DeepResidualNetwork(self.coordinate_dim, 1, width, depth)
 
 
     def forward(self, yu, x):
@@ -255,8 +256,8 @@ class NeuralOperator(TorchModel):
         x_size = x.shape[1]
         
         # Sensors
-        y = yu[:, :, -self.coordinate_dim:]
-        u = yu[:, :, :-self.coordinate_dim]
+        y = yu[:, :, :-self.coordinate_dim]
+        u = yu[:, :, -self.coordinate_dim:]
         assert y.shape == (batch_size, num_sensors, self.coordinate_dim) 
         assert u.shape == (batch_size, num_sensors, self.num_channels) 
 
@@ -278,6 +279,90 @@ class NeuralOperator(TorchModel):
 
         # Compute integral
         integral = torch.einsum("bsx,bsc->bxc", k, u) / num_sensors
-
+        assert integral.shape == (batch_size, x_size, self.num_channels)
         return integral
+
+
+
+class NeuralOperator(TorchModel):
+    """Neural operator architecture."""
+
+    def __init__(
+            self,
+            coordinate_dim: int,
+            num_channels: int,
+            num_sensors: int,
+            layers: int,
+            kernel_width: int,
+            kernel_depth: int,
+        ):
+        """Maps observations and positions to evaluations.
+        
+        Args:
+            coordinate_dim: Dimension of coordinate space
+            num_channels: Number of channels
+            num_sensors: Number of input sensors
+            layers: Number of layers
+            width: Width of kernel network
+            depth: Depth of kernel network
+        """
+        super().__init__()
+
+        self.coordinate_dim = coordinate_dim
+        self.num_channels = num_channels
+        self.num_sensors = num_sensors
+
+        self.layers = torch.nn.ModuleList([
+            ContinuousConvolutionLayer(
+                coordinate_dim,
+                num_channels,
+                num_sensors,
+                kernel_width,
+                kernel_depth,
+            ) for _ in range(layers)
+        ])
+
+        self.projection = ContinuousConvolutionLayer(
+            coordinate_dim,
+            num_channels,
+            num_sensors,
+            kernel_width,
+            kernel_depth,
+        )
+
+
+    def forward(self, yu, x):
+        """Forward pass."""
+        batch_size = yu.shape[0]
+        assert batch_size == x.shape[0]
+        x_size = x.shape[1]
+
+        sensor_dim = self.coordinate_dim + self.num_channels
+        assert yu.shape == (batch_size, self.num_sensors, sensor_dim)
+
+        # First input is u
+        yv = yu
+
+        # Sensors positions are equal across all layers
+        y = yv[:, :, :-self.coordinate_dim]
+
+        # Initial value
+        v = yv[:, :, -self.coordinate_dim:]
+
+        # Layers
+        for layer in self.layers:
+            # Layer operation (with residual connection)
+            v = layer(yv, y) + v
+            assert v.shape == (batch_size, self.num_sensors, self.num_channels)
+
+            # Activation
+            v = torch.tanh(v)
+
+            yv = torch.cat((y, v), axis=-1)
+            assert yv.shape == (batch_size, self.num_sensors, sensor_dim)
+
+        # Projection layer
+        w = self.projection(yv, x)
+        assert w.shape == (batch_size, x_size, self.num_channels)
+        return w
 
