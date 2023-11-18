@@ -13,6 +13,7 @@ print("Device:", device)
 
 class ResidualLayer(torch.nn.Module):
     """Residual layer."""
+
     def __init__(self, width: int):
         super().__init__()
         self.layer = torch.nn.Linear(width, width)
@@ -24,19 +25,20 @@ class ResidualLayer(torch.nn.Module):
 
 class DeepResidualNetwork(torch.nn.Module):
     """Deep residual network."""
+
     def __init__(
-            self,
-            input_size: int,
-            output_size: int,
-            width: int,
-            depth: int,
-        ):
+        self,
+        input_size: int,
+        output_size: int,
+        width: int,
+        depth: int,
+    ):
         super().__init__()
 
         self.first_layer = torch.nn.Linear(input_size, width)
-        self.hidden_layers = torch.nn.ModuleList([
-            ResidualLayer(width) for _ in range(depth)
-        ])
+        self.hidden_layers = torch.nn.ModuleList(
+            [ResidualLayer(width) for _ in range(depth)]
+        )
         self.last_layer = torch.nn.Linear(width, output_size)
 
     def forward(self, x):
@@ -60,23 +62,24 @@ class TorchModel(torch.nn.Module):
         # Print number of model parameters
         num_params = sum(p.numel() for p in self.parameters())
         print(f"Model parameters: {num_params}")
-    
 
     def fit(self, dataset, epochs, writer=None):
         """Fit model to data set."""
-        for epoch in range(epochs+1):
+        for epoch in range(epochs + 1):
             mean_loss = 0
 
             start = time()
             for i in range(len(dataset)):
                 u, v, x = dataset[i]
-                def closure():
+
+                def closure(u=u, v=v, x=x):
                     self.optimizer.zero_grad()
                     loss = self.criterion(self(u, x), v)
                     loss.backward()
                     return loss
+
                 self.optimizer.step(closure)
-                self.optimizer.param_groups[0]['lr'] *= 0.999
+                self.optimizer.param_groups[0]["lr"] *= 0.999
                 mean_loss += self.criterion(self(u, x), v).item()
             end = time()
             mean_loss /= len(dataset)
@@ -85,8 +88,11 @@ class TorchModel(torch.nn.Module):
                 writer.add_scalar("Loss/train", mean_loss, epoch)
 
             iter_per_second = len(dataset) / (end - start)
-            print(f"\rEpoch {epoch}:  loss = {mean_loss:.4e}  "
-                  f"({iter_per_second:.2f} it/s)", end='')
+            print(
+                f"\rEpoch {epoch}:  loss = {mean_loss:.4e}  "
+                f"({iter_per_second:.2f} it/s)",
+                end="",
+            )
         print("")
 
 
@@ -94,15 +100,15 @@ class FullyConnected(TorchModel):
     """Fully connected architecture."""
 
     def __init__(
-            self,
-            coordinate_dim: int,
-            num_channels: int,
-            num_sensors: int,
-            width: int,
-            depth: int,
-        ):
+        self,
+        coordinate_dim: int,
+        num_channels: int,
+        num_sensors: int,
+        width: int,
+        depth: int,
+    ):
         """Maps observations and positions to evaluations.
-        
+
         Args:
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
@@ -118,8 +124,7 @@ class FullyConnected(TorchModel):
         self.width = width
         self.depth = depth
 
-        self.input_size = num_sensors * (num_channels + coordinate_dim) \
-            + coordinate_dim
+        self.input_size = num_sensors * (num_channels + coordinate_dim) + coordinate_dim
         output_size = num_channels
         self.drn = DeepResidualNetwork(
             self.input_size,
@@ -127,7 +132,6 @@ class FullyConnected(TorchModel):
             self.width,
             self.depth,
         )
-
 
     def forward(self, u, x):
         """Forward pass."""
@@ -155,18 +159,18 @@ class DeepONet(TorchModel):
     """DeepONet architecture."""
 
     def __init__(
-            self,
-            coordinate_dim: int,
-            num_channels: int,
-            num_sensors: int,
-            branch_width: int,
-            branch_depth: int,
-            trunk_width: int,
-            trunk_depth: int,
-            basis_functions: int,
-        ):
+        self,
+        coordinate_dim: int,
+        num_channels: int,
+        num_sensors: int,
+        branch_width: int,
+        branch_depth: int,
+        trunk_width: int,
+        trunk_depth: int,
+        basis_functions: int,
+    ):
         """A model maps observations to evaluations.
-        
+
         Args:
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
@@ -201,7 +205,6 @@ class DeepONet(TorchModel):
             trunk_depth,
         )
 
-
     def forward(self, u, x):
         """Forward pass."""
         batch_size_u = u.shape[0]
@@ -214,7 +217,9 @@ class DeepONet(TorchModel):
         t = self.trunk(x)
 
         b = b.reshape((batch_size_u, self.basis_functions, self.num_channels))
-        t = t.reshape((batch_size_u, batch_size_x, self.basis_functions, self.num_channels))
+        t = t.reshape(
+            (batch_size_u, batch_size_x, self.basis_functions, self.num_channels)
+        )
 
         sum = torch.einsum("ubc,uxbc->uxc", b, t)
         assert sum.shape == (batch_size_u, batch_size_x, self.num_channels)
@@ -225,14 +230,14 @@ class ContinuousConvolutionLayer(torch.nn.Module):
     """Continuous convolution layer."""
 
     def __init__(
-            self,
-            coordinate_dim: int,
-            num_channels: int,
-            width: int,
-            depth: int,
-        ):
+        self,
+        coordinate_dim: int,
+        num_channels: int,
+        width: int,
+        depth: int,
+    ):
         """Maps continuous functions via convolution with a trainable kernel to another continuous functions using point-wise evaluations.
-        
+
         Args:
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
@@ -246,7 +251,6 @@ class ContinuousConvolutionLayer(torch.nn.Module):
 
         self.kernel = DeepResidualNetwork(1, 1, width, depth)
 
-
     def forward(self, yu, x):
         """Forward pass."""
         batch_size = yu.shape[0]
@@ -255,17 +259,17 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         x_size = x.shape[1]
 
         # Sensors are (x, u)
-        y = yu[:, :, -self.coordinate_dim:]
-        u = yu[:, :, :-self.coordinate_dim]
-        assert y.shape == (batch_size, num_sensors, self.coordinate_dim) 
-        assert u.shape == (batch_size, num_sensors, self.num_channels) 
+        y = yu[:, :, -self.coordinate_dim :]
+        u = yu[:, :, : -self.coordinate_dim]
+        assert y.shape == (batch_size, num_sensors, self.coordinate_dim)
+        assert u.shape == (batch_size, num_sensors, self.num_channels)
 
         # Compute radial coordinates
         assert x.shape == (batch_size, x_size, self.coordinate_dim)
         x = x.unsqueeze(1)
         y = y.unsqueeze(2)
-        
-        r = torch.sum((x - y)**2, axis=-1)
+
+        r = torch.sum((x - y) ** 2, axis=-1)
         assert r.shape == (batch_size, num_sensors, x_size)
 
         # Flatten to 1D
@@ -283,20 +287,19 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         return integral
 
 
-
 class NeuralOperator(TorchModel):
     """Neural operator architecture."""
 
     def __init__(
-            self,
-            coordinate_dim: int,
-            num_channels: int,
-            depth: int,
-            kernel_width: int,
-            kernel_depth: int,
-        ):
+        self,
+        coordinate_dim: int,
+        num_channels: int,
+        depth: int,
+        kernel_width: int,
+        kernel_depth: int,
+    ):
         """Maps observations and positions to evaluations.
-        
+
         Args:
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
@@ -309,7 +312,6 @@ class NeuralOperator(TorchModel):
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
 
-
         self.lifting = ContinuousConvolutionLayer(
             coordinate_dim,
             num_channels,
@@ -317,14 +319,17 @@ class NeuralOperator(TorchModel):
             kernel_depth,
         )
 
-        self.hidden_layers = torch.nn.ModuleList([
-            ContinuousConvolutionLayer(
-                coordinate_dim,
-                num_channels,
-                kernel_width,
-                kernel_depth,
-            ) for _ in range(depth)
-        ])
+        self.hidden_layers = torch.nn.ModuleList(
+            [
+                ContinuousConvolutionLayer(
+                    coordinate_dim,
+                    num_channels,
+                    kernel_width,
+                    kernel_depth,
+                )
+                for _ in range(depth)
+            ]
+        )
 
         self.projection = ContinuousConvolutionLayer(
             coordinate_dim,
@@ -332,7 +337,6 @@ class NeuralOperator(TorchModel):
             kernel_width,
             kernel_depth,
         )
-
 
     def forward(self, yu, x):
         """Forward pass."""
@@ -345,7 +349,7 @@ class NeuralOperator(TorchModel):
         assert yu.shape == (batch_size, num_sensors, sensor_dim)
 
         # Sensors positions are equal across all layers (for now)
-        y = yu[:, :, -self.coordinate_dim:]
+        y = yu[:, :, -self.coordinate_dim :]
 
         # Lifting layer
         v = self.lifting(yu, y)
@@ -371,4 +375,3 @@ class NeuralOperator(TorchModel):
         w = self.projection(yv, x)
         assert w.shape == (batch_size, x_size, self.num_channels)
         return w
-

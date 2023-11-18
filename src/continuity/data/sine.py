@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from continuity.data.dataset import DataSet, Sensor, Observation
 
 
@@ -15,18 +14,14 @@ class SineWaves(DataSet):
 
         # Generate observations
         observations = [
-            self._generate_observation(i / max(1, self.size-1))
+            self._generate_observation(i / max(1, self.size - 1))
             for i in range(self.size)
         ]
-        
+
         super().__init__(observations, batch_size)
 
     def _generate_observation(self, i: int):
         x = np.linspace(-1, 1, self.num_sensors)
-        u = np.sin((1+i) * np.pi * x)
-        sensors = [
-            Sensor(np.array([x]), np.array([u]))
-            for x, u in zip(x, u)
-        ]
+        u = np.sin((1 + i) * np.pi * x)
+        sensors = [Sensor(np.array([x]), np.array([u])) for x, u in zip(x, u)]
         return Observation(sensors)
-

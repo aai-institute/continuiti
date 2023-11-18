@@ -134,3 +134,6 @@ dmypy.json
 
 # MacOS
 .DS_Store
+
+# Temporary
+runs/

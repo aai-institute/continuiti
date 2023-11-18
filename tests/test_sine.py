@@ -8,7 +8,8 @@ from torch.utils.tensorboard import SummaryWriter
 # Set random seed
 torch.manual_seed(0)
 
-def main():
+
+def test_sine():
     # Size of data set
     size = 4
 
@@ -30,9 +31,9 @@ def main():
     # Load model
     load = False
     if load:
-        log_dir = 'runs/<log_dir>'
-        model.load_state_dict(torch.load(f'{log_dir}/model_weights.pth'))
-    
+        log_dir = "runs/<log_dir>"
+        model.load_state_dict(torch.load(f"{log_dir}/model_weights.pth"))
+
     # Train model
     epochs = 100
     writer = SummaryWriter()
@@ -46,7 +47,7 @@ def main():
         model.compile(optimizer, criterion)
         model.fit(dataset, epochs, writer)
 
-        torch.save(model.state_dict(), f'{writer.log_dir}/model_weights.pth')
+        torch.save(model.state_dict(), f"{writer.log_dir}/model_weights.pth")
 
     # Plot
     plot = True
@@ -66,5 +67,5 @@ def main():
         plot_to_tensorboard(writer, "Plot/validation")
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    test_sine()
