@@ -3,10 +3,10 @@ from time import time
 
 device = torch.device("cpu")
 
-if torch.backends.mps.is_available():
-    device = torch.device("mps")
-elif torch.cuda.is_available():
-    device = torch.device("cuda")
+# if torch.backends.mps.is_available():
+#     device = torch.device("mps")
+# elif torch.cuda.is_available():
+#     device = torch.device("cuda")
 
 print("Device:", device)
 
@@ -70,12 +70,14 @@ class TorchModel(torch.nn.Module):
             start = time()
             for i in range(len(dataset)):
                 u, v, x = dataset[i]
-                self.optimizer.zero_grad()
-                y_pred = self(u, x)
-                loss = self.criterion(y_pred, v)
-                loss.backward()
-                self.optimizer.step()
-                mean_loss += loss.item()
+                def closure():
+                    self.optimizer.zero_grad()
+                    loss = self.criterion(self(u, x), v)
+                    loss.backward()
+                    return loss
+                self.optimizer.step(closure)
+                self.optimizer.param_groups[0]['lr'] *= 0.999
+                mean_loss += self.criterion(self(u, x), v).item()
             end = time()
             mean_loss /= len(dataset)
 
@@ -226,7 +228,6 @@ class ContinuousConvolutionLayer(torch.nn.Module):
             self,
             coordinate_dim: int,
             num_channels: int,
-            num_sensors: int,
             width: int,
             depth: int,
         ):
@@ -235,7 +236,6 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         Args:
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
-            num_sensors: Number of input sensors
             width: Width of kernel network
             depth: Depth of kernel network
         """
@@ -243,7 +243,6 @@ class ContinuousConvolutionLayer(torch.nn.Module):
 
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
-        self.num_sensors = num_sensors
 
         self.kernel = DeepResidualNetwork(1, 1, width, depth)
 
@@ -292,8 +291,7 @@ class NeuralOperator(TorchModel):
             self,
             coordinate_dim: int,
             num_channels: int,
-            num_sensors: int,
-            layers: int,
+            depth: int,
             kernel_width: int,
             kernel_depth: int,
         ):
@@ -302,8 +300,7 @@ class NeuralOperator(TorchModel):
         Args:
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
-            num_sensors: Number of input sensors
-            layers: Number of layers
+            depth: Number of hidden layers
             width: Width of kernel network
             depth: Depth of kernel network
         """
@@ -311,22 +308,27 @@ class NeuralOperator(TorchModel):
 
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
-        self.num_sensors = num_sensors
 
-        self.layers = torch.nn.ModuleList([
+
+        self.lifting = ContinuousConvolutionLayer(
+            coordinate_dim,
+            num_channels,
+            kernel_width,
+            kernel_depth,
+        )
+
+        self.hidden_layers = torch.nn.ModuleList([
             ContinuousConvolutionLayer(
                 coordinate_dim,
                 num_channels,
-                num_sensors,
                 kernel_width,
                 kernel_depth,
-            ) for _ in range(layers)
+            ) for _ in range(depth)
         ])
 
         self.projection = ContinuousConvolutionLayer(
             coordinate_dim,
             num_channels,
-            num_sensors,
             kernel_width,
             kernel_depth,
         )
@@ -337,30 +339,33 @@ class NeuralOperator(TorchModel):
         batch_size = yu.shape[0]
         assert batch_size == x.shape[0]
         x_size = x.shape[1]
+        num_sensors = yu.shape[1]
 
         sensor_dim = self.coordinate_dim + self.num_channels
-        assert yu.shape == (batch_size, self.num_sensors, sensor_dim)
+        assert yu.shape == (batch_size, num_sensors, sensor_dim)
 
-        # First input is u
-        yv = yu
+        # Sensors positions are equal across all layers (for now)
+        y = yu[:, :, -self.coordinate_dim:]
 
-        # Sensors positions are equal across all layers
-        y = yv[:, :, -self.coordinate_dim:]
+        # Lifting layer
+        v = self.lifting(yu, y)
+        assert v.shape == (batch_size, num_sensors, self.num_channels)
 
-        # Initial value
-        v = yv[:, :, :-self.coordinate_dim]
+        # First input to hidden layers is (y, v)
+        yv = torch.cat((y, v), axis=-1)
+        assert yv.shape == (batch_size, num_sensors, sensor_dim)
 
         # Layers
-        for layer in self.layers:
+        for layer in self.hidden_layers:
             # Layer operation (with residual connection)
             v = layer(yv, y) + v
-            assert v.shape == (batch_size, self.num_sensors, self.num_channels)
+            assert v.shape == (batch_size, num_sensors, self.num_channels)
 
             # Activation
             v = torch.tanh(v)
 
             yv = torch.cat((y, v), axis=-1)
-            assert yv.shape == (batch_size, self.num_sensors, sensor_dim)
+            assert yv.shape == (batch_size, num_sensors, sensor_dim)
 
         # Projection layer
         w = self.projection(yv, x)

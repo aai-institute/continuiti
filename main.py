@@ -11,11 +11,11 @@ torch.manual_seed(0)
 
 def main():
     # Size of data set
-    size = 2
+    size = 4
 
     # Create data set
-    # dataset = SineWaves(32, size, batch_size=1)
-    dataset = Flame(size, batch_size=1)
+    dataset = SineWaves(32, size, batch_size=32)
+    # dataset = Flame(size, batch_size=1)
 
     # Create model
     # model = FullyConnected(
@@ -38,10 +38,9 @@ def main():
     model = NeuralOperator(
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
-        num_sensors=dataset.num_sensors,
-        layers=16,
-        kernel_width=32,
-        kernel_depth=4,
+        depth=1,
+        kernel_width=128,
+        kernel_depth=32,
     )
 
     # Load model
@@ -51,13 +50,13 @@ def main():
         model.load_state_dict(torch.load(f'{log_dir}/model_weights.pth'))
     
     # Train model
-    epochs = 1000
+    epochs = 10000
     writer = SummaryWriter()
 
     train = True
     if train:
         # Setup optimizer and fit model
-        # optimizer = DAdaptSGD(model.parameters())
+        # optimizer = DAdaptSGD(model.parameters(), lr=0.1)
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         criterion = torch.nn.MSELoss()
 
