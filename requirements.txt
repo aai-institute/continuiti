@@ -1,3 +1,0 @@
-keras_core==0.1.7
-torch==2.1.0
-dadaptation==3.1
