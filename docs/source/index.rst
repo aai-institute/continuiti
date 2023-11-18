@@ -1,6 +1,10 @@
 Continuity
 ==========
 
+.. image:: _static/logo.png
+  :width: 400
+  :alt: Continuity
+
 Mapping continuous functions with neural networks.
 
 .. toctree::

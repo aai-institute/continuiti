@@ -2,9 +2,8 @@
 
 # Continuity
 
-<a href="https://pytorch.org/get-started/locally/">
-    <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white">
-</a>
+<img alt="Continuity" src="
+https://raw.githubusercontent.com/aai-institute/Continuity/main/docs/docs/source/_static/logo.png">
 
 </div>
 
