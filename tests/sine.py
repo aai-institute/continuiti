@@ -1,9 +1,8 @@
 import torch
 import matplotlib.pyplot as plt
-from data import SineWaves, Flame
-from plotting import *
-from model import FullyConnected, DeepONet, NeuralOperator
-from dadaptation import DAdaptSGD
+from continuity.data.sine import SineWaves
+from continuity.plotting.plotting import *
+from continuity.model.model import NeuralOperator
 from torch.utils.tensorboard import SummaryWriter
 
 # Set random seed
@@ -14,33 +13,18 @@ def main():
     size = 4
 
     # Create data set
-    dataset = SineWaves(32, size, batch_size=32)
-    # dataset = Flame(size, batch_size=1)
+    dataset = SineWaves(
+        num_sensors=32,
+        size=size,
+        batch_size=32,
+    )
 
-    # Create model
-    # model = FullyConnected(
-    #     coordinate_dim=dataset.coordinate_dim,
-    #     num_channels=dataset.num_channels,
-    #     num_sensors=dataset.num_sensors,
-    #     width=128,
-    #     depth=128,
-    # )
-    # model = DeepONet(
-    #     coordinate_dim=dataset.coordinate_dim,
-    #     num_channels=dataset.num_channels,
-    #     num_sensors=dataset.num_sensors,
-    #     branch_width=32,
-    #     branch_depth=4,
-    #     trunk_width=128,
-    #     trunk_depth=32,
-    #     basis_functions=4,
-    # )
     model = NeuralOperator(
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
         depth=1,
-        kernel_width=128,
-        kernel_depth=32,
+        kernel_width=32,
+        kernel_depth=8,
     )
 
     # Load model
@@ -50,13 +34,12 @@ def main():
         model.load_state_dict(torch.load(f'{log_dir}/model_weights.pth'))
     
     # Train model
-    epochs = 10000
+    epochs = 100
     writer = SummaryWriter()
 
     train = True
     if train:
         # Setup optimizer and fit model
-        # optimizer = DAdaptSGD(model.parameters(), lr=0.1)
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         criterion = torch.nn.MSELoss()
 

@@ -4,7 +4,7 @@ from numpy import ndarray
 from typing import List, Optional
 import pandas as pd
 import torch
-from model import device
+from continuity.model.model import device
 
 def tensor(x):
     return torch.tensor(x, dtype=torch.float32)
