@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from continuity.data.sine import SineWaves
 from continuity.plotting.plotting import *
-from continuity.model.model import NeuralOperator
+from continuity.model.neuraloperator import NeuralOperator
 from torch.utils.tensorboard import SummaryWriter
 
 # Set random seed

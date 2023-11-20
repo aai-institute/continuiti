@@ -2,7 +2,7 @@ import math
 from numpy import ndarray
 from typing import List, Optional
 import torch
-from continuity.model.model import device
+from continuity.model import device
 
 
 def tensor(x):
