@@ -1,0 +1,14 @@
+site_name: Continuity
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Documentation: documentation.md
+  - About: about.md
+theme:
+  name: readthedocs
+  locale: "en"
+  logo: img/logo.png
+
+plugins:
+  - search
+  - mkdocstrings

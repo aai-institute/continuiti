@@ -1,9 +1,8 @@
 <div align="center">
 
-# Continuity
+<img alt="Continuity" src="https://raw.githubusercontent.com/aai-institute/Continuity/main/docs/img/logo.png">
 
-<img alt="Continuity" src="
-https://raw.githubusercontent.com/aai-institute/Continuity/main/docs/docs/source/_static/logo.png">
+Mapping continuous functions with neural networks.
 
 </div>
 
