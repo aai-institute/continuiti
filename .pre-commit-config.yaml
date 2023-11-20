@@ -2,7 +2,7 @@ exclude: "^docs/conf.py"
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: check-added-large-files
@@ -20,34 +20,34 @@ repos:
 
   # If you want to avoid flake8 errors due to unused vars or imports:
   - repo: https://github.com/myint/autoflake.git
-    rev: v1.4
+    rev: v2.2.1
     hooks:
       - id: autoflake
         args:
           [--in-place, --remove-all-unused-imports, --remove-unused-variables]
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.11.0
     hooks:
       - id: black
         language_version: python3
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 6.1.0
     hooks:
       - id: flake8
         additional_dependencies: [flake8-bugbear]
-        args: ["--max-line-length=120"]
+        args: ["--max-line-length=80"]
 
   # Jupyter notebook cell output clearing
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.5.0
+    rev: 0.6.0
     hooks:
       - id: nbstripout
 
   # Formatting yaml
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
+    rev: v3.1.0
     hooks:
       - id: prettier
         types: [yaml]
