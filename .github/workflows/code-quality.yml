@@ -8,7 +8,7 @@ on:
 
 jobs:
   code-quality:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -16,6 +16,8 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
 
       - name: Run pre-commits
         uses: pre-commit/action@v3.0.0
