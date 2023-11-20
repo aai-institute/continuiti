@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pinn_benchmark"
+authors = [
+    "Samuel Burbulla <s.burbulla@appliedai-institute.de>",
+]
+description = "Benchmarking the performance of physics-informed neural networks (PINNs)."
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["physics-informed neural networks", "PINN"]
