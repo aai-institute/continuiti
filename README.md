@@ -7,7 +7,7 @@ Mapping continuous functions with neural networks.
 <a href="https://pytorch.org/get-started/locally/">
   <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white">
 </a>
-<a href="https://aai-institute.github.io/Continuity/img/logo.png">
+<a href="https://aai-institute.github.io/Continuity/">
   <img alt="Documentation" src="https://img.shields.io/badge/Documentation-blue">
 </a>
 <a href="https://github.com/aai-institute/Continuity/actions/workflows/test.yml">
