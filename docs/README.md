@@ -1,20 +1,24 @@
+# Documentation
 
 ## Steps to build documentation
 
-1. Build and install package from source.
+1. Install package from source and install dependencies.
 ```bash
-cd ./continuity/
 pip install -e .
-pip install sphinx sphinx_book_theme sphinx_copybutton
+pip install -r docs/requirements.txt
 ```
 
-2. Generate documentation from your docstrings.
+2. Build documentation.
 ```bash
-cd docs/
-sphinx-apidoc -f -o ./source ../src/continuity
+mkdocs build
 ```
-3. Build the documentation
+
+3. Run server.
 ```bash
-make clean && make html
+mkdocs serve
 ```
-4. You can now view your documentation under `docs/build/html/index.html`.
+
+4. View in your browser.
+```bash
+http://127.0.0.1:8000/
+```
