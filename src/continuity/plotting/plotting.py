@@ -2,7 +2,7 @@ import torch
 import io
 import numpy as np
 import matplotlib.pyplot as plt
-from continuity.model.model import device
+from continuity.model import device
 
 
 def plot_observation(observation, ax=None):
