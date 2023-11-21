@@ -1,3 +1,5 @@
+"""Provide base classes for data sets."""
+
 import math
 from numpy import ndarray
 from typing import List, Optional
@@ -46,8 +48,13 @@ class Observation:
         s += ")"
         return s
 
-    def to_tensor(self):
-        """Convert observation to tensor"""
+    def to_tensor(self) -> torch.Tensor:
+        """Convert observation to tensor.
+
+        Returns:
+            Tensor of shape (num_sensors, coordinate_dim + num_channels)
+
+        """
         u = torch.zeros((self.num_sensors, self.coordinate_dim + self.num_channels))
         for i, sensor in enumerate(self.sensors):
             u[i] = torch.concat([tensor(sensor.x), tensor(sensor.u)])
