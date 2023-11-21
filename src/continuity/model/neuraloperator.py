@@ -81,8 +81,8 @@ class NeuralOperator(TorchModel):
             coordinate_dim: Dimension of coordinate space
             num_channels: Number of channels
             depth: Number of hidden layers
-            width: Width of kernel network
-            depth: Depth of kernel network
+            kernel_width: Width of kernel network
+            kernel_depth: Depth of kernel network
         """
         super().__init__()
 

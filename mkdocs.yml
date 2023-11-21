@@ -2,13 +2,30 @@ site_name: Continuity
 nav:
   - Home: index.md
   - Installation: installation.md
-  - Documentation: documentation.md
   - About: about.md
+  - Reference: reference/
+
 theme:
   name: readthedocs
   locale: "en"
   logo: img/logo.png
+  repo: fontawesome/brands/github
+
+repo_url: https://github.com/aai-institute/Continuity
+edit_uri: edit/main/docs/
 
 plugins:
   - search
-  - mkdocstrings
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_source: false
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
