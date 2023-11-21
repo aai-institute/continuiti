@@ -21,18 +21,19 @@ neural networks.
 
 # Quickstart
 
-## Install the Continuity package
-Before using this module, you need to install the project as a package.
-Create a virtual environment (use Python 3.9 on MacOS), activate the environment
-and install the project as a package.
+## Installation
+Before using this module, you need to install the project.
+Create a virtual environment and install the project as editable package.
 ```
 python -m venv venv
 source venv/bin/activate
 pip install -e .
 ```
 
-## Examples
+## Usage
 Up to now, some examples can be found in the `tests` directory.
+See the [documentation](https://aai-institute.github.io/Continuity/) for more
+details.
 
 # Contributing
 If you find a bug or have a feature request, please open an issue on GitHub. If
