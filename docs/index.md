@@ -13,4 +13,4 @@ functions to train the networks based on PDEs, and a variety of benchmarks.
 See [Installation](installation.md) for details on how to install **Continuity**.
 
 ### Reference
-The module documentation can be found in [Reference](/reference/continuity).
+The module documentation can be found in [Reference](reference/continuity/index.md).
