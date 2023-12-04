@@ -1,5 +1,8 @@
-Continuity
-==========
+---
+title: Home
+---
+
+# Continuity
 
 **Continuity** is a Python package for *learning function operators with neural
 networks*.
@@ -9,8 +12,20 @@ learning on functions operators. It implements various neural network
 architectures, including DeepONets or neural operators, physics-informed loss
 functions to train the networks based on PDEs, and a variety of benchmarks.
 
-### Installation
-See [Installation](installation.md) for details on how to install **Continuity**.
 
-### Reference
-The module documentation can be found in [Reference](reference/continuity/index.md).
+::cards:: cols=2
+
+- title: Installation
+  content: Steps to install and requirements
+  url: getting-started/installation.md
+
+- title: Learning Operators
+  content: >
+    Basics of learning function operators with neural networks
+  url: operators/index.md
+
+- title: Browse the API
+  content: Full documentation of the API
+  url: api/continuity/index.md
+
+::/cards::
