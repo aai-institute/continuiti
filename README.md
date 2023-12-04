@@ -2,7 +2,7 @@
 
 <img alt="Continuity" src="https://aai-institute.github.io/Continuity/img/logo.png" width="200">
 
-Mapping continuous functions with neural networks.
+Learning function operators with neural networks.
 
 <a href="https://pytorch.org/get-started/locally/">
   <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white">
@@ -16,8 +16,8 @@ Mapping continuous functions with neural networks.
 </div>
 
 # Description
-Continuity provides a python package for mapping continuous functions with
-neural networks.
+Continuity provides a python package for learning function operators with neural
+networks.
 
 # Quickstart
 
