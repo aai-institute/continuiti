@@ -1,0 +1,5 @@
+# Notebooks
+*.ipynb
+
+# Changelog
+CHANGELOG.md
