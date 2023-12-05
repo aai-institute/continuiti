@@ -60,7 +60,7 @@ def test_sine():
             plot_to_tensorboard(writer, "Plot/train", i)
 
         # Test observation
-        obs = dataset._generate_observation(size)
+        obs = dataset.generate_observation(size)
         plt.cla()
         plot_evaluation(model, dataset, obs)
         plot_observation(obs)
