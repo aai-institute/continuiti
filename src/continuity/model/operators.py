@@ -57,15 +57,22 @@ class DeepResidualNetwork(torch.nn.Module):
 
 
 class ContinuousConvolution(Operator):
-    """Continuous convolution.
+    r"""Continuous convolution.
 
     Maps continuous functions via continuous convolution with a kernel function
     to another continuous functions and returns point-wise evaluations.
 
+    In mathematical terms, for some given $y$, we obtain
+    $$
+    v(y) = \int u(x)~\kappa(x, y)~dx
+        \approx \frac{1}{N} \sum_{i=1}^{N} u_i~\kappa(x_i, y)
+    $$
+    where $(x_i, u_i)$ are the $N$ sensors of the mapped observation.
+
     Args:
         coordinate_dim: Dimension of coordinate space
         num_channels: Number of channels
-        kernel: Kernel function or network (maps R^1 -> R^1)
+        kernel: Kernel function $\kappa$ or network (if $d$ is the coordinate dimension, $\kappa: \R^d \times \R^d \to \R$)
     """
 
     def __init__(
@@ -80,7 +87,7 @@ class ContinuousConvolution(Operator):
         self.num_channels = num_channels
         self.kernel = kernel
 
-    def forward(self, xu, y):
+    def forward(self, xu: Tensor, y: Tensor) -> Tensor:
         """Forward pass through the operator.
 
         Args:
@@ -107,20 +114,18 @@ class ContinuousConvolution(Operator):
 
         # Compute radial coordinates
         assert y.shape == (batch_size, y_size, self.coordinate_dim)
-        x = x.unsqueeze(2)
-        y = y.unsqueeze(1)
 
-        r = torch.sum((y - x) ** 2, axis=-1)
-        assert r.shape == (batch_size, num_sensors, y_size)
-
-        # Flatten to 1D
-        r = r.reshape((-1, 1))
-
-        # Kernel operation
-        k = self.kernel(r)
-
-        # Reshape to 3D
-        k = k.reshape((batch_size, num_sensors, y_size))
+        # Kernel operation (TODO: use tensor operation)
+        k = torch.tensor(
+            [
+                [
+                    [self.kernel(x[b][s], y[b][j]) for j in range(y_size)]
+                    for s in range(num_sensors)
+                ]
+                for b in range(batch_size)
+            ]
+        )
+        assert k.shape == (batch_size, num_sensors, y_size)
 
         # Compute integral
         integral = torch.einsum("bsy,bsc->byc", k, u) / num_sensors

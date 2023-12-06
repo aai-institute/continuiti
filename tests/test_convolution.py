@@ -17,9 +17,14 @@ def test_convolution():
     dataset = Sine(num_sensors, size=1)
     observation = dataset.get_observation(0)
 
-    # Operator
-    dirac = lambda x: torch.isclose(x, torch.zeros(1)).to(torch.float32)
+    # Kernel
+    def dirac(x, y):
+        if torch.norm(x - y) < 1e-6:
+            return 1.0
+        else:
+            return 0.0
 
+    # Operator
     operator = ContinuousConvolution(
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
@@ -48,7 +53,9 @@ def test_convolution():
     fig.savefig(f"test_convolution.png")
 
     # For num_sensors == num_evals, we get v = u / num_sensors.
-    assert num_sensors == num_evals and (v == yu[:, :, -1:] / num_sensors).all()
+    if num_sensors == num_evals:
+        v_expected = yu[:, :, -1:] / num_sensors
+        assert (v == v_expected).all(), f"{v} != {v_expected}"
 
 
 if __name__ == "__main__":
