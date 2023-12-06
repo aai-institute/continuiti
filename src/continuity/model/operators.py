@@ -4,7 +4,14 @@ from continuity.model.networks import DeepResidualNetwork
 from continuity.model.model import BaseModel
 
 
-class FullyConnected(BaseModel):
+class Operator(BaseModel):
+    """Operator base class."""
+
+    def __init__(self):
+        pass
+
+
+class FullyConnected(Operator):
     """Fully connected architecture."""
 
     def __init__(
@@ -63,7 +70,7 @@ class FullyConnected(BaseModel):
         return v
 
 
-class DeepONet(BaseModel):
+class DeepONet(Operator):
     """DeepONet architecture."""
 
     def __init__(
@@ -195,7 +202,7 @@ class ContinuousConvolutionLayer(torch.nn.Module):
         return integral
 
 
-class NeuralOperator(BaseModel):
+class NeuralOperator(Operator):
     """Neural operator architecture."""
 
     def __init__(
