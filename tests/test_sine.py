@@ -1,6 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
-from continuity.data.sine import SineWaves
+from continuity.data.sine import Sine
 from continuity.plotting.plotting import *
 from continuity.model.operators import NeuralOperator
 from torch.utils.tensorboard import SummaryWriter
@@ -14,7 +14,7 @@ def test_sine():
     size = 4
 
     # Create data set
-    dataset = SineWaves(
+    dataset = Sine(
         num_sensors=32,
         size=size,
         batch_size=32,
