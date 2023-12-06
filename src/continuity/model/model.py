@@ -25,7 +25,7 @@ class BaseModel(torch.nn.Module):
 
             start = time()
             for i in range(len(dataset)):
-                u, v, x = dataset[i]
+                u, x, v = dataset[i]
 
                 def closure(u=u, v=v, x=x):
                     self.optimizer.zero_grad()

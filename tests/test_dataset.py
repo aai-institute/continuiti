@@ -12,6 +12,8 @@ def test_dataset():
     # Sensors
     num_sensors = 4
     f = lambda x: x**2
+    num_channels = 1
+    coordinate_dim = 1
 
     sensors = []
     for i in range(num_sensors):
@@ -37,12 +39,16 @@ def test_dataset():
 
     # Test
     for i in range(len(dataset)):
-        u, v, x = dataset[i]
+        u, x, v = dataset[i]
 
-        # Every u equals observation
+        # Every u must equal observation
+        assert u.shape[1] == num_sensors
+        assert u.shape[2] == num_channels + coordinate_dim
         assert (u == observation.to_tensor()).all()
 
-        # Every label must equal f(x)
+        # Every v must equal f(x)
+        assert v.shape[1] == num_channels
+        assert x.shape[1] == coordinate_dim
         assert (v == f(x)).all()
 
 
