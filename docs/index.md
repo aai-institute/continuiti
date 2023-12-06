@@ -2,16 +2,21 @@
 title: Home
 ---
 
-# Continuity
+<div align="center">
 
-**Continuity** is a Python package for *learning function operators with neural
-networks*.
+<img alt="Continuity" src="https://aai-institute.github.io/Continuity/img/icon.png" width="100">
 
-This package is based on PyTorch and provides a general interface for machine
+<h1>Continuity</h1>
+
+Learning function operators with neural networks.
+
+</div>
+
+
+**Continuity** is a Python package for machine
 learning on functions operators. It implements various neural network
 architectures, including DeepONets or neural operators, physics-informed loss
 functions to train the networks based on PDEs, and a variety of benchmarks.
-
 
 ::cards:: cols=2
 
