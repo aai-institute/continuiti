@@ -3,8 +3,8 @@ from time import time
 from continuity.model import device
 
 
-class TorchModel(torch.nn.Module):
-    """Torch model."""
+class BaseModel(torch.nn.Module):
+    """Common pyTorch model base."""
 
     def compile(self, optimizer, criterion):
         """Compile model."""
