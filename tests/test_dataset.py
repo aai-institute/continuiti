@@ -43,7 +43,7 @@ def test_dataset():
 
         # Every u must equal observation
         assert u.shape[1] == num_sensors
-        assert u.shape[2] == num_channels + coordinate_dim
+        assert u.shape[2] == coordinate_dim + num_channels
         assert (u == observation.to_tensor()).all()
 
         # Every v must equal f(x)

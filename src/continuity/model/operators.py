@@ -1,14 +1,131 @@
+"""Various operator (and supporting network) implementations."""
+
 import torch
-from continuity.model import device
-from continuity.model.networks import DeepResidualNetwork
-from continuity.model.model import BaseModel
+from typing import Callable
+from torch import Tensor
+from continuity.model import device, Operator
 
 
-class Operator(BaseModel):
-    """Operator base class."""
+class ResidualLayer(torch.nn.Module):
+    """Residual layer.
 
-    def __init__(self):
-        pass
+    Args:
+        width: Width of the layer.
+    """
+
+    def __init__(self, width: int):
+        super().__init__()
+        self.layer = torch.nn.Linear(width, width)
+        self.act = torch.nn.Tanh()
+
+    def forward(self, x: Tensor):
+        """Forward pass."""
+        return self.act(self.layer(x)) + x
+
+
+class DeepResidualNetwork(torch.nn.Module):
+    """Deep residual network.
+
+    Args:
+        input_size: Size of input tensor
+        output_size: Size of output tensor
+        width: Width of hidden layers
+        depth: Number of hidden layers
+    """
+
+    def __init__(
+        self,
+        input_size: int,
+        output_size: int,
+        width: int,
+        depth: int,
+    ):
+        super().__init__()
+
+        self.first_layer = torch.nn.Linear(input_size, width)
+        self.hidden_layers = torch.nn.ModuleList(
+            [ResidualLayer(width) for _ in range(depth)]
+        )
+        self.last_layer = torch.nn.Linear(width, output_size)
+
+    def forward(self, x):
+        """Forward pass."""
+        x = self.first_layer(x)
+        for layer in self.hidden_layers:
+            x = layer(x)
+        return self.last_layer(x)
+
+
+class ContinuousConvolution(Operator):
+    """Continuous convolution.
+
+    Maps continuous functions via continuous convolution with a kernel function
+    to another continuous functions and returns point-wise evaluations.
+
+    Args:
+        coordinate_dim: Dimension of coordinate space
+        num_channels: Number of channels
+        kernel: Kernel function or network (maps R^1 -> R^1)
+    """
+
+    def __init__(
+        self,
+        coordinate_dim: int,
+        num_channels: int,
+        kernel: Callable[[Tensor], Tensor] | torch.nn.Module,
+    ):
+        super().__init__()
+
+        self.coordinate_dim = coordinate_dim
+        self.num_channels = num_channels
+        self.kernel = kernel
+
+    def forward(self, xu, y):
+        """Forward pass through the operator.
+
+        Args:
+            xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels)
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, x_size, coordinate_dim)
+
+        Returns:
+            Tensor of evaluations of the mapped function of shape (batch_size, x_size, num_channels)
+        """
+        batch_size = xu.shape[0]
+        num_sensors = xu.shape[1]
+        y_size = y.shape[1]
+
+        # Check shapes
+        assert y.shape[0] == batch_size
+        assert y.shape[2] == self.coordinate_dim
+        assert xu.shape[2] == self.coordinate_dim + self.num_channels
+
+        # Sensors are (x, u)
+        x = xu[:, :, : self.coordinate_dim]
+        u = xu[:, :, -self.num_channels :]
+        assert x.shape == (batch_size, num_sensors, self.coordinate_dim)
+        assert u.shape == (batch_size, num_sensors, self.num_channels)
+
+        # Compute radial coordinates
+        assert y.shape == (batch_size, y_size, self.coordinate_dim)
+        x = x.unsqueeze(2)
+        y = y.unsqueeze(1)
+
+        r = torch.sum((y - x) ** 2, axis=-1)
+        assert r.shape == (batch_size, num_sensors, y_size)
+
+        # Flatten to 1D
+        r = r.reshape((-1, 1))
+
+        # Kernel operation
+        k = self.kernel(r)
+
+        # Reshape to 3D
+        k = k.reshape((batch_size, num_sensors, y_size))
+
+        # Compute integral
+        integral = torch.einsum("bsy,bsc->byc", k, u) / num_sensors
+        assert integral.shape == (batch_size, y_size, self.num_channels)
+        return integral
 
 
 class FullyConnected(Operator):
@@ -39,7 +156,7 @@ class FullyConnected(Operator):
         self.width = width
         self.depth = depth
 
-        self.input_size = num_sensors * (num_channels + coordinate_dim) + coordinate_dim
+        self.input_size = num_sensors * (coordinate_dim + num_channels) + coordinate_dim
         output_size = num_channels
         self.drn = DeepResidualNetwork(
             self.input_size,
@@ -103,7 +220,7 @@ class DeepONet(Operator):
         self.num_sensors = num_sensors
         self.basis_functions = basis_functions
 
-        branch_input = num_sensors * (num_channels + coordinate_dim)
+        branch_input = num_sensors * (coordinate_dim + num_channels)
         trunk_input = coordinate_dim
 
         self.branch = DeepResidualNetwork(
@@ -141,67 +258,6 @@ class DeepONet(Operator):
         return sum
 
 
-class ContinuousConvolutionLayer(torch.nn.Module):
-    """Continuous convolution layer."""
-
-    def __init__(
-        self,
-        coordinate_dim: int,
-        num_channels: int,
-        width: int,
-        depth: int,
-    ):
-        """Maps continuous functions via convolution with a trainable kernel to another continuous functions using point-wise evaluations.
-
-        Args:
-            coordinate_dim: Dimension of coordinate space
-            num_channels: Number of channels
-            width: Width of kernel network
-            depth: Depth of kernel network
-        """
-        super().__init__()
-
-        self.coordinate_dim = coordinate_dim
-        self.num_channels = num_channels
-
-        self.kernel = DeepResidualNetwork(1, 1, width, depth)
-
-    def forward(self, yu, x):
-        """Forward pass."""
-        batch_size = yu.shape[0]
-        num_sensors = yu.shape[1]
-        assert batch_size == x.shape[0]
-        x_size = x.shape[1]
-
-        # Sensors are (x, u)
-        y = yu[:, :, -self.coordinate_dim :]
-        u = yu[:, :, : -self.coordinate_dim]
-        assert y.shape == (batch_size, num_sensors, self.coordinate_dim)
-        assert u.shape == (batch_size, num_sensors, self.num_channels)
-
-        # Compute radial coordinates
-        assert x.shape == (batch_size, x_size, self.coordinate_dim)
-        x = x.unsqueeze(1)
-        y = y.unsqueeze(2)
-
-        r = torch.sum((x - y) ** 2, axis=-1)
-        assert r.shape == (batch_size, num_sensors, x_size)
-
-        # Flatten to 1D
-        r = r.reshape((-1, 1))
-
-        # Kernel operation
-        k = self.kernel(r)
-
-        # Reshape to 3D
-        k = k.reshape((batch_size, num_sensors, x_size))
-
-        # Compute integral
-        integral = torch.einsum("bsx,bsc->bxc", k, u) / num_sensors
-        assert integral.shape == (batch_size, x_size, self.num_channels)
-        return integral
-
-
 class NeuralOperator(Operator):
     """Neural operator architecture."""
 
@@ -227,30 +283,27 @@ class NeuralOperator(Operator):
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
 
-        self.lifting = ContinuousConvolutionLayer(
+        self.lifting = ContinuousConvolution(
             coordinate_dim,
             num_channels,
-            kernel_width,
-            kernel_depth,
+            DeepResidualNetwork(1, 1, kernel_width, kernel_depth),
         )
 
         self.hidden_layers = torch.nn.ModuleList(
             [
-                ContinuousConvolutionLayer(
+                ContinuousConvolution(
                     coordinate_dim,
                     num_channels,
-                    kernel_width,
-                    kernel_depth,
+                    DeepResidualNetwork(1, 1, kernel_width, kernel_depth),
                 )
                 for _ in range(depth)
             ]
         )
 
-        self.projection = ContinuousConvolutionLayer(
+        self.projection = ContinuousConvolution(
             coordinate_dim,
             num_channels,
-            kernel_width,
-            kernel_depth,
+            DeepResidualNetwork(1, 1, kernel_width, kernel_depth),
         )
 
     def forward(self, yu, x):

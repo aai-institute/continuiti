@@ -1,5 +1,5 @@
 """
-In continuity, data is given by *observations*. Every observation is a set of
+In Continuity, data is given by *observations*. Every observation is a set of
 function evaluations, so-called *sensors*. Every data set is a set of
 observations, evaluation coordinates and labels.
 """
