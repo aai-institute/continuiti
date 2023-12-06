@@ -1,0 +1,55 @@
+import torch
+import matplotlib.pyplot as plt
+from continuity.data.datasets import Sine
+from continuity.model.operators import ContinuousConvolution
+from continuity.plotting.plotting import *
+
+# Set random seed
+torch.manual_seed(0)
+
+
+def test_convolution():
+    # Parameters
+    num_sensors = 16
+    num_evals = num_sensors
+
+    # Observation
+    dataset = Sine(num_sensors, size=1)
+    observation = dataset.get_observation(0)
+
+    # Operator
+    dirac = lambda x: torch.isclose(x, torch.zeros(1)).to(torch.float32)
+
+    operator = ContinuousConvolution(
+        coordinate_dim=dataset.coordinate_dim,
+        num_channels=dataset.num_channels,
+        kernel=dirac,
+    )
+
+    # Create tensors
+    yu = observation.to_tensor()
+    x = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
+
+    # Turn into batch
+    yu = yu.unsqueeze(0)
+    x = x.unsqueeze(0)
+
+    # Apply operator
+    v = operator(yu, x)
+
+    # Extract batch
+    x = x.squeeze(0)
+    v = v.squeeze(0)
+
+    # Plotting
+    fig, ax = plt.subplots(1, 1)
+    plot_observation(observation, ax=ax)
+    plt.plot(x, v, "o")
+    fig.savefig(f"test_convolution.png")
+
+    # For num_sensors == num_evals, we get v = u / num_sensors.
+    assert num_sensors == num_evals and (v == yu[:, :, -1:] / num_sensors).all()
+
+
+if __name__ == "__main__":
+    test_convolution()
