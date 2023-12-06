@@ -11,9 +11,29 @@ from typing import List, Tuple
 from abc import abstractmethod
 
 
+def get_device():
+    """Get torch device.
+
+    Returns:
+        Device.
+    """
+    device = torch.device("cpu")
+
+    # if torch.backends.mps.is_available():
+    #     device = torch.device("mps")
+
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+
+    return device
+
+
+device = get_device()
+
+
 def tensor(x):
     """Default conversion for tensors."""
-    return torch.tensor(x, dtype=torch.float32)
+    return torch.tensor(x, device=device, dtype=torch.float32)
 
 
 class Sensor:
@@ -79,6 +99,10 @@ class Observation:
         u = torch.zeros((self.num_sensors, self.coordinate_dim + self.num_channels))
         for i, sensor in enumerate(self.sensors):
             u[i] = torch.concat([tensor(sensor.x), tensor(sensor.u)])
+
+        # Move to device
+        u.to(device)
+
         return u
 
 

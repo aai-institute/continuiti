@@ -1,33 +1,10 @@
 """In Continuity, all models for operator learning are based on the `Operator` base class."""
 
-import os
 import torch
 from abc import abstractmethod
-from torch import Tensor
 from time import time
-from continuity.data import DataSet
-
-
-def get_device():
-    """Get torch device.
-
-    Returns:
-        Device.
-    """
-    device = torch.device("cpu")
-
-    # If we are not running on GitHub Actions, we choose MPS or CUDA
-    if os.getenv("GITHUB_ACTIONS") != "true":
-        if torch.backends.mps.is_available():
-            device = torch.device("mps")
-
-        elif torch.cuda.is_available():
-            device = torch.device("cuda")
-
-    return device
-
-
-device = get_device()
+from torch import Tensor
+from continuity.data import device, DataSet
 
 
 class Operator(torch.nn.Module):
