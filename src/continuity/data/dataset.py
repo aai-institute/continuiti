@@ -61,8 +61,8 @@ class Observation:
         return u
 
 
-class DataSet:
-    """DataSet
+class SelfSupervisedDataSet:
+    """SelfSupervisedDataSet
 
     A data set is constructed from a set of observations and exports batches of observations and labels for self-supervised learning.
     """

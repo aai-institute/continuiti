@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
-from continuity.data.dataset import DataSet, Sensor, Observation
+from continuity.data.dataset import SelfSupervisedDataSet, Sensor, Observation
 
 
-class Flame(DataSet):
+class Flame(SelfSupervisedDataSet):
     """Turbulent flow samples from flame dataset"""
 
     def __init__(self, size, batch_size):
