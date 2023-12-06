@@ -59,8 +59,8 @@ class SelfSupervisedDataSet(DataSet):
             u = observation.to_tensor()
 
             for sensor in observation.sensors:
-                x = tensor(sensor.x)
-                v = tensor(sensor.u)
+                x = tensor(sensor.x).unsqueeze(0)
+                v = tensor(sensor.u).unsqueeze(0)
 
                 # Add data point for every sensor
                 self.u.append(u)
