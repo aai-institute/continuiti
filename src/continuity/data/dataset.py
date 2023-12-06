@@ -1,76 +1,28 @@
 """Provide base classes for data sets."""
 
 import math
-from numpy import ndarray
-from typing import List, Optional
 import torch
+from typing import List, Tuple
 from continuity.model import device
-
-
-def tensor(x):
-    return torch.tensor(x, dtype=torch.float32)
-
-
-class Sensor:
-    """Sensor
-
-    A sensor is tuple (x, u).
-    """
-
-    def __init__(self, x: ndarray, u: ndarray):
-        self.x = x
-        self.u = u
-
-        self.coordinate_dim = x.shape[0]
-        self.num_channels = u.shape[0]
-
-    def __str__(self):
-        return f"Sensor(x={self.x}, u={self.u})"
-
-
-class Observation:
-    """Observation
-
-    An observation is a list of N sensors.
-    """
-
-    def __init__(self, sensors: List[Optional[Sensor]]):
-        self.sensors = sensors
-        self.num_sensors = len(sensors)
-        assert self.num_sensors > 0
-        self.coordinate_dim = self.sensors[0].coordinate_dim
-        self.num_channels = self.sensors[0].num_channels
-
-    def __str__(self):
-        s = "Observation(sensors=\n"
-        for sensor in self.sensors:
-            s += f"  {sensor}, \n"
-        s += ")"
-        return s
-
-    def to_tensor(self) -> torch.Tensor:
-        """Convert observation to tensor.
-
-        Returns:
-            Tensor of shape (num_sensors, coordinate_dim + num_channels)
-
-        """
-        u = torch.zeros((self.num_sensors, self.coordinate_dim + self.num_channels))
-        for i, sensor in enumerate(self.sensors):
-            u[i] = torch.concat([tensor(sensor.x), tensor(sensor.u)])
-        return u
+from continuity.data import tensor, Observation
 
 
 class SelfSupervisedDataSet:
     """SelfSupervisedDataSet
 
-    A data set is constructed from a set of observations and exports batches of observations and labels for self-supervised learning.
+    A self-supervised data set is constructed from a set of observations and
+    exports batches of observations and labels for self-supervised learning.
+    Every data point is created by taking one observation as label.
+
+    It returns data points as tuple (u, v, x), where u is a tensor of the
+    observation, v is the label and x the label's coordinate.
     """
 
     def __init__(
         self,
         observations: List[Observation],
         batch_size: int,
+        randomize: bool = True,
     ):
         self.observations = observations
         self.batch_size = batch_size
@@ -78,6 +30,18 @@ class SelfSupervisedDataSet:
         num_sensors = observations[0].num_sensors
         coordinate_dim = observations[0].sensors[0].coordinate_dim
         num_channels = observations[0].sensors[0].num_channels
+
+        # Check consistency across observations
+        for observation in self.observations:
+            assert (
+                observation.num_sensors == num_sensors
+            ), "Inconsistent number of sensors."
+            assert (
+                observation.coordinate_dim == coordinate_dim
+            ), "Inconsistent coordinate dimension."
+            assert (
+                observation.num_channels == num_channels
+            ), "Inconsistent number of channels."
 
         self.u = []
         self.v = []
@@ -92,19 +56,20 @@ class SelfSupervisedDataSet:
                 v[i] = tensor(sensor.u)  # v = u
                 x[i] = tensor(sensor.x)  # y = x
 
-            self.u.append(u)
-            self.v.append(v)
-            self.x.append(x)
+                # Add data point for every sensor
+                self.u.append(u)
+                self.v.append(v)
+                self.x.append(x)
 
         self.u = torch.stack(self.u)
         self.v = torch.stack(self.v)
         self.x = torch.stack(self.x)
 
-        # Randomize
-        idx = torch.randperm(len(self.u))
-        self.u = self.u[idx]
-        self.v = self.v[idx]
-        self.x = self.x[idx]
+        if randomize:
+            idx = torch.randperm(len(self.u))
+            self.u = self.u[idx]
+            self.v = self.v[idx]
+            self.x = self.x[idx]
 
         # Move to device
         self.to(device=device)
@@ -117,7 +82,7 @@ class SelfSupervisedDataSet:
         """Return number of batches"""
         return math.ceil(len(self.x) / self.batch_size)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> Tuple[tensor, tensor, tensor]:
         """Return batch of observations"""
         low = idx * self.batch_size
         high = min(low + self.batch_size, len(self.x))
