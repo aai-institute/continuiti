@@ -1,8 +1,14 @@
-"""In continuity, data is given by observations. Every observation is a set of function evaluations, so-called sensors."""
+"""
+In continuity, data is given by *observations*. Every observation is a set of
+function evaluations, so-called *sensors*. Every data set is a set of
+observations, evaluation coordinates and labels.
+"""
 
 import torch
+from torch import Tensor
 from numpy import ndarray
-from typing import List
+from typing import List, Tuple
+from abc import abstractmethod
 
 
 def tensor(x):
@@ -74,3 +80,27 @@ class Observation:
         for i, sensor in enumerate(self.sensors):
             u[i] = torch.concat([tensor(sensor.x), tensor(sensor.u)])
         return u
+
+
+class DataSet:
+    """Data set base class."""
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Return number of batches.
+
+        Returns:
+            Number of batches.
+        """
+
+    @abstractmethod
+    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor]:
+        """Return i-th batch as a tuple `(u, x, v)` with tensors for
+        observations `u`, coordinates `x` and labels `v`.
+
+        Args:
+            i: Index of batch.
+
+        Returns:
+            Batch tuple `(u, x, v)`.
+        """
