@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from continuity.data import Sensor, Observation
 from continuity.data.datasets import SelfSupervisedDataSet
-from continuity.plotting.plotting import plot_observation
+from continuity.plotting import plot_observation
 
 # Set random seed
 torch.manual_seed(0)

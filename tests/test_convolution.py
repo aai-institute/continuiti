@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from continuity.data.datasets import Sine
 from continuity.model.operators import ContinuousConvolution
-from continuity.plotting.plotting import plot_observation
+from continuity.plotting import plot_observation
 
 # Set random seed
 torch.manual_seed(0)
