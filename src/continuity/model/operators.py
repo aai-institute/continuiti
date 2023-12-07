@@ -1,7 +1,7 @@
 """Various operator (and supporting network) implementations."""
 
 import torch
-from typing import Callable
+from typing import Callable, Union
 from torch import Tensor
 from continuity.model import device, Operator
 
@@ -79,7 +79,7 @@ class ContinuousConvolution(Operator):
         self,
         coordinate_dim: int,
         num_channels: int,
-        kernel: Callable[[Tensor], Tensor] | torch.nn.Module,
+        kernel: Union[Callable[[Tensor], Tensor], torch.nn.Module],
     ):
         super().__init__()
 
