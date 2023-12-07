@@ -29,10 +29,10 @@ def plot_evaluation(model, observation, ax=None):
 
     if dim == 1:
         n = 200
-        x = torch.linspace(-1, 1, n, device=device).reshape(1, -1, 1)
-        u = observation.to_tensor().unsqueeze(0).to(device)
-        v = model(u, x).detach()
-        ax.plot(x.cpu().flatten(), v.cpu().flatten(), "k-")
+        y = torch.linspace(-1, 1, n, device=device).reshape(1, -1, 1)
+        xu = observation.to_tensor().unsqueeze(0).to(device)
+        v = model(xu, y).detach()
+        ax.plot(y.cpu().flatten(), v.cpu().flatten(), "k-")
 
     if dim == 2:
         n = 128
