@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 from torch import Tensor
 from typing import List, Tuple
-from continuity.model import device
-from continuity.data import tensor, Sensor, Observation, DataSet
+from continuity.data import device, tensor, Sensor, Observation, DataSet
 
 
 class SelfSupervisedDataSet(DataSet):

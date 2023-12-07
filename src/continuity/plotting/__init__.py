@@ -6,7 +6,7 @@ from typing import Optional
 from matplotlib.axis import Axis
 import matplotlib.pyplot as plt
 from continuity.data import device, Observation
-from continuity.model import Operator
+from continuity.operators import Operator
 
 
 def plot_observation(observation: Observation, ax: Optional[Axis] = None):

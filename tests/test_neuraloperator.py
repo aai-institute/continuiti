@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 from continuity.data.datasets import Sine
-from continuity.model.operators import NeuralOperator
+from continuity.operators import NeuralOperator
 from continuity.plotting import plot_observation, plot_evaluation
 
 # Set random seed
