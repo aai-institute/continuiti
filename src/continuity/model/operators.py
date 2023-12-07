@@ -113,17 +113,11 @@ class ContinuousConvolution(Operator):
         assert u.shape == (batch_size, num_sensors, self.num_channels)
         assert y.shape == (batch_size, y_size, self.coordinate_dim)
 
-        # Expand dimensions to [batch_size * num_sensors * y_size, coordinate_dim]
-        x_expanded = x.reshape(batch_size * num_sensors, self.coordinate_dim).repeat(
-            y_size, 1
-        )
-        y_expanded = y.reshape(
-            batch_size * y_size, self.coordinate_dim
-        ).repeat_interleave(num_sensors, dim=0)
-
         # Apply the kernel function
+        x_expanded = x.unsqueeze(2)
+        y_expanded = y.unsqueeze(1)
         k = self.kernel(x_expanded, y_expanded)
-        k = k.reshape(batch_size, num_sensors, y_size)
+        assert k.shape == (batch_size, num_sensors, y_size)
 
         # Compute integral
         integral = torch.einsum("bsy,bsc->byc", k, u) / num_sensors
@@ -254,15 +248,18 @@ class NeuralNetworkKernel(torch.nn.Module):
         """Compute kernel value.
 
         Args:
-            x: Tensor of shape (batch_size, coordinate_dim)
-            y: Tensor of shape (batch_size, coordinate_dim)
+            x: Tensor of shape (..., coordinate_dim)
+            y: Tensor of shape (..., coordinate_dim)
 
         Returns:
-            Tensor of shape (batch_size, 1)
+            Tensor of shape (...)
         """
-        assert x.shape == y.shape
-        r = ((x - y) ** 2).sum(dim=-1).unsqueeze(-1)
-        return self.net(r)
+        r = ((x - y) ** 2).sum(dim=-1)
+        output_shape = r.shape
+        r = r.reshape((-1, 1))
+        k = self.net(r)
+        k = k.reshape(output_shape)
+        return k
 
 
 class NeuralOperator(Operator):

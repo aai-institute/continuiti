@@ -21,11 +21,11 @@ def test_neuraloperator():
         num_channels=dataset.num_channels,
         depth=1,
         kernel_width=32,
-        kernel_depth=1,
+        kernel_depth=3,
     )
 
     # Train self-supervised
-    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
     criterion = torch.nn.MSELoss()
 
     operator.compile(optimizer, criterion)
