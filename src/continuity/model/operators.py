@@ -92,10 +92,10 @@ class ContinuousConvolution(Operator):
 
         Args:
             xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels)
-            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, x_size, coordinate_dim)
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, x_size, num_channels)
+            Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
         batch_size = xu.shape[0]
         num_sensors = xu.shape[1]
@@ -111,21 +111,19 @@ class ContinuousConvolution(Operator):
         u = xu[:, :, -self.num_channels :]
         assert x.shape == (batch_size, num_sensors, self.coordinate_dim)
         assert u.shape == (batch_size, num_sensors, self.num_channels)
-
-        # Compute radial coordinates
         assert y.shape == (batch_size, y_size, self.coordinate_dim)
 
-        # Kernel operation (TODO: use tensor operation)
-        k = torch.tensor(
-            [
-                [
-                    [self.kernel(x[b][s], y[b][j]) for j in range(y_size)]
-                    for s in range(num_sensors)
-                ]
-                for b in range(batch_size)
-            ]
+        # Expand dimensions to [batch_size * num_sensors * y_size, coordinate_dim]
+        x_expanded = x.reshape(batch_size * num_sensors, self.coordinate_dim).repeat(
+            y_size, 1
         )
-        assert k.shape == (batch_size, num_sensors, y_size)
+        y_expanded = y.reshape(
+            batch_size * y_size, self.coordinate_dim
+        ).repeat_interleave(num_sensors, dim=0)
+
+        # Apply the kernel function
+        k = self.kernel(x_expanded, y_expanded)
+        k = k.reshape(batch_size, num_sensors, y_size)
 
         # Compute integral
         integral = torch.einsum("bsy,bsc->byc", k, u) / num_sensors
@@ -198,10 +196,10 @@ class DeepONet(Operator):
 
         Args:
             xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels). Note that positions are ignored!
-            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, x_size, coordinate_dim)
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, x_size, num_channels)
+            Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
         batch_size = xu.shape[0]
         y_size = y.shape[1]
@@ -231,8 +229,160 @@ class DeepONet(Operator):
         return sum
 
 
+class NeuralNetworkKernel(torch.nn.Module):
+    """Neural network kernel.
+
+    Args:
+        kernel_width: Width of kernel network
+        kernel_depth: Depth of kernel network
+    """
+
+    def __init__(
+        self,
+        kernel_width: int,
+        kernel_depth: int,
+    ):
+        super().__init__()
+        self.net = DeepResidualNetwork(
+            1,
+            1,
+            kernel_width,
+            kernel_depth,
+        )
+
+    def forward(self, x: Tensor, y: Tensor) -> Tensor:
+        """Compute kernel value.
+
+        Args:
+            x: Tensor of shape (batch_size, coordinate_dim)
+            y: Tensor of shape (batch_size, coordinate_dim)
+
+        Returns:
+            Tensor of shape (batch_size, 1)
+        """
+        assert x.shape == y.shape
+        r = ((x - y) ** 2).sum(dim=-1).unsqueeze(-1)
+        return self.net(r)
+
+
+class NeuralOperator(Operator):
+    r"""Neural operator architecture
+
+    Maps continuous functions given as observation to another continuous
+    functions and returns point-wise evaluations. The architecture is a
+    stack of continuous convolutions with a lifting layer and a projection
+    layer.
+
+    *Reference:* N. Kovachki et al. Neural Operator: Learning Maps Between
+    Function Spaces With Applications to PDEs. JMLR 24 1-97 (2023)
+
+    For now, sensors positions are equal across all layers.
+
+    Args:
+        coordinate_dim: Dimension of coordinate space
+        num_channels: Number of channels
+        depth: Number of hidden layers
+        kernel_width: Width of kernel network
+        kernel_depth: Depth of kernel network
+    """
+
+    def __init__(
+        self,
+        coordinate_dim: int,
+        num_channels: int,
+        depth: int,
+        kernel_width: int,
+        kernel_depth: int,
+    ):
+        super().__init__()
+
+        self.coordinate_dim = coordinate_dim
+        self.num_channels = num_channels
+
+        self.lifting = ContinuousConvolution(
+            coordinate_dim,
+            num_channels,
+            NeuralNetworkKernel(kernel_width, kernel_depth),
+        )
+
+        self.hidden_layers = torch.nn.ModuleList(
+            [
+                ContinuousConvolution(
+                    coordinate_dim,
+                    num_channels,
+                    NeuralNetworkKernel(kernel_width, kernel_depth),
+                )
+                for _ in range(depth)
+            ]
+        )
+
+        self.projection = ContinuousConvolution(
+            coordinate_dim,
+            num_channels,
+            NeuralNetworkKernel(kernel_width, kernel_depth),
+        )
+
+    def forward(self, xu: Tensor, y: Tensor) -> Tensor:
+        """Forward pass through the operator.
+
+        Args:
+            xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels).
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
+
+        Returns:
+            Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
+        """
+        batch_size = xu.shape[0]
+        assert batch_size == y.shape[0]
+        y_size = y.shape[1]
+        num_sensors = xu.shape[1]
+
+        sensor_dim = self.coordinate_dim + self.num_channels
+        assert xu.shape == (batch_size, num_sensors, sensor_dim)
+
+        # Sensors positions are equal across all layers (for now)
+        x = xu[:, :, : self.coordinate_dim]
+
+        # Lifting layer
+        v = self.lifting(xu, x)
+        assert v.shape == (batch_size, num_sensors, self.num_channels)
+
+        # First input to hidden layers is (x, v)
+        xv = torch.cat((x, v), axis=-1)
+        assert xv.shape == (batch_size, num_sensors, sensor_dim)
+
+        # Hidden layers
+        for layer in self.hidden_layers:
+            # Layer operation (with residual connection)
+            v = layer(xv, x) + v
+            assert v.shape == (batch_size, num_sensors, self.num_channels)
+
+            # Activation
+            v = torch.tanh(v)
+
+            xv = torch.cat((x, v), axis=-1)
+            assert xv.shape == (batch_size, num_sensors, sensor_dim)
+
+        # Projection layer
+        w = self.projection(xv, y)
+        assert w.shape == (batch_size, y_size, self.num_channels)
+        return w
+
+
 class FullyConnected(Operator):
-    """Fully connected architecture."""
+    r"""Fully connected architecture.
+
+    Maps continuous functions given as observation to another continuous
+    functions and returns point-wise evaluations. The architecture is a
+    trivial fully connected network.
+
+    Args:
+        coordinate_dim: Dimension of coordinate space
+        num_channels: Number of channels
+        num_sensors: Number of sensors
+        width: Width of network
+        depth: Depth of network
+    """
 
     def __init__(
         self,
@@ -242,15 +392,6 @@ class FullyConnected(Operator):
         width: int,
         depth: int,
     ):
-        """Maps observations and positions to evaluations.
-
-        Args:
-            coordinate_dim: Dimension of coordinate space
-            num_channels: Number of channels
-            num_sensors: Number of input sensors
-            width: Width of network
-            depth: Depth of network
-        """
         super().__init__()
 
         self.coordinate_dim = coordinate_dim
@@ -268,110 +409,31 @@ class FullyConnected(Operator):
             self.depth,
         )
 
-    def forward(self, u, x):
-        """Forward pass."""
-        batch_size = u.shape[0]
-        assert batch_size == x.shape[0]
-        num_positions = x.shape[1]
+    def forward(self, xu, y):
+        """Forward pass through the operator.
+
+        Args:
+            xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels).
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
+
+        Returns:
+            Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
+        """
+        batch_size = xu.shape[0]
+        assert batch_size == y.shape[0]
+        y_size = y.shape[1]
         d = self.coordinate_dim
 
         ux = torch.empty(
-            (batch_size, num_positions, self.input_size),
+            (batch_size, y_size, self.input_size),
             device=device,
         )
 
-        for i, u_tensor in enumerate(u):
+        for i, u_tensor in enumerate(xu):
             ux[i, :, :-d] = u_tensor.flatten()
-        ux[:, :, -d:] = x
+        ux[:, :, -d:] = y
 
-        ux = ux.reshape((batch_size * num_positions, -1))
+        ux = ux.reshape((batch_size * y_size, -1))
         v = self.drn(ux)
-        v = v.reshape((batch_size, num_positions, self.num_channels))
+        v = v.reshape((batch_size, y_size, self.num_channels))
         return v
-
-
-class NeuralOperator(Operator):
-    """Neural operator architecture."""
-
-    def __init__(
-        self,
-        coordinate_dim: int,
-        num_channels: int,
-        depth: int,
-        kernel_width: int,
-        kernel_depth: int,
-    ):
-        """Maps observations and positions to evaluations.
-
-        Args:
-            coordinate_dim: Dimension of coordinate space
-            num_channels: Number of channels
-            depth: Number of hidden layers
-            kernel_width: Width of kernel network
-            kernel_depth: Depth of kernel network
-        """
-        super().__init__()
-
-        self.coordinate_dim = coordinate_dim
-        self.num_channels = num_channels
-
-        self.lifting = ContinuousConvolution(
-            coordinate_dim,
-            num_channels,
-            DeepResidualNetwork(1, 1, kernel_width, kernel_depth),
-        )
-
-        self.hidden_layers = torch.nn.ModuleList(
-            [
-                ContinuousConvolution(
-                    coordinate_dim,
-                    num_channels,
-                    DeepResidualNetwork(1, 1, kernel_width, kernel_depth),
-                )
-                for _ in range(depth)
-            ]
-        )
-
-        self.projection = ContinuousConvolution(
-            coordinate_dim,
-            num_channels,
-            DeepResidualNetwork(1, 1, kernel_width, kernel_depth),
-        )
-
-    def forward(self, yu, x):
-        """Forward pass."""
-        batch_size = yu.shape[0]
-        assert batch_size == x.shape[0]
-        x_size = x.shape[1]
-        num_sensors = yu.shape[1]
-
-        sensor_dim = self.coordinate_dim + self.num_channels
-        assert yu.shape == (batch_size, num_sensors, sensor_dim)
-
-        # Sensors positions are equal across all layers (for now)
-        y = yu[:, :, -self.coordinate_dim :]
-
-        # Lifting layer
-        v = self.lifting(yu, y)
-        assert v.shape == (batch_size, num_sensors, self.num_channels)
-
-        # First input to hidden layers is (y, v)
-        yv = torch.cat((y, v), axis=-1)
-        assert yv.shape == (batch_size, num_sensors, sensor_dim)
-
-        # Layers
-        for layer in self.hidden_layers:
-            # Layer operation (with residual connection)
-            v = layer(yv, y) + v
-            assert v.shape == (batch_size, num_sensors, self.num_channels)
-
-            # Activation
-            v = torch.tanh(v)
-
-            yv = torch.cat((y, v), axis=-1)
-            assert yv.shape == (batch_size, num_sensors, sensor_dim)
-
-        # Projection layer
-        w = self.projection(yv, x)
-        assert w.shape == (batch_size, x_size, self.num_channels)
-        return w

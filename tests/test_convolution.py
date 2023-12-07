@@ -19,10 +19,8 @@ def test_convolution():
 
     # Kernel
     def dirac(x, y):
-        if torch.norm(x - y) < 1e-6:
-            return 1.0
-        else:
-            return 0.0
+        dist = ((x - y) ** 2).sum(dim=-1)
+        return torch.isclose(dist, torch.zeros(1)).to(torch.float32)
 
     # Operator
     operator = ContinuousConvolution(
