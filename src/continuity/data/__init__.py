@@ -11,7 +11,7 @@ from typing import List, Tuple
 from abc import abstractmethod
 
 
-def get_device():
+def get_device() -> torch.device:
     """Get torch device.
 
     Returns:

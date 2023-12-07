@@ -3,7 +3,10 @@
 import torch
 from abc import abstractmethod
 from time import time
+from typing import Optional
 from torch import Tensor
+from torch.utils.tensorboard import SummaryWriter
+from torch.nn.modules.loss import _Loss as Loss
 from continuity.data import device, DataSet
 
 
@@ -28,7 +31,7 @@ class Operator(torch.nn.Module):
             Tensor of evaluations of the mapped function of shape (batch_size, x_size, num_channels)
         """
 
-    def compile(self, optimizer, criterion):
+    def compile(self, optimizer: torch.optim.Optimizer, criterion: Loss):
         """Compile operator.
 
         Args:
@@ -45,7 +48,9 @@ class Operator(torch.nn.Module):
         num_params = sum(p.numel() for p in self.parameters())
         print(f"Model parameters: {num_params}")
 
-    def fit(self, dataset: DataSet, epochs: int, writer=None):
+    def fit(
+        self, dataset: DataSet, epochs: int, writer: Optional[SummaryWriter] = None
+    ):
         """Fit operator to data set.
 
         Args:

@@ -193,7 +193,7 @@ class DeepONet(Operator):
             trunk_depth,
         )
 
-    def forward(self, xu, y):
+    def forward(self, xu: Tensor, y: Tensor) -> Tensor:
         """Forward pass through the operator.
 
         Args:

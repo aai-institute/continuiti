@@ -116,7 +116,7 @@ class SelfSupervisedDataSet(DataSet):
         high = min(low + self.batch_size, len(self.x))
         return self.u[low:high], self.x[low:high], self.v[low:high]
 
-    def to(self, device):
+    def to(self, device: torch.device):
         """Move data set to device.
 
         Args:
