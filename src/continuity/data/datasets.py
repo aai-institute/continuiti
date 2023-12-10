@@ -16,8 +16,8 @@ class SelfSupervisedDataSet(DataSet):
     self-supervised learning. Every data point is created by taking one
     sensor as label.
 
-    Every batch consists of tuples `(u, x, v)`, where `u` is the observation
-    tensor, `x` is the label's coordinate and `v` is the label.
+    Every batch consists of tuples `(x, u, y, v)`, where `x is the sensor positions,
+    `u` is the sensor values, `x` is the label's coordinate and `v` is the label.
 
     Args:
         observations: List of observations.
@@ -102,8 +102,8 @@ class SelfSupervisedDataSet(DataSet):
         """
         return math.ceil(len(self.u) / self.batch_size)
 
-    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor]:
-        """Return i-th batch as a tuple `(u, x, v)`, where
+    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        """Return i-th batch as a tuple `(x, u, y, v)`, where
 
         - Sensor positions `x` is a tensor of shape `(batch_size, num_sensors, coordinate_dim)`
         - Sensor values `u` is a tensor of shape `(batch_size, num_sensors, num_channels)`

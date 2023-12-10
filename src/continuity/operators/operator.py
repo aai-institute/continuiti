@@ -20,11 +20,12 @@ class Operator(torch.nn.Module):
     """
 
     @abstractmethod
-    def forward(self, xu: Tensor, y: Tensor) -> Tensor:
+    def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:
         """Forward pass through the operator.
 
         Args:
-            xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels)
+            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
+            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
             y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, x_size, coordinate_dim)
 
         Returns:

@@ -93,9 +93,7 @@ class Observation:
         """Convert observation to tensors.
 
         Returns:
-            Pair of tensors. The first tensor contains sensor positions of
-            shape (num_sensors, coordinate_dim), the second tensor contains
-            the sensor values of shape (num_sensors, num_channels).
+            Two tensors: The first tensor contains sensor positions of shape (num_sensors, coordinate_dim), the second tensor contains the sensor values of shape (num_sensors, num_channels).
         """
         x = torch.zeros((self.num_sensors, self.coordinate_dim))
         u = torch.zeros((self.num_sensors, self.num_channels))
