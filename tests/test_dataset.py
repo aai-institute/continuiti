@@ -40,17 +40,21 @@ def test_dataset():
 
     # Test
     for i in range(len(dataset)):
-        u, x, v = dataset[i]
+        x, u, y, v = dataset[i]
 
-        # Every u must equal observation
+        # Every x, u must equal observation
+        assert x.shape[1] == num_sensors
         assert u.shape[1] == num_sensors
-        assert u.shape[2] == coordinate_dim + num_channels
-        assert (u == observation.to_tensor()).all()
+        assert x.shape[2] == coordinate_dim
+        assert u.shape[2] == num_channels
+        x_target, u_target = observation.to_tensors()
+        assert (x == x_target).all()
+        assert (u == u_target).all()
 
-        # Every v must equal f(x)
+        # Every y, v must equal f(y)
+        assert y.shape[1] == coordinate_dim
         assert v.shape[1] == num_channels
-        assert x.shape[1] == coordinate_dim
-        assert (v == f(x)).all()
+        assert (v == f(y)).all()
 
 
 if __name__ == "__main__":
