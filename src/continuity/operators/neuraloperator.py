@@ -38,28 +38,34 @@ class ContinuousConvolution(Operator):
         self.num_channels = num_channels
         self.kernel = kernel
 
-    def forward(self, xu: Tensor, y: Tensor) -> Tensor:
+    def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:
         """Forward pass through the operator.
 
         Args:
-            xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels)
+            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
+            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
             y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
 
         Returns:
             Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
-        batch_size = xu.shape[0]
-        num_sensors = xu.shape[1]
+        # Unsqueeze if no batch dim
+        if len(u.shape) < 3:
+            batch_size = 1
+            x = x.unsqueeze(0)
+            u = u.unsqueeze(0)
+            y = y.unsqueeze(0)
+
+        # Get batch size etc.
+        batch_size = u.shape[0]
+        num_sensors = u.shape[1]
         y_size = y.shape[1]
 
         # Check shapes
+        assert x.shape[0] == batch_size
         assert y.shape[0] == batch_size
-        assert y.shape[2] == self.coordinate_dim
-        assert xu.shape[2] == self.coordinate_dim + self.num_channels
+        assert x.shape[1] == num_sensors
 
-        # Sensors are (x, u)
-        x = xu[:, :, : self.coordinate_dim]
-        u = xu[:, :, -self.num_channels :]
         assert x.shape == (batch_size, num_sensors, self.coordinate_dim)
         assert u.shape == (batch_size, num_sensors, self.num_channels)
         assert y.shape == (batch_size, y_size, self.coordinate_dim)
