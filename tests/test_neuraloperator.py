@@ -39,10 +39,8 @@ def test_neuraloperator():
     fig.savefig(f"test_neuraloperator.png")
 
     # Check solution
-    xu = observation.to_tensor().unsqueeze(0)
-    x = xu[:, :, :1]
-    u = xu[:, :, -1:]
-    u_predicted = operator(xu, x)
+    x, u = observation.to_tensors()
+    u_predicted = operator(x, u, x).reshape(u.shape)
     assert criterion(u_predicted, u) < 1e-5
 
 
