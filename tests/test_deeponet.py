@@ -17,9 +17,9 @@ def test_deeponet():
 
     # Operator
     operator = DeepONet(
-        coordinate_dim=dataset.coordinate_dim,
-        num_channels=dataset.num_channels,
-        num_sensors=num_sensors,
+        num_sensors,
+        dataset.coordinate_dim,
+        dataset.num_channels,
         branch_width=32,
         branch_depth=1,
         trunk_width=32,
@@ -42,10 +42,8 @@ def test_deeponet():
     fig.savefig(f"test_deeponet.png")
 
     # Check solution
-    xu = observation.to_tensor().unsqueeze(0)
-    x = xu[:, :, :1]
-    u = xu[:, :, -1:]
-    u_predicted = operator(xu, x)
+    x, u = observation.to_tensors()
+    u_predicted = operator(x, u, x).reshape(u.shape)
     assert criterion(u_predicted, u) < 1e-5
 
 

@@ -20,9 +20,9 @@ class DeepONet(Operator):
     that all observations were evaluated at the same positions.
 
     Args:
+        num_sensors: Number of sensors (fixed!)
         coordinate_dim: Dimension of coordinate space
         num_channels: Number of channels
-        num_sensors: Number of sensors (fixed!)
         branch_width: Width of branch network
         branch_depth: Depth of branch network
         trunk_width: Width of trunk network
@@ -32,14 +32,14 @@ class DeepONet(Operator):
 
     def __init__(
         self,
-        coordinate_dim: int,
-        num_channels: int,
         num_sensors: int,
-        branch_width: int,
-        branch_depth: int,
-        trunk_width: int,
-        trunk_depth: int,
-        basis_functions: int,
+        coordinate_dim: int = 1,
+        num_channels: int = 1,
+        branch_width: int = 32,
+        branch_depth: int = 3,
+        trunk_width: int = 32,
+        trunk_depth: int = 3,
+        basis_functions: int = 8,
     ):
         super().__init__()
 
@@ -65,27 +65,35 @@ class DeepONet(Operator):
             trunk_depth,
         )
 
-    def forward(self, xu: Tensor, y: Tensor) -> Tensor:
+    def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:
         """Forward pass through the operator.
 
         Args:
-            xu: Tensor of observations of shape (batch_size, num_sensors, coordinate_dim + num_channels). Note that positions are ignored!
-            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
+            x: Ignored.
+            u: Tensor of sensor values of shape ([batch_size,] num_sensors, [num_channels]). If len(u.shape) < 3, a batch dimension will be added.
+            y: Tensor of coordinates where the mapped function is evaluated of shape ([batch_size,] y_size, [coordinate_dim]). If len(y.shape) < 3, a batch dimension will be added.
 
         Returns:
             Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
-        batch_size = xu.shape[0]
+        # Unsqueeze if no batch dim
+        if len(u.shape) < 3:
+            batch_size = 1
+            u = u.unsqueeze(0)
+            y = y.unsqueeze(0)
+
+        # Get batch size
+        batch_size = u.shape[0]
+
+        # Get number of evaluations
+        assert len(y.shape) >= 2
         y_size = y.shape[1]
 
         # Check shapes
         assert y.shape[0] == batch_size
-        assert y.shape[2] == self.coordinate_dim
-        assert xu.shape[2] == self.coordinate_dim + self.num_channels
-
-        # Sensors are (x, u), but here we only use u
-        u = xu[:, :, -self.num_channels :]
-        assert u.shape == (batch_size, self.num_sensors, self.num_channels)
+        assert u.shape[1] == self.num_sensors
+        if len(u.shape) > 2:
+            assert u.shape[2] == self.coordinate_dim
 
         # Reshape branch and trunk inputs
         u = u.reshape((batch_size, -1))
