@@ -50,30 +50,34 @@ class SelfSupervisedDataSet(DataSet):
                 observation.num_channels == self.num_channels
             ), "Inconsistent number of channels."
 
-        self.u = []
         self.x = []
+        self.u = []
+        self.y = []
         self.v = []
 
         for observation in self.observations:
-            u = observation.to_tensor()
+            x, u = observation.to_tensors()
 
             for sensor in observation.sensors:
-                x = tensor(sensor.x).unsqueeze(0)
+                y = tensor(sensor.x).unsqueeze(0)
                 v = tensor(sensor.u).unsqueeze(0)
 
                 # Add data point for every sensor
-                self.u.append(u)
                 self.x.append(x)
+                self.u.append(u)
+                self.y.append(y)
                 self.v.append(v)
 
-        self.u = torch.stack(self.u)
         self.x = torch.stack(self.x)
+        self.u = torch.stack(self.u)
+        self.y = torch.stack(self.y)
         self.v = torch.stack(self.v)
 
         if shuffle:
             idx = torch.randperm(len(self.u))
-            self.u = self.u[idx]
             self.x = self.x[idx]
+            self.u = self.u[idx]
+            self.y = self.y[idx]
             self.v = self.v[idx]
 
         # Move to device
@@ -96,24 +100,25 @@ class SelfSupervisedDataSet(DataSet):
         Returns:
             Number of batches.
         """
-        return math.ceil(len(self.x) / self.batch_size)
+        return math.ceil(len(self.u) / self.batch_size)
 
     def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor]:
         """Return i-th batch as a tuple `(u, x, v)`, where
 
-        - Observations `u` is a tensor of shape `(batch_size, num_sensors, coordinate_dim + num_channels)`
-        - Coordinates `x` is a tensor of shape `(batch_size, coordinate_dim)`
-        - Labels `v` is a tensor  of shape `(batch_size, num_channels)`
+        - Sensor positions `x` is a tensor of shape `(batch_size, num_sensors, coordinate_dim)`
+        - Sensor values `u` is a tensor of shape `(batch_size, num_sensors, num_channels)`
+        - Evaluation coordinates `y` is a tensor of shape `(batch_size, 1, coordinate_dim)`
+        - Labels `v` is a tensor  of shape `(batch_size, 1, num_channels)`
 
         Args:
             i: Index of batch.
 
         Returns:
-            Batch tuple `(u, x, v)`.
+            Batch tuple `(x, u, y, v)`.
         """
         low = i * self.batch_size
-        high = min(low + self.batch_size, len(self.x))
-        return self.u[low:high], self.x[low:high], self.v[low:high]
+        high = min(low + self.batch_size, len(self.u))
+        return self.x[low:high], self.u[low:high], self.y[low:high], self.v[low:high]
 
     def to(self, device: torch.device):
         """Move data set to device.
@@ -121,9 +126,10 @@ class SelfSupervisedDataSet(DataSet):
         Args:
             device: Torch device dataset is moved to.
         """
-        self.u = self.u.to(device)
-        self.v = self.v.to(device)
         self.x = self.x.to(device)
+        self.u = self.u.to(device)
+        self.y = self.y.to(device)
+        self.v = self.v.to(device)
 
 
 class Sine(SelfSupervisedDataSet):
