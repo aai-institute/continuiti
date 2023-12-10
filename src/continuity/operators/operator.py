@@ -63,17 +63,26 @@ class Operator(torch.nn.Module):
 
             start = time()
             for i in range(len(dataset)):
-                u, x, v = dataset[i]
+                x, u, y, v = dataset[i]
 
-                def closure(u=u, v=v, x=x):
+                def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()
-                    loss = self.criterion(self(u, x), v)
+                    v_pred = self(x, u, y)
+
+                    # Align shapes
+                    v_pred = v_pred.reshape(v.shape)
+
+                    loss = self.criterion(v_pred, v)
                     loss.backward()
                     return loss
 
                 self.optimizer.step(closure)
                 self.optimizer.param_groups[0]["lr"] *= 0.999
-                mean_loss += self.criterion(self(u, x), v).item()
+
+                # Compute mean loss
+                v_pred = self(x, u, y).reshape(v.shape)
+                mean_loss += self.criterion(v_pred, v).item()
+
             end = time()
             mean_loss /= len(dataset)
 
