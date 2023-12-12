@@ -26,10 +26,8 @@ def test_neuraloperator():
 
     # Train self-supervised
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
-    criterion = torch.nn.MSELoss()
-
-    operator.compile(optimizer, criterion)
-    operator.fit(dataset, epochs=1000)
+    operator.compile(optimizer)
+    operator.fit(dataset, epochs=400)
 
     # Plotting
     fig, ax = plt.subplots(1, 1)
@@ -40,8 +38,7 @@ def test_neuraloperator():
 
     # Check solution
     x, u = observation.to_tensors()
-    u_predicted = operator(x, u, x).reshape(u.shape)
-    assert criterion(u_predicted, u) < 1e-5
+    assert operator.loss(x, u, x, u) < 1e-5
 
 
 if __name__ == "__main__":

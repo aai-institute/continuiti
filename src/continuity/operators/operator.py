@@ -6,8 +6,8 @@ from time import time
 from typing import Optional
 from torch import Tensor
 from torch.utils.tensorboard import SummaryWriter
-from torch.nn.modules.loss import _Loss as Loss
 from continuity.data import device, DataSet
+from continuity.operators.losses import Loss, MSELoss
 
 
 class Operator(torch.nn.Module):
@@ -32,15 +32,15 @@ class Operator(torch.nn.Module):
             Tensor of evaluations of the mapped function of shape (batch_size, x_size, num_channels)
         """
 
-    def compile(self, optimizer: torch.optim.Optimizer, criterion: Loss):
+    def compile(self, optimizer: torch.optim.Optimizer, loss_fn: Optional[Loss] = None):
         """Compile operator.
 
         Args:
             optimizer: Torch-like optimizer.
-            criterion: Torch-like loss function taking prediction and label.
+            loss_fn: Loss function taking (x, u, y, v). Defaults to MSELoss.
         """
         self.optimizer = optimizer
-        self.criterion = criterion
+        self.loss_fn = loss_fn or MSELoss()
 
         # Move to device
         self.to(device)
@@ -68,21 +68,15 @@ class Operator(torch.nn.Module):
 
                 def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()
-                    v_pred = self(x, u, y)
-
-                    # Align shapes
-                    v_pred = v_pred.reshape(v.shape)
-
-                    loss = self.criterion(v_pred, v)
-                    loss.backward()
+                    loss = self.loss_fn(self, x, u, y, v)
+                    loss.backward(retain_graph=True)
                     return loss
 
                 self.optimizer.step(closure)
                 self.optimizer.param_groups[0]["lr"] *= 0.999
 
                 # Compute mean loss
-                v_pred = self(x, u, y).reshape(v.shape)
-                mean_loss += self.criterion(v_pred, v).item()
+                mean_loss += self.loss_fn(self, x, u, y, v).detach().item()
 
             end = time()
             mean_loss /= len(dataset)
@@ -97,3 +91,14 @@ class Operator(torch.nn.Module):
                 end="",
             )
         print("")
+
+    def loss(self, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
+        """Evaluate loss function.
+
+        Args:
+            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
+            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, x_size, coordinate_dim)
+            v: Tensor of labels of shape (batch_size, x_size, num_channels)
+        """
+        return self.loss_fn(self, x, u, y, v)
