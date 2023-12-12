@@ -178,6 +178,7 @@ nav:
       - Examples:
           - Intro: examples/intro.ipynb
           - Sine: examples/sine.ipynb
+          - Physics-informed: examples/physicsinformed.ipynb
   - Code:
       - API: api/continuity/
       - Changelog: CHANGELOG.md
