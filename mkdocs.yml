@@ -172,10 +172,13 @@ nav:
   - Home: index.md
   - Getting Started:
       - Installation: getting-started/installation.md
+      - First Steps: getting-started/first-steps.md
   - Learning Operators:
       - Introduction: operators/index.md
       - Examples:
+          - Intro: examples/intro.ipynb
           - Sine: examples/sine.ipynb
+          - Physics-informed: examples/physicsinformed.ipynb
   - Code:
-      - Changelog: CHANGELOG.md
       - API: api/continuity/
+      - Changelog: CHANGELOG.md

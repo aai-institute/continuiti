@@ -30,18 +30,13 @@ def test_convolution():
     )
 
     # Create tensors
-    yu = observation.to_tensor()
-    x = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
-
-    # Turn into batch
-    yu = yu.unsqueeze(0)
-    x = x.unsqueeze(0)
+    x, u = observation.to_tensors()
+    y = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
 
     # Apply operator
-    v = operator(yu, x)
+    v = operator(x, u, y)
 
     # Extract batch
-    x = x.squeeze(0)
     v = v.squeeze(0)
 
     # Plotting
@@ -52,7 +47,7 @@ def test_convolution():
 
     # For num_sensors == num_evals, we get v = u / num_sensors.
     if num_sensors == num_evals:
-        v_expected = yu[:, :, -1:] / num_sensors
+        v_expected = u / num_sensors
         assert (v == v_expected).all(), f"{v} != {v_expected}"
 
 

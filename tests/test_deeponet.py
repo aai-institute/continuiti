@@ -17,9 +17,9 @@ def test_deeponet():
 
     # Operator
     operator = DeepONet(
-        coordinate_dim=dataset.coordinate_dim,
-        num_channels=dataset.num_channels,
-        num_sensors=num_sensors,
+        num_sensors,
+        dataset.coordinate_dim,
+        dataset.num_channels,
         branch_width=32,
         branch_depth=1,
         trunk_width=32,
@@ -29,9 +29,7 @@ def test_deeponet():
 
     # Train self-supervised
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
-    criterion = torch.nn.MSELoss()
-
-    operator.compile(optimizer, criterion)
+    operator.compile(optimizer)
     operator.fit(dataset, epochs=1000)
 
     # Plotting
@@ -42,11 +40,8 @@ def test_deeponet():
     fig.savefig(f"test_deeponet.png")
 
     # Check solution
-    xu = observation.to_tensor().unsqueeze(0)
-    x = xu[:, :, :1]
-    u = xu[:, :, -1:]
-    u_predicted = operator(xu, x)
-    assert criterion(u_predicted, u) < 1e-5
+    x, u = observation.to_tensors()
+    assert operator.loss(x, u, x, u) < 1e-5
 
 
 if __name__ == "__main__":

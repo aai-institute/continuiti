@@ -8,7 +8,7 @@ title: Home
 
 <h1>Continuity</h1>
 
-Learning function operators with neural networks.
+<i>Learning function operators with neural networks.</i>
 
 </div>
 

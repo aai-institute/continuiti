@@ -89,21 +89,24 @@ class Observation:
         s += ")"
         return s
 
-    def to_tensor(self) -> torch.Tensor:
-        """Convert observation to tensor.
+    def to_tensors(self) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Convert observation to tensors.
 
         Returns:
-            Tensor of shape (num_sensors, coordinate_dim + num_channels)
-
+            Two tensors: The first tensor contains sensor positions of shape (num_sensors, coordinate_dim), the second tensor contains the sensor values of shape (num_sensors, num_channels).
         """
-        u = torch.zeros((self.num_sensors, self.coordinate_dim + self.num_channels))
+        x = torch.zeros((self.num_sensors, self.coordinate_dim))
+        u = torch.zeros((self.num_sensors, self.num_channels))
+
         for i, sensor in enumerate(self.sensors):
-            u[i] = torch.concat([tensor(sensor.x), tensor(sensor.u)])
+            x[i] = tensor(sensor.x)
+            u[i] = tensor(sensor.u)
 
         # Move to device
+        x.to(device)
         u.to(device)
 
-        return u
+        return x, u
 
 
 class DataSet:
@@ -118,13 +121,14 @@ class DataSet:
         """
 
     @abstractmethod
-    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor]:
-        """Return i-th batch as a tuple `(u, x, v)` with tensors for
-        observations `u`, coordinates `x` and labels `v`.
+    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        """Return i-th batch as a tuple `(x, u, y, v)` with tensors for
+        sensor positions `x`, sensor values `u`, evaluation coordinates `y`
+        and target labels `v`.
 
         Args:
             i: Index of batch.
 
         Returns:
-            Batch tuple `(u, x, v)`.
+            Batch tuple `(x, u, y, v)`.
         """

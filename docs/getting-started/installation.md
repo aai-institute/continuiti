@@ -7,9 +7,14 @@ alias:
 
 # Installing Continuity
 
-Clone the repository and install the package using pip.
+To install the latest development version use:
 ```
 git clone https://github.com/aai-institute/Continuity.git
 cd Continuity
 pip install -e .
 ```
+
+## Dependencies
+
+Continuity requires Python>=3.9 and is built on top of
+[PyTorch](https://pytorch.org/).

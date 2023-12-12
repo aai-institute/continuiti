@@ -55,9 +55,9 @@ def plot_evaluation(
 
     if dim == 1:
         n = 200
-        y = torch.linspace(-1, 1, n, device=device).reshape(1, -1, 1)
-        xu = observation.to_tensor().unsqueeze(0).to(device)
-        v = operator(xu, y).detach()
+        y = torch.linspace(-1, 1, n, device=device).unsqueeze(-1)
+        x, u = observation.to_tensors()
+        v = operator(x, u, y).detach()
         ax.plot(y.cpu().flatten(), v.cpu().flatten(), "k-")
 
     if dim == 2:
