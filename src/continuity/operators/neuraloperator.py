@@ -56,6 +56,16 @@ class ContinuousConvolution(Operator):
             u = u.unsqueeze(0)
             y = y.unsqueeze(0)
 
+        # Patch for 1D coordinates and one channel
+        if len(x.shape) < 3 and self.coordinate_dim == 1:
+            x = x.unsqueeze(-1)
+
+        if len(u.shape) < 3 and self.num_channels == 1:
+            u = u.unsqueeze(-1)
+
+        if len(y.shape) < 3 and self.coordinate_dim == 1:
+            y = y.unsqueeze(-1)
+
         # Get batch size etc.
         batch_size = u.shape[0]
         num_sensors = u.shape[1]
@@ -101,11 +111,11 @@ class NeuralOperator(Operator):
 
     def __init__(
         self,
-        coordinate_dim: int,
-        num_channels: int,
-        depth: int,
-        kernel_width: int,
-        kernel_depth: int,
+        coordinate_dim: int = 1,
+        num_channels: int = 1,
+        depth: int = 1,
+        kernel_width: int = 32,
+        kernel_depth: int = 3,
     ):
         super().__init__()
 
@@ -152,6 +162,16 @@ class NeuralOperator(Operator):
             x = x.unsqueeze(0)
             u = u.unsqueeze(0)
             y = y.unsqueeze(0)
+
+        # Patch for 1D coordinates and one channel
+        if len(x.shape) < 3 and self.coordinate_dim == 1:
+            x = x.unsqueeze(-1)
+
+        if len(u.shape) < 3 and self.num_channels == 1:
+            u = u.unsqueeze(-1)
+
+        if len(y.shape) < 3 and self.coordinate_dim == 1:
+            y = y.unsqueeze(-1)
 
         # Get batch size etc.
         batch_size = u.shape[0]
