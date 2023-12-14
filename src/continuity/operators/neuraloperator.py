@@ -21,22 +21,22 @@ class ContinuousConvolution(Operator):
     where $(x_i, u_i)$ are the $N$ sensors of the mapped observation.
 
     Args:
+        kernel: Kernel function $\kappa$ or network (if $d$ is the coordinate dimension, $\kappa: \R^d \times \R^d \to \R$)
         coordinate_dim: Dimension of coordinate space
         num_channels: Number of channels
-        kernel: Kernel function $\kappa$ or network (if $d$ is the coordinate dimension, $\kappa: \R^d \times \R^d \to \R$)
     """
 
     def __init__(
         self,
-        coordinate_dim: int,
-        num_channels: int,
         kernel: Union[Callable[[Tensor], Tensor], torch.nn.Module],
+        coordinate_dim: int = 1,
+        num_channels: int = 1,
     ):
         super().__init__()
 
+        self.kernel = kernel
         self.coordinate_dim = coordinate_dim
         self.num_channels = num_channels
-        self.kernel = kernel
 
     def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:
         """Forward pass through the operator.
@@ -123,26 +123,26 @@ class NeuralOperator(Operator):
         self.num_channels = num_channels
 
         self.lifting = ContinuousConvolution(
+            NeuralNetworkKernel(kernel_width, kernel_depth),
             coordinate_dim,
             num_channels,
-            NeuralNetworkKernel(kernel_width, kernel_depth),
         )
 
         self.hidden_layers = torch.nn.ModuleList(
             [
                 ContinuousConvolution(
+                    NeuralNetworkKernel(kernel_width, kernel_depth),
                     coordinate_dim,
                     num_channels,
-                    NeuralNetworkKernel(kernel_width, kernel_depth),
                 )
                 for _ in range(depth)
             ]
         )
 
         self.projection = ContinuousConvolution(
+            NeuralNetworkKernel(kernel_width, kernel_depth),
             coordinate_dim,
             num_channels,
-            NeuralNetworkKernel(kernel_width, kernel_depth),
         )
 
     def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:

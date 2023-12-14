@@ -24,9 +24,9 @@ def test_convolution():
 
     # Operator
     operator = ContinuousConvolution(
+        kernel=dirac,
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
-        kernel=dirac,
     )
 
     # Create tensors
