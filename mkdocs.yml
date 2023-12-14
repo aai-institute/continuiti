@@ -176,9 +176,9 @@ nav:
   - Learning Operators:
       - Introduction: operators/index.md
       - Examples:
-          - Intro: examples/intro.ipynb
-          - Sine: examples/sine.ipynb
+          - Basics: examples/basics.ipynb
           - Physics-informed: examples/physicsinformed.ipynb
+          - Self-supervised: examples/selfsupervised.ipynb
   - Code:
       - API: api/continuity/
       - Changelog: CHANGELOG.md

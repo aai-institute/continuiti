@@ -140,6 +140,18 @@ class Sine(SelfSupervisedDataSet):
     sine waves is evenly distributed between $\pi$ for the first observation
     and $2\pi$ for the last observation, respectively.
 
+    The `Sine` dataset generates $N$ sine waves
+    $$
+    f(x) = \sin(w_k x), \quad w_k = 1 + \frac{k}{N-1}, \quad k = 0, \dots, N-1.
+    $$
+    As a `SelfSupervisedDataset` it exports batches of samples for self-supervised
+    training, namely
+    $$
+    \left(\mathbf{x}, f(\mathbf{x}), x_j, f(x_j)\right), \quad \text{for } j = 1, \dots, M,
+    $$
+    where $\mathbf{x} = (x_i)_{i=1 \dots M}$ are the $M$ equidistantly
+    distributed sensor positions.
+
     - coordinate_dim: 1
     - num_channels: 1
 
@@ -172,7 +184,7 @@ class Sine(SelfSupervisedDataSet):
         if self.size == 1:
             w = 1
         else:
-            w = i / self.size + 1
+            w = 1 + i / (self.size - 1)
 
         u = np.sin(w * np.pi * x)
 
