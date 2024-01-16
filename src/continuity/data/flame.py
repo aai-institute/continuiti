@@ -70,10 +70,11 @@ class FlameDataLoader:
         flow_fields = torch.zeros(xy, num_channels, device=device)
 
         # Load data
-        for c in channels:
+        for i in range(num_channels):
+            c = channels[i]
             filename = data_frame[f"{c}_filename"][index]
             flow_field = np.fromfile(data_path + filename, dtype="<f4")
-            flow_fields[:, channels.index(c)] = tensor(flow_field)
+            flow_fields[:, i] = tensor(flow_field)
 
         return flow_fields
 
