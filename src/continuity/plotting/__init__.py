@@ -9,6 +9,32 @@ from continuity.data import device, Observation
 from continuity.operators import Operator
 
 
+def plot(x: torch.Tensor, u: torch.Tensor, ax: Optional[Axis] = None):
+    """Plots a function $u(x)$.
+
+    Currently only supports coordinate dimensions of $d = 1,2$.
+
+    Args:
+        x: Spatial coordinates of shape (n, d)
+        u: Function values of shape (n, m)
+        ax: Axis object. If None, `plt.gca()` is used.
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    dim = x.shape[-1]
+    assert dim in [1, 2], "Only supports `d = 1,2`"
+
+    if dim == 1:
+        ax.plot(x, u, "k.")
+
+    if dim == 2:
+        xx, yy = x[:, 0], x[:, 1]
+        s = 50000 / len(xx)
+        ax.scatter(xx, yy, marker="s", s=s, c=u, cmap="jet")
+        ax.set_aspect("equal")
+
+
 def plot_observation(observation: Observation, ax: Optional[Axis] = None):
     """Plots an observation.
 
@@ -18,21 +44,9 @@ def plot_observation(observation: Observation, ax: Optional[Axis] = None):
         observation: Observation object
         ax: Axis object. If None, `plt.gca()` is used.
     """
-    if ax is None:
-        ax = plt.gca()
-
-    x = [s.x for s in observation.sensors]
-    u = [s.u for s in observation.sensors]
-
-    dim = x[0].shape[0]
-    assert dim in [1, 2], "Only supports `d = 1,2`"
-
-    if dim == 1:
-        ax.plot(x, u, "k.")
-
-    if dim == 2:
-        xx, yy = [x[0] for x in x], [x[1] for x in x]
-        ax.scatter(xx, yy, s=20, c=u, cmap="jet")
+    x = np.stack([s.x for s in observation.sensors])
+    u = np.stack([s.u for s in observation.sensors])
+    plot(x, u, ax)
 
 
 def plot_evaluation(

@@ -1,12 +1,9 @@
 """Various data set implementations."""
 
-import math
 import torch
 import numpy as np
-import pandas as pd
-from torch import Tensor
-from typing import List, Tuple
-from continuity.data import device, tensor, Sensor, Observation, DataSet
+from typing import List
+from continuity.data import tensor, Sensor, Observation, DataSet
 
 
 class SelfSupervisedDataSet(DataSet):
@@ -73,15 +70,7 @@ class SelfSupervisedDataSet(DataSet):
         self.y = torch.stack(self.y)
         self.v = torch.stack(self.v)
 
-        if shuffle:
-            idx = torch.randperm(len(self.u))
-            self.x = self.x[idx]
-            self.u = self.u[idx]
-            self.y = self.y[idx]
-            self.v = self.v[idx]
-
-        # Move to device
-        self.to(device=device)
+        super().__init__(self.x, self.u, self.y, self.v, self.batch_size, shuffle)
 
     def get_observation(self, i: int) -> Observation:
         """Return i-th original observation object.
@@ -93,43 +82,6 @@ class SelfSupervisedDataSet(DataSet):
             Observation object.
         """
         return self.observations[i]
-
-    def __len__(self) -> int:
-        """Return number of batches.
-
-        Returns:
-            Number of batches.
-        """
-        return math.ceil(len(self.u) / self.batch_size)
-
-    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        """Return i-th batch as a tuple `(x, u, y, v)`, where
-
-        - Sensor positions `x` is a tensor of shape `(batch_size, num_sensors, coordinate_dim)`
-        - Sensor values `u` is a tensor of shape `(batch_size, num_sensors, num_channels)`
-        - Evaluation coordinates `y` is a tensor of shape `(batch_size, 1, coordinate_dim)`
-        - Labels `v` is a tensor  of shape `(batch_size, 1, num_channels)`
-
-        Args:
-            i: Index of batch.
-
-        Returns:
-            Batch tuple `(x, u, y, v)`.
-        """
-        low = i * self.batch_size
-        high = min(low + self.batch_size, len(self.u))
-        return self.x[low:high], self.u[low:high], self.y[low:high], self.v[low:high]
-
-    def to(self, device: torch.device):
-        """Move data set to device.
-
-        Args:
-            device: Torch device dataset is moved to.
-        """
-        self.x = self.x.to(device)
-        self.u = self.u.to(device)
-        self.y = self.y.to(device)
-        self.v = self.v.to(device)
 
 
 class Sine(SelfSupervisedDataSet):
@@ -173,7 +125,7 @@ class Sine(SelfSupervisedDataSet):
 
         super().__init__(observations, batch_size)
 
-    def generate_observation(self, i: float):
+    def generate_observation(self, i: float) -> Observation:
         """Generate observation
 
         Args:
@@ -190,53 +142,4 @@ class Sine(SelfSupervisedDataSet):
 
         sensors = [Sensor(np.array([x]), np.array([u])) for x, u in zip(x, u)]
 
-        return Observation(sensors)
-
-
-class Flame(SelfSupervisedDataSet):
-    """Turbulent flow samples from flame dataset.
-
-    - coordinate_dim: 2
-    - num_channels: 1
-
-    (TODO)
-    """
-
-    def __init__(self, size, batch_size):
-        self.num_sensors = 16 * 16
-        self.size = size
-
-        self.coordinate_dim = 2
-        self.num_channels = 1
-
-        # Generate observations
-        observations = [self.generate_observation(i) for i in range(self.size)]
-
-        super().__init__(observations, batch_size)
-
-    def generate_observation(self, i: int):
-        # Load data
-        input_path = "flame/"
-        res = "LR"
-
-        df = pd.read_csv(input_path + "train.csv")
-        data_path = input_path + f"flowfields/{res}/train"
-
-        filename = df["ux_filename"][i + 1]
-        u = np.fromfile(data_path + "/" + filename, dtype="<f4").reshape(16, 16, 1)
-
-        # Normalize
-        u = (u - u.mean()) / u.std()
-
-        # Positions
-        x = np.stack(
-            np.meshgrid(
-                np.linspace(-1, 1, 16),
-                np.linspace(-1, 1, 16),
-            ),
-            axis=2,
-        )
-
-        # Sensors
-        sensors = [Sensor(x[i][j], u[i][j]) for i in range(16) for j in range(16)]
         return Observation(sensors)

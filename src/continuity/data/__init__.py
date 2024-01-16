@@ -4,11 +4,11 @@ function evaluations, so-called *sensors*. Every data set is a set of
 observations, evaluation coordinates and labels.
 """
 
+import math
 import torch
 from torch import Tensor
 from numpy import ndarray
 from typing import List, Tuple
-from abc import abstractmethod
 
 
 def get_device() -> torch.device:
@@ -110,21 +110,65 @@ class Observation:
 
 
 class DataSet:
-    """Data set base class."""
+    """Data set base class.
 
-    @abstractmethod
+    Args:
+        x: Tensor of shape (num_observations, num_sensors, coordinate_dim) with sensor positions.
+        u: Tensor of shape (num_observations, num_sensors, num_channels)
+        y: Tensor of shape (num_observations, num_sensors, coordinate_dim) with evaluation coordinates.
+        v: Tensor of shape (num_observations, num_sensors, num_channels) with target labels.
+        batch_size: Batch size.
+        shuffle: Shuffle data set.
+
+    Attributes:
+        num_sensors: Number of sensors.
+        coordinate_dim: Coordinate dimension.
+        num_channels: Number of channels.
+    """
+
+    def __init__(
+        self,
+        x: Tensor,
+        u: Tensor,
+        y: Tensor,
+        v: Tensor,
+        batch_size: int,
+        shuffle: bool = True,
+    ):
+        self.x = x
+        self.u = u
+        self.y = y
+        self.v = v
+        self.batch_size = batch_size
+
+        self.num_sensors = u.shape[1]
+        self.coordinate_dim = x.shape[-1]
+        self.num_channels = u.shape[-1]
+
+        if shuffle:
+            idx = torch.randperm(len(self.u))
+            self.x = self.x[idx]
+            self.u = self.u[idx]
+            self.y = self.y[idx]
+            self.v = self.v[idx]
+
+        self.to(device=device)
+
     def __len__(self) -> int:
         """Return number of batches.
 
         Returns:
             Number of batches.
         """
+        return math.ceil(len(self.u) / self.batch_size)
 
-    @abstractmethod
     def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        """Return i-th batch as a tuple `(x, u, y, v)` with tensors for
-        sensor positions `x`, sensor values `u`, evaluation coordinates `y`
-        and target labels `v`.
+        """Return i-th batch as a tuple `(x, u, y, v)`, where
+
+        - Sensor positions `x` is a tensor of shape `(batch_size, num_sensors, coordinate_dim)`
+        - Sensor values `u` is a tensor of shape `(batch_size, num_sensors, num_channels)`
+        - Evaluation coordinates `y` is a tensor of shape `(batch_size, 1, coordinate_dim)`
+        - Labels `v` is a tensor  of shape `(batch_size, 1, num_channels)`
 
         Args:
             i: Index of batch.
@@ -132,3 +176,19 @@ class DataSet:
         Returns:
             Batch tuple `(x, u, y, v)`.
         """
+        while i < 0:
+            i += len(self)
+        low = i * self.batch_size
+        high = min(low + self.batch_size, len(self.u))
+        return self.x[low:high], self.u[low:high], self.y[low:high], self.v[low:high]
+
+    def to(self, device: torch.device):
+        """Move data set to device.
+
+        Args:
+            device: Torch device dataset is moved to.
+        """
+        self.x = self.x.to(device)
+        self.u = self.u.to(device)
+        self.y = self.y.to(device)
+        self.v = self.v.to(device)
