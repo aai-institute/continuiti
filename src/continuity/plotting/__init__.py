@@ -44,8 +44,8 @@ def plot_observation(observation: Observation, ax: Optional[Axis] = None):
         observation: Observation object
         ax: Axis object. If None, `plt.gca()` is used.
     """
-    x = torch.stack([s.x for s in observation.sensors])
-    u = torch.stack([s.u for s in observation.sensors])
+    x = np.stack([s.x for s in observation.sensors])
+    u = np.stack([s.u for s in observation.sensors])
     plot(x, u, ax)
 
 

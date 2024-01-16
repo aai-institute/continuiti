@@ -141,9 +141,9 @@ class DataSet:
         self.v = v
         self.batch_size = batch_size
 
-        self.num_sensors = u.shape[0]
-        self.coordinate_dim = x.shape[1]
-        self.num_channels = u.shape[1]
+        self.num_sensors = u.shape[1]
+        self.coordinate_dim = x.shape[-1]
+        self.num_channels = u.shape[-1]
 
         if shuffle:
             idx = torch.randperm(len(self.u))
