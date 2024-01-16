@@ -77,10 +77,12 @@ class DeepONet(Operator):
             Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
         # Unsqueeze if no batch dim
+        no_batch_dim = False
         if len(u.shape) < 3:
             batch_size = 1
             u = u.unsqueeze(0)
             y = y.unsqueeze(0)
+            no_batch_dim = True
 
         # Get batch size
         batch_size = u.shape[0]
@@ -93,7 +95,7 @@ class DeepONet(Operator):
         assert y.shape[0] == batch_size
         assert u.shape[1] == self.num_sensors
         if len(u.shape) > 2:
-            assert u.shape[2] == self.coordinate_dim
+            assert u.shape[2] == self.num_channels
 
         # Reshape branch and trunk inputs
         u = u.reshape((batch_size, -1))
@@ -108,4 +110,9 @@ class DeepONet(Operator):
         t = t.reshape((batch_size, y_size, self.basis_functions, self.num_channels))
         sum = torch.einsum("ubc,uxbc->uxc", b, t)
         assert sum.shape == (batch_size, y_size, self.num_channels)
+
+        # Squeeze if no batch dim
+        if no_batch_dim:
+            sum = sum.squeeze(0)
+
         return sum
