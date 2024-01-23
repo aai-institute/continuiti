@@ -1,9 +1,7 @@
 import torch
-import numpy as np
 import matplotlib.pyplot as plt
-from continuity.data import Sensor, Observation
-from continuity.data.datasets import SelfSupervisedDataSet
-from continuity.plotting import plot_observation
+from continuity.data import SelfSupervisedDataSet, tensor
+from continuity.plotting import plot
 
 # Set random seed
 torch.manual_seed(0)
@@ -16,27 +14,21 @@ def test_dataset():
     num_channels = 1
     coordinate_dim = 1
 
-    sensors = []
-    for i in range(num_sensors):
-        x = np.array([i])
-        u = f(x)
-        sensor = Sensor(x, u)
-        sensors.append(sensor)
-
-    # Observation
-    observation = Observation(sensors)
-    print(observation)
+    x = tensor(range(num_sensors)).reshape(-1, 1)
+    u = f(x)
 
     # Test plotting
     fig, ax = plt.subplots(1, 1)
-    plot_observation(observation, ax=ax)
+    plot(x, u, ax=ax)
     fig.savefig(f"test_dataset.png")
 
     # Dataset
     dataset = SelfSupervisedDataSet(
-        [observation],
+        x.unsqueeze(0),
+        u.unsqueeze(0),
         batch_size=3,
     )
+    x_target, u_target = x, u
 
     # Test
     for i in range(len(dataset)):
@@ -47,7 +39,6 @@ def test_dataset():
         assert u.shape[1] == num_sensors
         assert x.shape[2] == coordinate_dim
         assert u.shape[2] == num_channels
-        x_target, u_target = observation.to_tensors()
         assert (x == x_target).all()
         assert (u == u_target).all()
 

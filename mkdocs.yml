@@ -93,7 +93,6 @@ theme:
     - content.code.annotate
     - content.code.copy
     - navigation.footer
-    - navigation.instant
     - navigation.path
     - navigation.top
     - navigation.tracking
