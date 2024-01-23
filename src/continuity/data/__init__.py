@@ -1,7 +1,6 @@
 """
-In Continuity, data is given by *observations*. Every observation is a set of
-function evaluations, so-called *sensors*. Every data set is a set of
-observations, evaluation coordinates and labels.
+This defines DataSets in Continuity.
+Every data set is a list of (x, u, y, v) tuples.
 """
 
 import math

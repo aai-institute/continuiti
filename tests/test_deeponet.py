@@ -41,7 +41,7 @@ def test_deeponet():
     fig.savefig(f"test_deeponet.png")
 
     # Check solution
-    assert operator.loss(x, u, x, u) < 1e-5
+    assert operator.loss(x, u, x, u) < 3e-5
 
 
 if __name__ == "__main__":

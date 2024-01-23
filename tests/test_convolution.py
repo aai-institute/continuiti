@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from continuity.data.datasets import Sine
 from continuity.operators import ContinuousConvolution
-from continuity.plotting import plot_observation
+from continuity.plotting import plot
 
 # Set random seed
 torch.manual_seed(0)
@@ -13,9 +13,9 @@ def test_convolution():
     num_sensors = 16
     num_evals = num_sensors
 
-    # Observation
+    # Data set
     dataset = Sine(num_sensors, size=1)
-    observation = dataset.get_observation(0)
+    x, u = dataset.x[0], dataset.u[0]
 
     # Kernel
     def dirac(x, y):
@@ -30,7 +30,6 @@ def test_convolution():
     )
 
     # Create tensors
-    x, u = observation.to_tensors()
     y = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
 
     # Apply operator
@@ -41,7 +40,7 @@ def test_convolution():
 
     # Plotting
     fig, ax = plt.subplots(1, 1)
-    plot_observation(observation, ax=ax)
+    plot(x, u, ax=ax)
     plt.plot(x, v, "o")
     fig.savefig(f"test_convolution.png")
 
