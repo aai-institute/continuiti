@@ -17,11 +17,10 @@ Learning function operators with neural networks.
 </a>
 </div>
 
-**Continuity** is a Python package with a general interface for machine
-learning on functions operators. It implements various neural network
-architectures, including DeepONets or neural operators, physics-informed loss
-functions to train the networks based on PDEs, and a variety of benchmarks.
-
+**Continuity** is a Python package for machine learning on function operators.
+It implements various neural operator architectures (e.g., DeepONets),
+physics-informed loss functions to train based on PDEs, and a collection of
+examples and benchmarks.
 
 ## Installation
 Clone the repository and install the package using pip.
@@ -32,8 +31,14 @@ pip install -e .
 ```
 
 ## Usage
-Some examples can be found in the `notebooks` and `tests` directories. See the
-[documentation](https://aai-institute.github.io/Continuity/) for more details.
+Our [Documentation](https://aai-institute.github.io/Continuity/) contains a verbose introduction to operator learning, a collection of examples using Continuity, and a class documentation.
+
+In general, the operator syntax in Continuity is
+```python
+v = operator(x, u(x), y)
+```
+mapping a function `u` (evaluated at `x`) to function `v` (evaluated in `y`).
+For more details, see [Learning Operators](https://aai-institute.github.io/Continuity/operators/index.html).
 
 ## Contributing
 If you find a bug or have a feature request, please open an issue on GitHub. If
