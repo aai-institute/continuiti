@@ -24,12 +24,12 @@ class Operator(torch.nn.Module):
         """Forward pass through the operator.
 
         Args:
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, x_size, coordinate_dim)
+            x: Tensor of sensor positions of shape (batch_size, num_sensors, input_coordinate_dim)
+            u: Tensor of sensor values of shape (batch_size, num_sensors, input_channels)
+            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, output_coordinate_dim)
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, x_size, num_channels)
+            Tensor of evaluations of the mapped function of shape (batch_size, y_size, output_channels)
         """
 
     def compile(self, optimizer: torch.optim.Optimizer, loss_fn: Optional[Loss] = None):
