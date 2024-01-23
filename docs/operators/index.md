@@ -86,4 +86,4 @@ Neural operators extend the concept of neural networks to function mappings, whi
 enables discretization-invariant and mesh-free mappings of data with
 applications to physics-informed training, super-resolution, and more.
 
-See our examples (e.g., <a href="../examples/basics">Basics</a>) for more details and further reading.
+See our <a href="../examples">Examples</a> for more details and further reading.

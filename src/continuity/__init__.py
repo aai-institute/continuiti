@@ -1,6 +1,8 @@
 """
 **Continuity** is a Python package for machine learning on function operators.
 
+The package is structured into the following modules:
+
 ::cards:: cols=2
 
 - title: Operators

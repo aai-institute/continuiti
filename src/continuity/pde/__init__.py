@@ -1,4 +1,10 @@
-"""Loss functions for physics-informed training."""
+"""
+`continuity.pde`
+
+PDEs in Continuity.
+
+Every PDE is implemented using a physics-informed loss function.
+"""
 
 from torch import Tensor
 from abc import abstractmethod

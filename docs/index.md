@@ -26,11 +26,16 @@ examples and benchmarks.
 
 - title: Learning Operators
   content: >
-    Basics of learning function operators with neural networks
+    Basics of learning function operators
   url: operators/index.md
 
+- title: Examples
+  content: >
+    Some notebooks using Continuity
+  url: examples/index.md
+
 - title: Browse the API
-  content: Full documentation of the API
+  content: Full class documentation
   url: api/continuity/index.md
 
 ::/cards::
