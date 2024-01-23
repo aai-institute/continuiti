@@ -18,10 +18,10 @@ class Sine(DataSet):
     $$
     f(x) = \sin(w_k x), \quad w_k = 1 + \frac{k}{N-1}, \quad k = 0, \dots, N-1.
     $$
-    As a `SelfSupervisedDataset` it exports batches of samples for self-supervised
-    training, namely
+    It exports batches of samples
     $$
-    \left(\mathbf{x}, f(\mathbf{x}), x_j, f(x_j)\right), \quad \text{for } j = 1, \dots, M,
+    \left(\mathbf{x}, f(\mathbf{x}), \mathbf{x}, f(\mathbf{x})\right),
+    $$
     $$
     where $\mathbf{x} = (x_i)_{i=1 \dots M}$ are the $M$ equidistantly
     distributed sensor positions.
