@@ -3,15 +3,19 @@
 import torch
 from torch import Tensor
 from abc import abstractmethod
+from typing import TYPE_CHECKING
 
-# from continuity.operators.operator import Operator   # TODO: Circular import
+if TYPE_CHECKING:
+    from continuity.operators.operator import Operator
 
 
 class Loss:
     """Loss function for training operators in Continuity."""
 
     @abstractmethod
-    def __call__(self, op, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
+    def __call__(
+        self, op: "Operator", x: Tensor, u: Tensor, y: Tensor, v: Tensor
+    ) -> Tensor:
         """Evaluate loss.
 
         Args:
@@ -29,7 +33,9 @@ class MSELoss(Loss):
     def __init__(self):
         self.mse = torch.nn.MSELoss()
 
-    def __call__(self, op, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
+    def __call__(
+        self, op: "Operator", x: Tensor, u: Tensor, y: Tensor, v: Tensor
+    ) -> Tensor:
         """Evaluate MSE loss.
 
         Args:
