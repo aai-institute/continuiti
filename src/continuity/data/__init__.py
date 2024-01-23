@@ -7,8 +7,7 @@ observations, evaluation coordinates and labels.
 import math
 import torch
 from torch import Tensor
-from numpy import ndarray
-from typing import List, Tuple
+from typing import Tuple
 
 
 def get_device() -> torch.device:
@@ -34,79 +33,6 @@ device = get_device()
 def tensor(x):
     """Default conversion for tensors."""
     return torch.tensor(x, device=device, dtype=torch.float32)
-
-
-class Sensor:
-    """
-    A sensor is a function evaluation.
-
-    Args:
-        x: spatial coordinate of shape (coordinate_dim)
-        u: function value of shape (num_channels)
-    """
-
-    def __init__(self, x: ndarray, u: ndarray):
-        self.x = x
-        self.u = u
-
-        self.coordinate_dim = x.shape[0]
-        self.num_channels = u.shape[0]
-
-    def __str__(self) -> str:
-        return f"Sensor(x={self.x}, u={self.u})"
-
-
-class Observation:
-    """
-    An observation is a set of sensors.
-
-    Args:
-        sensors: List of sensors. Used to derive 'num_sensors', 'coordinate_dim' and 'num_channels'.
-    """
-
-    def __init__(self, sensors: List[Sensor]):
-        self.sensors = sensors
-
-        self.num_sensors = len(sensors)
-        assert self.num_sensors > 0
-
-        self.coordinate_dim = self.sensors[0].coordinate_dim
-        self.num_channels = self.sensors[0].num_channels
-
-        # Check consistency across sensors
-        for sensor in self.sensors:
-            assert (
-                sensor.coordinate_dim == self.coordinate_dim
-            ), "Inconsistent coordinate dimension."
-            assert (
-                sensor.num_channels == self.num_channels
-            ), "Inconsistent number of channels."
-
-    def __str__(self) -> str:
-        s = "Observation(sensors=\n"
-        for sensor in self.sensors:
-            s += f"  {sensor}, \n"
-        s += ")"
-        return s
-
-    def to_tensors(self) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Convert observation to tensors.
-
-        Returns:
-            Two tensors: The first tensor contains sensor positions of shape (num_sensors, coordinate_dim), the second tensor contains the sensor values of shape (num_sensors, num_channels).
-        """
-        x = torch.zeros((self.num_sensors, self.coordinate_dim))
-        u = torch.zeros((self.num_sensors, self.num_channels))
-
-        for i, sensor in enumerate(self.sensors):
-            x[i] = tensor(sensor.x)
-            u[i] = tensor(sensor.u)
-
-        # Move to device
-        x.to(device)
-        u.to(device)
-
-        return x, u
 
 
 class DataSet:
@@ -192,3 +118,62 @@ class DataSet:
         self.u = self.u.to(device)
         self.y = self.y.to(device)
         self.v = self.v.to(device)
+
+
+class SelfSupervisedDataSet(DataSet):
+    """
+    A `SelfSupervisedDataSet` is a data set that exports batches of observations
+    and labels for self-supervised learning.
+    Every data point is created by taking one sensor as label.
+
+    Every batch consists of tuples `(x, u, y, v)`, where `x` contains the sensor
+    positions, `u` the sensor values, and `y = x_i` and `v = u_i` are
+    the label's coordinate its value for all `i`.
+
+    Args:
+        x: Sensor positions of shape (num_observations, num_sensors, coordinate_dim)
+        u: Sensor values of shape (num_observations, num_sensors, num_channels)
+        batch_size: Batch size.
+        shuffle: Shuffle dataset.
+    """
+
+    def __init__(
+        self,
+        x: Tensor,
+        u: Tensor,
+        batch_size: int,
+        shuffle: bool = True,
+    ):
+        self.num_observations = u.shape[0]
+        self.num_sensors = u.shape[1]
+        self.coordinate_dim = x.shape[-1]
+        self.num_channels = u.shape[-1]
+
+        # Check consistency across observations
+        for i in range(self.num_observations):
+            assert (
+                x[i].shape[-1] == self.coordinate_dim
+            ), "Inconsistent coordinate dimension."
+            assert (
+                u[i].shape[-1] == self.num_channels
+            ), "Inconsistent number of channels."
+
+        xs, us, ys, vs = [], [], [], []
+
+        for i in range(self.num_observations):
+            # Add one data point for every sensor
+            for j in range(self.num_sensors):
+                y = x[i][j].unsqueeze(0)
+                v = u[i][j].unsqueeze(0)
+
+                xs.append(x[i])
+                us.append(u[i])
+                ys.append(y)
+                vs.append(v)
+
+        xs = torch.stack(xs)
+        us = torch.stack(us)
+        ys = torch.stack(ys)
+        vs = torch.stack(vs)
+
+        super().__init__(xs, us, ys, vs, batch_size, shuffle)

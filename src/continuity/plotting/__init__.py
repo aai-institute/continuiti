@@ -2,14 +2,15 @@
 
 import torch
 import numpy as np
+from torch import Tensor
 from typing import Optional
 from matplotlib.axis import Axis
 import matplotlib.pyplot as plt
-from continuity.data import device, Observation
+from continuity.data import device
 from continuity.operators import Operator
 
 
-def plot(x: torch.Tensor, u: torch.Tensor, ax: Optional[Axis] = None):
+def plot(x: Tensor, u: Tensor, ax: Optional[Axis] = None):
     """Plots a function $u(x)$.
 
     Currently only supports coordinate dimensions of $d = 1,2$.
@@ -35,22 +36,8 @@ def plot(x: torch.Tensor, u: torch.Tensor, ax: Optional[Axis] = None):
         ax.set_aspect("equal")
 
 
-def plot_observation(observation: Observation, ax: Optional[Axis] = None):
-    """Plots an observation.
-
-    Currently only supports coordinate dimensions of $d = 1,2$.
-
-    Args:
-        observation: Observation object
-        ax: Axis object. If None, `plt.gca()` is used.
-    """
-    x = np.stack([s.x for s in observation.sensors])
-    u = np.stack([s.u for s in observation.sensors])
-    plot(x, u, ax)
-
-
 def plot_evaluation(
-    operator: Operator, observation: Observation, ax: Optional[Axis] = None
+    operator: Operator, x: Tensor, u: Tensor, ax: Optional[Axis] = None
 ):
     """Plots the mapped function `operator(observation)` evaluated on a $[-1, 1]^d$ grid.
 
@@ -58,29 +45,27 @@ def plot_evaluation(
 
     Args:
         operator: Operator object
-        observation: Observation object
+        x: Collocation points of shape (n, d)
+        u: Function values of shape (n, c)
         ax: Axis object. If None, `plt.gca()` is used.
     """
     if ax is None:
         ax = plt.gca()
 
-    dim = observation.coordinate_dim
+    dim = x.shape[-1]
     assert dim in [1, 2], "Only supports `d = 1,2`"
 
     if dim == 1:
         n = 200
         y = torch.linspace(-1, 1, n, device=device).unsqueeze(-1)
-        x, u = observation.to_tensors()
         v = operator(x, u, y).detach()
         ax.plot(y.cpu().flatten(), v.cpu().flatten(), "k-")
 
     if dim == 2:
         n = 128
-        x = np.linspace(-1, 1, n)
-        y = np.linspace(-1, 1, n)
-        xx, yy = np.meshgrid(x, y)
-        u = observation.to_tensor().unsqueeze(0).to(device)
-        x = (
+        a = np.linspace(-1, 1, n)
+        xx, yy = np.meshgrid(a, a)
+        y = (
             torch.tensor(
                 np.array(
                     [np.array([xx[i, j], yy[i, j]]) for i in range(n) for j in range(n)]
@@ -90,7 +75,7 @@ def plot_evaluation(
             .unsqueeze(0)
             .to(device)
         )
-        u = operator(u, x).detach().cpu()
+        u = operator(x, u, y).detach().cpu()
         u = np.reshape(u, (n, n))
         ax.contourf(xx, yy, u, cmap="jet", levels=100)
         ax.set_aspect("equal")

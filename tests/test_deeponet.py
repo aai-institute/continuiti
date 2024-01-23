@@ -2,7 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from continuity.data.datasets import Sine
 from continuity.operators import DeepONet
-from continuity.plotting import plot_observation, plot_evaluation
+from continuity.plotting import plot, plot_evaluation
 
 # Set random seed
 torch.manual_seed(0)
@@ -12,7 +12,7 @@ def test_deeponet():
     # Parameters
     num_sensors = 16
 
-    # Observation
+    # Data set
     dataset = Sine(num_sensors, size=1)
 
     # Operator
@@ -34,13 +34,13 @@ def test_deeponet():
 
     # Plotting
     fig, ax = plt.subplots(1, 1)
-    observation = dataset.get_observation(0)
-    plot_observation(observation, ax=ax)
-    plot_evaluation(operator, observation, ax=ax)
+    x, u, _, _ = dataset[0]  # first batch
+    x0, u0 = x[0], u[0]  # first sample
+    plot(x0, u0, ax=ax)
+    plot_evaluation(operator, x0, u0, ax=ax)
     fig.savefig(f"test_deeponet.png")
 
     # Check solution
-    x, u = observation.to_tensors()
     assert operator.loss(x, u, x, u) < 1e-5
 
 
