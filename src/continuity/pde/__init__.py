@@ -1,16 +1,24 @@
-"""Loss functions."""
+"""
+`continuity.pde`
+
+PDEs in Continuity.
+
+Every PDE is implemented using a physics-informed loss function.
+"""
 
 from torch import Tensor
 from abc import abstractmethod
 
-# from continuity.operators.operator import Operator   # TODO: Circular import
+from continuity.operators.operator import Operator
 
 
 class PDE:
     """PDE base class."""
 
     @abstractmethod
-    def __call__(self, op, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
+    def __call__(
+        self, op: Operator, x: Tensor, u: Tensor, y: Tensor, v: Tensor
+    ) -> Tensor:
         """Computes PDE loss."""
 
 
@@ -24,7 +32,9 @@ class PhysicsInformedLoss:
     def __init__(self, pde: PDE):
         self.pde = pde
 
-    def __call__(self, op, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
+    def __call__(
+        self, op: Operator, x: Tensor, u: Tensor, y: Tensor, v: Tensor
+    ) -> Tensor:
         """Evaluate loss.
 
         Args:

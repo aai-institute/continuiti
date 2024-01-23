@@ -1,6 +1,8 @@
 """
-This defines DataSets in Continuity.
-Every data set is a list of (x, u, y, v) tuples.
+`continuity.data`
+
+Data sets in Continuity.
+Every data set is a list of `(x, u, y, v)` tuples.
 """
 
 import math

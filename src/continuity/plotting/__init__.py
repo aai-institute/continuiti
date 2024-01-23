@@ -1,4 +1,8 @@
-"""Plotting utilities for Continuity."""
+"""
+`continuity.plotting`
+
+Plotting utilities for Continuity.
+"""
 
 import torch
 import numpy as np

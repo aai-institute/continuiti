@@ -2,5 +2,9 @@
 
 ## Unreleased
 
-- Set up minimal project structure.
-- Create first notebook.
+- Set up project structure.
+- Implement basic functionality.
+- Build documentation.
+- Create first notebooks.
+- Introduce neural operators.
+- Add CI/CD.
