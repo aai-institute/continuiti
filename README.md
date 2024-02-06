@@ -46,5 +46,5 @@ you want to contribute code, please fork the repository and submit a pull
 request.
 
 ## License
-This project is licensed under the GNU GPLv3 License - see the
+This project is licensed under the GNU LGPLv3 License - see the
 [LICENSE](LICENSE) file for details.
