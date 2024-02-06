@@ -22,7 +22,7 @@ $d$-dimensional input to $c$ output *channels*.
 
 An **operator**
 $$
-G: u \to v
+G: u \mapsto v
 $$
 maps $u$ to a function $v: Y \subset \mathbb{R}^{p} \to \mathbb{R}^{q}$.
 
@@ -56,7 +56,7 @@ points and write $\mathbf{x} = (x_i)_i$ and $\mathbf{u} = (u(x_i))_i$.
 This finite dimensional representation is fed into the neural operator.
 
 The mapped function $v = G(u)$, on the other hand, is also represented by
-function evaluations only. Let $y_j \in Y,\ 1 \leq j \leq m,$ be a set of
+function evaluations only. Let $y_j \in Y,\ 1 \leq j \leq m,$ be a finite set of
 *evaluation points* (or *query points*) in the input domain $Y$ of $v$ and
 $\mathbf{y} = (y_j)_j$.
 Then, the output values $\mathbf{v} = (v(y_j))_j$ are approximated by the neural

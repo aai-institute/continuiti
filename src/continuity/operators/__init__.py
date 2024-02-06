@@ -11,8 +11,16 @@ v = operator(x, u, y)
 ```
 """
 
+from .common import DeepResidualNetwork, NeuralNetworkKernel
 from .operator import Operator
 from .deeponet import DeepONet
 from .neuraloperator import ContinuousConvolution, NeuralOperator
 
-__all__ = ["Operator", "DeepONet", "ContinuousConvolution", "NeuralOperator"]
+__all__ = [
+    "Operator",
+    "DeepONet",
+    "ContinuousConvolution",
+    "NeuralOperator",
+    "DeepResidualNetwork",
+    "NeuralNetworkKernel",
+]

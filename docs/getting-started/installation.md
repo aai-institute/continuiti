@@ -9,8 +9,8 @@ alias:
 
 To install the latest development version use:
 ```
-git clone https://github.com/aai-institute/Continuity.git
-cd Continuity
+git clone https://github.com/aai-institute/continuity.git
+cd continuity
 pip install -e .
 ```
 
