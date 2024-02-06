@@ -47,7 +47,7 @@ class Operator(torch.nn.Module):
 
         # Print number of model parameters
         num_params = sum(p.numel() for p in self.parameters())
-        print(f"Model parameters: {num_params}")
+        print(f"Model parameters: {num_params}   Device: {device}")
 
     def fit(
         self,
@@ -66,6 +66,11 @@ class Operator(torch.nn.Module):
         if callbacks is None:
             callbacks = [PrintTrainingLoss()]
 
+        # Call on_train_begin
+        for callback in callbacks:
+            callback.on_train_begin()
+
+        # Train
         for epoch in range(epochs + 1):
             loss_train = 0
 
@@ -86,19 +91,21 @@ class Operator(torch.nn.Module):
                 loss_train += self.loss_fn(self, x, u, y, v).detach().item()
 
             end = time()
-            iter_per_second = len(dataset) / (end - start)
+            seconds_per_epoch = end - start
             loss_train /= len(dataset)
 
             # Callbacks
             logs = {
                 "loss/train": loss_train,
-                "iter_per_second": iter_per_second,
+                "seconds_per_epoch": seconds_per_epoch,
             }
 
             for callback in callbacks:
                 callback(epoch, logs)
 
-        print("")
+        # Call on_train_end
+        for callback in callbacks:
+            callback.on_train_end()
 
     def loss(self, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
         """Evaluate loss function.

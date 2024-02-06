@@ -30,8 +30,12 @@ def plot(x: Tensor, u: Tensor, ax: Optional[Axis] = None):
     dim = x.shape[-1]
     assert dim in [1, 2], "Only supports `d = 1,2`"
 
+    # Move to cpu
+    x = x.cpu().detach().numpy()
+    u = u.cpu().detach().numpy()
+
     if dim == 1:
-        ax.plot(x, u, "k.")
+        ax.plot(x, u, ".")
 
     if dim == 2:
         xx, yy = x[:, 0], x[:, 1]

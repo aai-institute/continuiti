@@ -23,7 +23,7 @@ def get_device() -> torch.device:
         Device.
     """
     device = torch.device("cpu")
-    use_mps_backend = os.environ.get("USE_MPS_BACKEND", True).lower() in ("true", "1")
+    use_mps_backend = os.environ.get("USE_MPS_BACKEND", "True").lower() in ("true", "1")
 
     if use_mps_backend and torch.backends.mps.is_available():
         device = torch.device("mps")
