@@ -3,10 +3,10 @@
 import torch
 from abc import abstractmethod
 from time import time
-from typing import Optional
+from typing import Optional, List
 from torch import Tensor
-from torch.utils.tensorboard import SummaryWriter
 from continuity.data import device, DataSet
+from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
 
 
@@ -47,20 +47,32 @@ class Operator(torch.nn.Module):
 
         # Print number of model parameters
         num_params = sum(p.numel() for p in self.parameters())
-        print(f"Model parameters: {num_params}")
+        print(f"Model parameters: {num_params}   Device: {device}")
 
     def fit(
-        self, dataset: DataSet, epochs: int, writer: Optional[SummaryWriter] = None
+        self,
+        dataset: DataSet,
+        epochs: int,
+        callbacks: Optional[List[Callback]] = None,
     ):
         """Fit operator to data set.
 
         Args:
             dataset: Data set.
             epochs: Number of epochs.
-            writer: Tensorboard-like writer for loss visualization.
+            callbacks: List of callbacks.
         """
+        # Default callback
+        if callbacks is None:
+            callbacks = [PrintTrainingLoss()]
+
+        # Call on_train_begin
+        for callback in callbacks:
+            callback.on_train_begin()
+
+        # Train
         for epoch in range(epochs + 1):
-            mean_loss = 0
+            loss_train = 0
 
             start = time()
             for i in range(len(dataset)):
@@ -76,21 +88,24 @@ class Operator(torch.nn.Module):
                 self.optimizer.param_groups[0]["lr"] *= 0.999
 
                 # Compute mean loss
-                mean_loss += self.loss_fn(self, x, u, y, v).detach().item()
+                loss_train += self.loss_fn(self, x, u, y, v).detach().item()
 
             end = time()
-            mean_loss /= len(dataset)
+            seconds_per_epoch = end - start
+            loss_train /= len(dataset)
 
-            if writer is not None:
-                writer.add_scalar("Loss/train", mean_loss, epoch)
+            # Callbacks
+            logs = {
+                "loss/train": loss_train,
+                "seconds_per_epoch": seconds_per_epoch,
+            }
 
-            iter_per_second = len(dataset) / (end - start)
-            print(
-                f"\rEpoch {epoch}:  loss = {mean_loss:.4e}  "
-                f"({iter_per_second:.2f} it/s)",
-                end="",
-            )
-        print("")
+            for callback in callbacks:
+                callback(epoch, logs)
+
+        # Call on_train_end
+        for callback in callbacks:
+            callback.on_train_end()
 
     def loss(self, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
         """Evaluate loss function.

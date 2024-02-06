@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+from continuity.data import device
 from continuity.data.datasets import Sine
 from continuity.operators import ContinuousConvolution
 from continuity.plotting import plot
@@ -20,7 +21,8 @@ def test_convolution():
     # Kernel
     def dirac(x, y):
         dist = ((x - y) ** 2).sum(dim=-1)
-        return torch.isclose(dist, torch.zeros(1)).to(torch.float32)
+        zero = torch.zeros(1, device=device)
+        return torch.isclose(dist, zero).to(torch.float32)
 
     # Operator
     operator = ContinuousConvolution(
@@ -30,7 +32,7 @@ def test_convolution():
     )
 
     # Create tensors
-    y = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
+    y = torch.linspace(-1, 1, num_evals).unsqueeze(-1).to(device)
 
     # Apply operator
     v = operator(x, u, y)
@@ -41,7 +43,7 @@ def test_convolution():
     # Plotting
     fig, ax = plt.subplots(1, 1)
     plot(x, u, ax=ax)
-    plt.plot(x, v, "o")
+    plot(x, v, ax=ax)
     fig.savefig(f"test_convolution.png")
 
     # For num_sensors == num_evals, we get v = u / num_sensors.
