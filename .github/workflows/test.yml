@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, "release/*", "dev"]
 
+env:
+  USE_MPS_BACKEND: False
+
 jobs:
   run_tests_ubuntu:
     runs-on: ${{ matrix.os }}

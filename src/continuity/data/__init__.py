@@ -5,6 +5,7 @@ Data sets in Continuity.
 Every data set is a list of `(x, u, y, v)` tuples.
 """
 
+import os
 import math
 import torch
 from torch import Tensor
@@ -14,12 +15,17 @@ from typing import Tuple
 def get_device() -> torch.device:
     """Get torch device.
 
+    Defaults to `cuda` or `mps` if available, otherwise to `cpu`.
+
+    Use the environment variable `USE_MPS_BACKEND` to disable the `mps` backend.
+
     Returns:
         Device.
     """
     device = torch.device("cpu")
+    use_mps_backend = os.environ.get("USE_MPS_BACKEND", True).lower() in ("true", "1")
 
-    if torch.backends.mps.is_available():
+    if use_mps_backend and torch.backends.mps.is_available():
         device = torch.device("mps")
 
     if torch.cuda.is_available():
