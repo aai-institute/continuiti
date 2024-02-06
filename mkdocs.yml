@@ -1,8 +1,8 @@
 site_name: "Continuity"
 site_dir: "docs_build"
-site_url: "https://aai-institute.github.io/Continuity/"
-repo_name: "aai-institute/Continuity"
-repo_url: "https://github.com/aai-institute/Continuity"
+site_url: "https://aai-institute.github.io/continuity/"
+repo_name: "aai-institute/continuity"
+repo_url: "https://github.com/aai-institute/continuity"
 copyright: "Copyright &copy; appliedAI Institute for Europe gGmbH"
 remote_branch: gh-pages
 
@@ -132,9 +132,9 @@ extra:
     default: stable
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/aai-institute/Continuity
+      link: https://github.com/aai-institute/continuity
     # - icon: fontawesome/brands/python
-    #   link: https://pypi.org/project/Continuity/
+    #   link: https://pypi.org/project/continuity/
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/appliedAI_gGmbH
     - icon: fontawesome/brands/linkedin

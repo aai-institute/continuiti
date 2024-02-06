@@ -4,7 +4,7 @@ title: Home
 
 <div align="center">
 
-<img alt="Continuity" src="https://aai-institute.github.io/Continuity/img/icon.png" width="100">
+<img alt="Continuity" src="https://aai-institute.github.io/continuity/img/icon.png" width="100">
 
 <h1>Continuity</h1>
 
