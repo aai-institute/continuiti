@@ -32,7 +32,12 @@ class Operator(torch.nn.Module):
             Tensor of evaluations of the mapped function of shape (batch_size, y_size, output_channels)
         """
 
-    def compile(self, optimizer: torch.optim.Optimizer, loss_fn: Optional[Loss] = None):
+    def compile(
+        self,
+        optimizer: torch.optim.Optimizer,
+        loss_fn: Optional[Loss] = None,
+        verbose: bool = True,
+    ):
         """Compile operator.
 
         Args:
@@ -46,8 +51,9 @@ class Operator(torch.nn.Module):
         self.to(device)
 
         # Print number of model parameters
-        num_params = sum(p.numel() for p in self.parameters())
-        print(f"Model parameters: {num_params}   Device: {device}")
+        if verbose:
+            num_params = sum(p.numel() for p in self.parameters())
+            print(f"Model parameters: {num_params}   Device: {device}")
 
     def fit(
         self,
