@@ -42,6 +42,26 @@ def tensor(x):
     return torch.tensor(x, device=device, dtype=torch.float32)
 
 
+def split(dataset, split=0.5, seed=None):
+    """
+    Split data set into two parts.
+
+    Args:
+        split: Split fraction.
+    """
+    assert 0 < split < 1, "Split fraction must be between 0 and 1."
+
+    generator = torch.Generator()
+    if seed is not None:
+        generator.manual_seed(seed)
+
+    return torch.utils.data.random_split(
+        dataset,
+        [split, 1 - split],
+        generator=generator,
+    )
+
+
 class DataSet:
     """Data set base class.
 
