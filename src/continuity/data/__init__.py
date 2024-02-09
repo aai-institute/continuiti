@@ -62,6 +62,25 @@ def split(dataset, split=0.5, seed=None):
     )
 
 
+def dataset_loss(dataset, operator, loss_fn):
+    """Evaluate operator performance on data set.
+
+    Args:
+        dataset: Data set.
+        operator: Operator.
+        loss_fn: Loss function.
+    """
+    loss = 0.0
+    n = len(dataset)
+
+    for i in range(n):
+        x, u, y, v = dataset[i]
+        batch_size = x.shape[0]
+        loss += loss_fn(operator, x, u, y, v) / batch_size
+
+    return loss
+
+
 class DataSet:
     """Data set base class.
 
