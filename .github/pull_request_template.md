@@ -1,40 +1,36 @@
-# Type of PR | Pull Request Name
+# Bugfix/Feature/Cleanup: PR Name
 
 ## Description
 
-Please include a summary of the change and which issue is fixed.
-Include relevant motivation and context.
-List any dependencies that are required for this change.
+### Which issue does this PR tackle?
 
-Fixes # (issue)
+  - XY functionality is not implemented.
+  - Fixes # (issue)
 
-## Validation and Tests
+### How does it solve the problem?
 
-Describe the tests that verify the changes that are not included in the CI.
-Provide instructions to reproduce if relevant.
-Provide relevant details for test configuration.
-Delete not relevant options.
+  - Implements XY class.
 
-- [ ] Adequate Unit tests
-- [ ] Unit tests are passing
-- [ ] Features work as expected/bug fixes resolve issue
-- [ ] Other means of quality insurance added (if necessary)
+### How are the changes tested?
 
-## Checklist:
+  - Added test_xy.
 
-Before you submit your pull request, please make sure you have completed the following steps:
 
-- [ ] Self-review
-- [ ] Concise and well-written comments
-- [ ] Documentation has been updated
-- [ ] Changes generate no new warnings
-- [ ] Any dependent changes have been merged
+## Checklist for Contributors
 
-## Pull Request Details
+- [ ] Scope: This PR tackles exactly one problem.
+- [ ] Conventions: The branch follows the `feature/title-slug` convention.
+- [ ] Conventions: The PR title follows the `Bugfix: Title` convention.
+- [ ] Coding style: The code passes all pre-commit hooks.
+- [ ] Documentation: All changes are well-documented.
+- [ ] Tests: New features are tested and all tests pass successfully.
+- [ ] Changelog: Updated CHANGELOG.md for new features or breaking changes.
+- [ ] Review: A suitable reviewer has been assigned.
 
-Please provide more details about the pull request.
-For example, screen captures of new features, gif of animation, or link to the live demo.
 
-### Reviewers:
+## Checklist for Reviewers:
 
-Add specific reviewers to this PR who may have a keen interest in or expertise related to this submission.
+- [ ] The PR solves the issue it claims to solve and only this one.
+- [ ] Changes are tested sufficiently and all tests pass.
+- [ ] Documentation is complete and well-written.
+- [ ] Changelog has been updated, if necessary.
