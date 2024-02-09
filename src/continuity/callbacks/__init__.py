@@ -111,3 +111,32 @@ class LearningCurve(Callback):
         plt.ylabel("Loss")
         plt.legend(self.keys)
         plt.show()
+
+
+class OptunaCallback(Callback):
+    """
+    Callback to report intermediate values to Optuna.
+
+    Args:
+        trial: Optuna trial.
+    """
+
+    def __init__(self, trial):
+        self.trial = trial
+        super().__init__()
+
+    def __call__(self, epoch: int, logs: Dict[str, float]):
+        """Callback function.
+        Called at the end of each epoch.
+
+        Args:
+            epoch: Current epoch.
+            logs: Dictionary of logs.
+        """
+        self.trial.report(logs["loss/train"], step=epoch)
+
+    def on_train_begin(self):
+        """Called at the beginning of training."""
+
+    def on_train_end(self):
+        """Called at the end of training."""
