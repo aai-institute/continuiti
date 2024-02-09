@@ -31,19 +31,24 @@ pip install -e .
 ```
 
 ## Usage
-Our [Documentation](https://aai-institute.github.io/continuity/) contains a verbose introduction to operator learning, a collection of examples using Continuity, and a class documentation.
+Our [Documentation](https://aai-institute.github.io/continuity/) contains a
+verbose introduction to operator learning, a collection of examples using
+Continuity, and a class documentation.
 
 In general, the operator syntax in Continuity is
 ```python
 v = operator(x, u(x), y)
 ```
 mapping a function `u` (evaluated at `x`) to function `v` (evaluated in `y`).
-For more details, see [Learning Operators](https://aai-institute.github.io/continuity/operators/index.html).
+For more details, see
+[Learning Operators](https://aai-institute.github.io/continuity/operators/index.html).
 
 ## Contributing
-If you find a bug or have a feature request, please open an issue on GitHub. If
-you want to contribute code, please fork the repository and submit a pull
-request.
+Contributions are welcome from anyone in the form of pull requests, bug reports
+and feature requests. If you find a bug or have a feature request, please open
+an issue on GitHub. If you want to contribute code, please fork the repository
+and submit a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md) for details on
+local development.
 
 ## License
 This project is licensed under the GNU LGPLv3 License - see the
