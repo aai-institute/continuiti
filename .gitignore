@@ -135,6 +135,7 @@ dmypy.json
 
 # Temporary
 runs/
+*.db
 
 # Docs
 docs_build
