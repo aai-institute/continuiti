@@ -5,7 +5,8 @@ from abc import abstractmethod
 from time import time
 from typing import Optional, List
 from torch import Tensor
-from continuity.data import device, DataSet
+from torch.utils.data import Dataset
+from continuity.data import device
 from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
 
@@ -57,7 +58,7 @@ class Operator(torch.nn.Module):
 
     def fit(
         self,
-        dataset: DataSet,
+        dataset: Dataset,
         epochs: int,
         callbacks: Optional[List[Callback]] = None,
     ):
