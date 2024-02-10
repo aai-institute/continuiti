@@ -66,6 +66,9 @@ def plot_evaluation(
     if dim == 1:
         n = 200
         y = torch.linspace(-1, 1, n, device=device).unsqueeze(-1)
+        x = x.unsqueeze(0)
+        u = u.unsqueeze(0)
+        y = y.unsqueeze(0)
         v = operator(x, u, y).detach()
         ax.plot(y.cpu().flatten(), v.cpu().flatten(), "k-")
 
@@ -83,6 +86,9 @@ def plot_evaluation(
             .unsqueeze(0)
             .to(device)
         )
+        x = x.unsqueeze(0)
+        u = u.unsqueeze(0)
+        y = y.unsqueeze(0)
         u = operator(x, u, y).detach().cpu()
         u = np.reshape(u, (n, n))
         ax.contourf(xx, yy, u, cmap="jet", levels=100)

@@ -35,7 +35,7 @@ def test_convolution():
     y = torch.linspace(-1, 1, num_evals).unsqueeze(-1).to(device)
 
     # Apply operator
-    v = operator(x, u, y)
+    v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
 
     # Extract batch
     v = v.squeeze(0)

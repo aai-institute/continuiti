@@ -68,10 +68,8 @@ def dataset_loss(dataset, operator, loss_fn):
         loss_fn: Loss function.
     """
     loss = 0.0
-    n = len(dataset)
 
-    for i in range(n):
-        x, u, y, v = dataset[i]
+    for x, u, y, v in dataset:
         batch_size = x.shape[0]
         loss += loss_fn(operator, x, u, y, v) / batch_size
 

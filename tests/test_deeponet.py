@@ -36,13 +36,14 @@ def test_deeponet():
 
     # Plotting
     fig, ax = plt.subplots(1, 1)
-    x, u, _, _ = dataset[0]  # first batch
-    x0, u0 = x[0], u[0]  # first sample
-    plot(x0, u0, ax=ax)
-    plot_evaluation(operator, x0, u0, ax=ax)
+    x, u, _, _ = dataset[0]
+    plot(x, u, ax=ax)
+    plot_evaluation(operator, x, u, ax=ax)
     fig.savefig(f"test_deeponet.png")
 
     # Check solution
+    x = x.unsqueeze(0)
+    u = u.unsqueeze(0)
     assert operator.loss(x, u, x, u) < 3e-5
 
 
