@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from continuity.data.datasets import Sine
 from continuity.operators import DeepONet
 from continuity.plotting import plot, plot_evaluation
+from torch.utils.data import DataLoader
 
 # Set random seed
 torch.manual_seed(0)
@@ -14,6 +15,7 @@ def test_deeponet():
 
     # Data set
     dataset = Sine(num_sensors, size=1)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
     # Operator
     operator = DeepONet(
@@ -30,7 +32,7 @@ def test_deeponet():
     # Train self-supervised
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
     operator.compile(optimizer)
-    operator.fit(dataset, epochs=1000)
+    operator.fit(dataloader, epochs=1000)
 
     # Plotting
     fig, ax = plt.subplots(1, 1)

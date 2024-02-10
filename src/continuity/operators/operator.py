@@ -82,8 +82,8 @@ class Operator(torch.nn.Module):
             loss_train = 0
 
             start = time()
-            for i in range(len(dataset)):
-                x, u, y, v = dataset[i]
+            for sample in dataset:
+                x, u, y, v = sample
 
                 def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()
