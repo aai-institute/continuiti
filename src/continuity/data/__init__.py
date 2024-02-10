@@ -36,7 +36,7 @@ device = get_device()
 
 def tensor(x):
     """Default conversion for tensors."""
-    return torch.tensor(x, device=device, dtype=torch.float32)
+    return torch.tensor(x, dtype=torch.float32)
 
 
 def split(dataset, split=0.5, seed=None):

@@ -4,9 +4,10 @@ import os
 import torch
 import numpy as np
 import pandas as pd
-from typing import List
+from typing import List, Tuple
 from torch import Tensor
-from continuity.data import device, tensor, DataSet
+from continuity.data import tensor
+from torch.utils.data import Dataset
 
 
 class FlameDataLoader:
@@ -67,7 +68,7 @@ class FlameDataLoader:
 
         xy = 16 * 16 if res == "LR" else 128 * 128
         num_channels = len(channels)
-        flow_fields = torch.zeros(xy, num_channels, device=device)
+        flow_fields = torch.zeros(xy, num_channels)
 
         # Load data
         for i in range(num_channels):
@@ -88,11 +89,11 @@ def create_position_grid(size):
     Returns:
         Tensor of shape (size, size, 2) with positions in $[-1, 1]^2$.
     """
-    ls = torch.linspace(-1, 1, size, device=device)
+    ls = torch.linspace(-1, 1, size)
     return torch.stack(torch.meshgrid(ls, ls, indexing="ij"), axis=2).reshape(-1, 2)
 
 
-class FlameDataSet(DataSet):
+class FlameDataSet(Dataset):
     """Flame data set.
 
     Args:
@@ -157,4 +158,10 @@ class FlameDataSet(DataSet):
         self.y = torch.stack(self.y)
         self.v = torch.stack(self.v)
 
-        super().__init__(self.x, self.u, self.y, self.v, self.batch_size, shuffle=True)
+        super().__init__()
+
+    def __len__(self) -> int:
+        return self.size
+
+    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        return self.x[i], self.u[i], self.y[i], self.v[i]

@@ -6,7 +6,6 @@ from time import time
 from typing import Optional, List
 from torch import Tensor
 from torch.utils.data import Dataset
-from continuity.data import device
 from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
 
@@ -48,13 +47,10 @@ class Operator(torch.nn.Module):
         self.optimizer = optimizer
         self.loss_fn = loss_fn or MSELoss()
 
-        # Move to device
-        self.to(device)
-
         # Print number of model parameters
         if verbose:
             num_params = sum(p.numel() for p in self.parameters())
-            print(f"Model parameters: {num_params}   Device: {device}")
+            print(f"Model parameters: {num_params}")
 
     def fit(
         self,

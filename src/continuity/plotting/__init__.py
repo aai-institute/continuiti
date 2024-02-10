@@ -10,7 +10,6 @@ from torch import Tensor
 from typing import Optional
 from matplotlib.axis import Axis
 import matplotlib.pyplot as plt
-from continuity.data import device
 from continuity.operators import Operator
 
 
@@ -65,7 +64,7 @@ def plot_evaluation(
 
     if dim == 1:
         n = 200
-        y = torch.linspace(-1, 1, n, device=device).unsqueeze(-1)
+        y = torch.linspace(-1, 1, n).unsqueeze(-1)
         x = x.unsqueeze(0)
         u = u.unsqueeze(0)
         y = y.unsqueeze(0)
@@ -76,16 +75,12 @@ def plot_evaluation(
         n = 128
         a = np.linspace(-1, 1, n)
         xx, yy = np.meshgrid(a, a)
-        y = (
-            torch.tensor(
-                np.array(
-                    [np.array([xx[i, j], yy[i, j]]) for i in range(n) for j in range(n)]
-                ),
-                dtype=u.dtype,
-            )
-            .unsqueeze(0)
-            .to(device)
-        )
+        y = torch.tensor(
+            np.array(
+                [np.array([xx[i, j], yy[i, j]]) for i in range(n) for j in range(n)]
+            ),
+            dtype=u.dtype,
+        ).unsqueeze(0)
         x = x.unsqueeze(0)
         u = u.unsqueeze(0)
         y = y.unsqueeze(0)

@@ -1,6 +1,5 @@
 import torch
 import matplotlib.pyplot as plt
-from continuity.data import device
 from continuity.data.datasets import Sine
 from continuity.operators import ContinuousConvolution
 from continuity.plotting import plot
@@ -21,7 +20,7 @@ def test_convolution():
     # Kernel
     def dirac(x, y):
         dist = ((x - y) ** 2).sum(dim=-1)
-        zero = torch.zeros(1, device=device)
+        zero = torch.zeros(1)
         return torch.isclose(dist, zero).to(torch.float32)
 
     # Operator
@@ -32,7 +31,7 @@ def test_convolution():
     )
 
     # Create tensors
-    y = torch.linspace(-1, 1, num_evals).unsqueeze(-1).to(device)
+    y = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
 
     # Apply operator
     v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
