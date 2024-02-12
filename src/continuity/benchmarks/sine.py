@@ -1,9 +1,10 @@
 """Sine benchmark."""
 
 from continuity.benchmarks import Benchmark
-from continuity.data import DataSet, split
+from continuity.data import split
 from continuity.data.datasets import Sine
 from continuity.operators.losses import Loss, MSELoss
+from torch.utils.data import Dataset
 
 
 class SineBenchmark(Benchmark):
@@ -17,20 +18,19 @@ class SineBenchmark(Benchmark):
         self.dataset = Sine(
             num_sensors=32,
             size=100,
-            batch_size=1,
         )
 
         self.train_dataset, self.test_dataset = split(self.dataset, 0.9)
 
-    def dataset(self) -> DataSet:
+    def dataset(self) -> Dataset:
         """Return data set."""
         return self.dataset
 
-    def train_dataset(self) -> DataSet:
+    def train_dataset(self) -> Dataset:
         """Return training data set."""
         return self.train_dataset
 
-    def test_dataset(self) -> DataSet:
+    def test_dataset(self) -> Dataset:
         """Return test data set."""
         return self.test_dataset
 

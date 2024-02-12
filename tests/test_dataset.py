@@ -1,7 +1,9 @@
 import torch
 import matplotlib.pyplot as plt
-from continuity.data import SelfSupervisedDataSet, tensor
+from continuity.data import tensor
+from continuity.data.datasets import SelfSupervisedDataSet
 from continuity.plotting import plot
+from torch.utils.data import DataLoader
 
 # Set random seed
 torch.manual_seed(0)
@@ -26,13 +28,13 @@ def test_dataset():
     dataset = SelfSupervisedDataSet(
         x.unsqueeze(0),
         u.unsqueeze(0),
-        batch_size=3,
     )
+    dataloader = DataLoader(dataset, batch_size=3, shuffle=False)
     x_target, u_target = x, u
 
     # Test
-    for i in range(len(dataset)):
-        x, u, y, v = dataset[i]
+    for sample in dataloader:
+        x, u, y, v = sample
 
         # Every x, u must equal observation
         assert x.shape[1] == num_sensors

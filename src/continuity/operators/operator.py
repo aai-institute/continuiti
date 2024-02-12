@@ -5,7 +5,7 @@ from abc import abstractmethod
 from time import time
 from typing import Optional, List
 from torch import Tensor
-from continuity.data import device, DataSet
+from torch.utils.data import Dataset
 from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
 
@@ -47,17 +47,14 @@ class Operator(torch.nn.Module):
         self.optimizer = optimizer
         self.loss_fn = loss_fn or MSELoss()
 
-        # Move to device
-        self.to(device)
-
         # Print number of model parameters
         if verbose:
             num_params = sum(p.numel() for p in self.parameters())
-            print(f"Model parameters: {num_params}   Device: {device}")
+            print(f"Model parameters: {num_params}")
 
     def fit(
         self,
-        dataset: DataSet,
+        dataset: Dataset,
         epochs: int,
         callbacks: Optional[List[Callback]] = None,
     ):
@@ -81,8 +78,8 @@ class Operator(torch.nn.Module):
             loss_train = 0
 
             start = time()
-            for i in range(len(dataset)):
-                x, u, y, v = dataset[i]
+            for sample in dataset:
+                x, u, y, v = sample
 
                 def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()

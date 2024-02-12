@@ -49,23 +49,6 @@ class ContinuousConvolution(Operator):
         Returns:
             Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
-        # Unsqueeze if no batch dim
-        if len(u.shape) < 3:
-            batch_size = 1
-            x = x.unsqueeze(0)
-            u = u.unsqueeze(0)
-            y = y.unsqueeze(0)
-
-        # Patch for 1D coordinates and one channel
-        if len(x.shape) < 3 and self.coordinate_dim == 1:
-            x = x.unsqueeze(-1)
-
-        if len(u.shape) < 3 and self.num_channels == 1:
-            u = u.unsqueeze(-1)
-
-        if len(y.shape) < 3 and self.coordinate_dim == 1:
-            y = y.unsqueeze(-1)
-
         # Get batch size etc.
         batch_size = u.shape[0]
         num_sensors = u.shape[1]
@@ -156,23 +139,6 @@ class NeuralOperator(Operator):
         Returns:
             Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
         """
-        # Unsqueeze if no batch dim
-        if len(u.shape) < 3:
-            batch_size = 1
-            x = x.unsqueeze(0)
-            u = u.unsqueeze(0)
-            y = y.unsqueeze(0)
-
-        # Patch for 1D coordinates and one channel
-        if len(x.shape) < 3 and self.coordinate_dim == 1:
-            x = x.unsqueeze(-1)
-
-        if len(u.shape) < 3 and self.num_channels == 1:
-            u = u.unsqueeze(-1)
-
-        if len(y.shape) < 3 and self.coordinate_dim == 1:
-            y = y.unsqueeze(-1)
-
         # Get batch size etc.
         batch_size = u.shape[0]
         num_sensors = u.shape[1]
