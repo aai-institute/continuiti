@@ -11,7 +11,7 @@ import torch
 from .dataset import OperatorDataset, SelfSupervisedOperatorDataset
 from .shape import DatasetShape
 from .sine import Sine
-from .flame import Flame
+from .flame import Flame, FlameDataLoader
 
 __all__ = [
     "OperatorDataset",
@@ -19,6 +19,7 @@ __all__ = [
     "DatasetShape",
     "Sine",
     "Flame",
+    "FlameDataLoader",
     "device",
     "split",
 ]
