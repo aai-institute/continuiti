@@ -8,6 +8,19 @@ Every data set is a list of `(x, u, y, v)` tuples.
 import os
 import torch
 
+from .dataset import OperatorDataset, SelfSupervisedOperatorDataset
+from .shape import DatasetShape
+from .sine import Sine
+from .flame import Flame
+
+__all__ = [
+    "OperatorDataset",
+    "SelfSupervisedOperatorDataset",
+    "DatasetShape",
+    "Sine",
+    "Flame"
+]
+
 
 def get_device() -> torch.device:
     """Get torch device.
@@ -32,11 +45,6 @@ def get_device() -> torch.device:
 
 
 device = get_device()
-
-
-def tensor(x):
-    """Default conversion for tensors."""
-    return torch.tensor(x, dtype=torch.float32)
 
 
 def split(dataset, split=0.5, seed=None):

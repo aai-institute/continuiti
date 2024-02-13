@@ -12,7 +12,7 @@ from typing import Tuple
 from .shape import DatasetShape, TensorShape
 
 
-class DataSet(td.Dataset):
+class OperatorDataset(td.Dataset):
     """A dataset for operator training.
 
     In operator training, at least one function is mapped onto a second one. To fulfill the properties discretization
@@ -33,19 +33,19 @@ class DataSet(td.Dataset):
     """
 
     def __init__(
-        self,
-        x: torch.Tensor,
-        u: torch.Tensor,
-        y: torch.Tensor,
-        v: torch.Tensor,
-        x_transform=None,
-        u_transform=None,
-        y_transform=None,
-        v_transform=None,
+            self,
+            x: torch.Tensor,
+            u: torch.Tensor,
+            y: torch.Tensor,
+            v: torch.Tensor,
+            x_transform=None,
+            u_transform=None,
+            y_transform=None,
+            v_transform=None,
     ):
         assert x.ndim == u.ndim == y.ndim == v.ndim == 3, "Wrong number of dimensions."
         assert (
-            x.size(0) == u.size(0) == y.size(0) == v.size(0)
+                x.size(0) == u.size(0) == y.size(0) == v.size(0)
         ), "Inconsistent number of observations."
         assert x.size(1) == u.size(1), "Inconsistent number of sensors."
         assert y.size(1) == v.size(1), "Inconsistent number of evaluations."
@@ -85,7 +85,7 @@ class DataSet(td.Dataset):
         return len(self.u)
 
     def __getitem__(
-        self, idx
+            self, idx
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Retrieves the input-output pair at the specified index and applies transformations.
 
@@ -110,9 +110,9 @@ class DataSet(td.Dataset):
         return sample["x"], sample["u"], sample["y"], sample["v"]
 
 
-class SelfSupervisedDataSet(DataSet):
+class SelfSupervisedOperatorDataset(OperatorDataset):
     """
-    A `SelfSupervisedDataSet` is a data set that exports batches of observations
+    A `SelfSupervisedOperatorDataset` is a data set that exports batches of observations
     and labels for self-supervised learning.
     Every data point is created by taking one sensor as label.
 
@@ -134,10 +134,10 @@ class SelfSupervisedDataSet(DataSet):
         # Check consistency across observations
         for i in range(self.num_observations):
             assert (
-                x[i].shape[-1] == self.coordinate_dim
+                    x[i].shape[-1] == self.coordinate_dim
             ), "Inconsistent coordinate dimension."
             assert (
-                u[i].shape[-1] == self.num_channels
+                    u[i].shape[-1] == self.num_channels
             ), "Inconsistent number of channels."
 
         xs, us, ys, vs = [], [], [], []
