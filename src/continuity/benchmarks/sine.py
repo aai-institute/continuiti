@@ -1,8 +1,7 @@
 """Sine benchmark."""
 
 from continuity.benchmarks import Benchmark
-from continuity.data import split
-from continuity.data.datasets import Sine
+from continuity.data import Sine, split
 from continuity.operators.losses import Loss, MSELoss
 from torch.utils.data import Dataset
 
