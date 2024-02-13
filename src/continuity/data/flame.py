@@ -4,10 +4,9 @@ import os
 import torch
 import numpy as np
 import pandas as pd
-from typing import List, Tuple
-from torch import Tensor
-from continuity.data import tensor
-from torch.utils.data import Dataset
+from typing import List
+
+from continuity.data import OperatorDataset
 
 
 class FlameDataLoader:
@@ -43,7 +42,7 @@ class FlameDataLoader:
         res: str = "LR",
         split: str = "train",
         channels: List[str] = all_channels,
-    ) -> Tensor:
+    ) -> torch.Tensor:
         """Load a flow sample from file.
 
         Args:
@@ -75,7 +74,7 @@ class FlameDataLoader:
             c = channels[i]
             filename = data_frame[f"{c}_filename"][index]
             flow_field = np.fromfile(data_path + filename, dtype="<f4")
-            flow_fields[:, i] = tensor(flow_field)
+            flow_fields[:, i] = torch.tensor(flow_field)
 
         return flow_fields
 
@@ -93,7 +92,7 @@ def create_position_grid(size):
     return torch.stack(torch.meshgrid(ls, ls, indexing="ij"), axis=2).reshape(-1, 2)
 
 
-class FlameDataSet(Dataset):
+class Flame(OperatorDataset):
     """Flame data set.
 
     Args:
@@ -122,46 +121,40 @@ class FlameDataSet(Dataset):
             self.size = min(self.size, size)
         self.batch_size = batch_size
 
-        self.x = []
-        self.u = []
-        self.y = []
-        self.v = []
+        x = []
+        u = []
+        y = []
+        v = []
 
         for index in range(self.size):
             # Load data
-            u = self.data_loader.load(
+            u_i = self.data_loader.load(
                 index=index, res="LR", split=self.split, channels=self.channels
             )
-            v = self.data_loader.load(
+            v_i = self.data_loader.load(
                 index=index, res="HR", split=self.split, channels=self.channels
             )
 
             # Normalize
             if normalize:
-                mean, std = u.mean(), u.std()
-                u = (u - mean) / std
-                v = (v - mean) / std
+                mean, std = u_i.mean(), u_i.std()
+                u_i = (u_i - mean) / std
+                v_i = (v_i - mean) / std
 
             # Positions
-            x = create_position_grid(16)
-            y = create_position_grid(128)
+            x_i = create_position_grid(16)
+            y_i = create_position_grid(128)
 
             # Add to list
-            self.x.append(x)
-            self.u.append(u)
-            self.y.append(y)
-            self.v.append(v)
+            x.append(x_i)
+            u.append(u_i)
+            y.append(y_i)
+            v.append(v_i)
 
         # Stack
-        self.x = torch.stack(self.x)
-        self.u = torch.stack(self.u)
-        self.y = torch.stack(self.y)
-        self.v = torch.stack(self.v)
+        x = torch.stack(x)
+        u = torch.stack(u)
+        y = torch.stack(y)
+        v = torch.stack(v)
 
-        super().__init__()
-
-    def __len__(self) -> int:
-        return self.size
-
-    def __getitem__(self, i: int) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
-        return self.x[i], self.u[i], self.y[i], self.v[i]
+        super().__init__(x, u, y, v)
