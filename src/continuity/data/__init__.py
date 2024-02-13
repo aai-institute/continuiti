@@ -18,7 +18,8 @@ __all__ = [
     "SelfSupervisedOperatorDataset",
     "DatasetShape",
     "Sine",
-    "Flame"
+    "Flame",
+    "device"
 ]
 
 
