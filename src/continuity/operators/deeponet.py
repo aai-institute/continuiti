@@ -40,7 +40,7 @@ class DeepONet(Operator):
         self.dataset_shape = dataset_shape
 
         self.basis_functions = basis_functions
-        self.dot_dim = dataset_shape.v.num * basis_functions
+        self.dot_dim = dataset_shape.v.num * dataset_shape.v.dim * basis_functions
         # trunk network
         self.trunk = DeepResidualNetwork(
             input_size=dataset_shape.y.dim,
