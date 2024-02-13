@@ -1,27 +1,29 @@
 import torch
+from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from continuity.data.datasets import Sine
+from continuity.data import Sine, device
 from continuity.operators import ContinuousConvolution
-from continuity.plotting import plot
 
 # Set random seed
 torch.manual_seed(0)
 
 
 def test_convolution():
+    torch.set_default_dtype(torch.float64)
     # Parameters
     num_sensors = 16
     num_evals = num_sensors
 
     # Data set
     dataset = Sine(num_sensors, size=1)
-    x, u = dataset.x[0], dataset.u[0]
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+    x, u, _, _ = next(iter(dataloader))
 
     # Kernel
     def dirac(x, y):
         dist = ((x - y) ** 2).sum(dim=-1)
         zero = torch.zeros(1)
-        return torch.isclose(dist, zero).to(torch.float32)
+        return torch.isclose(dist, zero).to(torch.float64)
 
     # Operator
     operator = ContinuousConvolution(
@@ -31,18 +33,16 @@ def test_convolution():
     )
 
     # Create tensors
-    y = torch.linspace(-1, 1, num_evals).unsqueeze(-1)
+    y = torch.linspace(-1, 1, num_evals).reshape(1, -1, 1).to(device)
 
     # Apply operator
     v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
 
-    # Extract batch
-    v = v.squeeze(0)
-
     # Plotting
     fig, ax = plt.subplots(1, 1)
-    plot(x, u, ax=ax)
-    plot(x, v, ax=ax)
+    x_plot = x[0].squeeze().detach().numpy()
+    ax.plot(x_plot, u[0].squeeze().detach().numpy(), "x-")
+    ax.plot(x_plot, v[0].squeeze().detach().numpy(), "--")
     fig.savefig(f"test_convolution.png")
 
     # For num_sensors == num_evals, we get v = u / num_sensors.

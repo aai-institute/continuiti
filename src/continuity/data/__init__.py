@@ -19,7 +19,8 @@ __all__ = [
     "DatasetShape",
     "Sine",
     "Flame",
-    "device"
+    "device",
+    "split"
 ]
 
 
@@ -79,7 +80,7 @@ def dataset_loss(dataset, operator, loss_fn):
     loss = 0.0
 
     for x, u, y, v in dataset:
-        batch_size = x.shape[0]
-        loss += loss_fn(operator, x, u, y, v) / batch_size
+        x, u, y, v = x.unsqueeze(0), u.unsqueeze(0), y.unsqueeze(0), v.unsqueeze(0)
+        loss += loss_fn(operator, x, u, y, v)
 
     return loss
