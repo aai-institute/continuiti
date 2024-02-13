@@ -1,13 +1,12 @@
 """In Continuity, all models for operator learning are based on the `Operator` base class."""
 
 import torch
-from torch.utils.data import DataLoader
 from abc import abstractmethod
 from time import time
 from typing import Optional, List
 from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
-from continuity.data import OperatorDataset, device
+from continuity.data import device
 
 
 class Operator(torch.nn.Module):
@@ -57,9 +56,8 @@ class Operator(torch.nn.Module):
 
     def fit(
         self,
-        dataset: OperatorDataset,
+        data_loader: torch.utils.data.DataLoader,
         epochs: int,
-        batch_size: int = 1,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Fit operator to data set.
@@ -78,13 +76,12 @@ class Operator(torch.nn.Module):
         for callback in callbacks:
             callback.on_train_begin()
 
-        dataloader = DataLoader(dataset, batch_size=batch_size)
         # Train
         for epoch in range(epochs + 1):
             loss_train = 0
 
             start = time()
-            for x, u, y, v in dataloader:
+            for x, u, y, v in data_loader:
                 x, u, y, v = x.to(device), u.to(device), y.to(device), v.to(device)
 
                 def closure(x=x, u=u, y=y, v=v):
@@ -101,7 +98,7 @@ class Operator(torch.nn.Module):
 
             end = time()
             seconds_per_epoch = end - start
-            loss_train /= len(dataset)
+            loss_train /= len(data_loader)
 
             # Callbacks
             logs = {

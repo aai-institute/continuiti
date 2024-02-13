@@ -16,7 +16,7 @@ def test_deeponet():
 
     # Data set
     dataset = Sine(num_sensors, size=1)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+    data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
 
     # Operator
     operator = DeepONet(
@@ -31,7 +31,7 @@ def test_deeponet():
     # Train self-supervised
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
     operator.compile(optimizer)
-    operator.fit(dataset, batch_size=1, epochs=1000)
+    operator.fit(data_loader, epochs=1000)
 
     # Plotting
     fig, ax = plt.subplots(1, 1)

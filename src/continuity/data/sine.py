@@ -1,7 +1,6 @@
 """Various data set implementations."""
 
 import torch
-import numpy as np
 from typing import Tuple
 
 from continuity.data import OperatorDataset
@@ -51,20 +50,20 @@ class Sine(OperatorDataset):
 
         super().__init__(x, u, x, u)
 
-    def generate_observation(self, i: float) -> Tuple[np.array, np.array]:
+    def generate_observation(self, i: float) -> Tuple[torch.tensor, torch.Tensor]:
         """Generate observation
 
         Args:
             i: Index of observation (0 <= i <= size).
         """
         # Create x of shape (n, 1)
-        x = np.linspace(-1, 1, self.num_sensors).reshape(-1, 1)
+        x = torch.linspace(-1, 1, self.num_sensors).reshape(-1, 1)
 
         if self.size == 1:
             w = 1
         else:
             w = 1 + i / (self.size - 1)
 
-        u = np.sin(w * np.pi * x)
+        u = torch.sin(w * torch.pi * x)
 
         return torch.tensor(x), torch.tensor(u)
