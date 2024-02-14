@@ -76,6 +76,9 @@ class Operator(torch.nn.Module):
         for callback in callbacks:
             callback.on_train_begin()
 
+        # move the operator to the correct device
+        self.to(device)
+
         # Train
         for epoch in range(epochs + 1):
             loss_train = 0
