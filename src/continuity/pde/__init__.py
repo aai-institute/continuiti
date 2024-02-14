@@ -10,6 +10,16 @@ import torch
 from abc import abstractmethod
 
 from continuity.operators.operator import Operator
+from .grad import Grad, grad, Div, div
+
+__all__ = [
+    "PDE",
+    "PhysicsInformedLoss",
+    "Grad",
+    "Div",
+    "grad",
+    "div",
+]
 
 
 class PDE:
