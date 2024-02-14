@@ -50,7 +50,7 @@ class Sine(OperatorDataset):
 
         super().__init__(x, u, x, u)
 
-    def generate_observation(self, i: float) -> Tuple[torch.tensor, torch.Tensor]:
+    def generate_observation(self, i: float) -> Tuple[torch.Tensor, torch.Tensor]:
         """Generate observation
 
         Args:
@@ -66,4 +66,4 @@ class Sine(OperatorDataset):
 
         u = torch.sin(w * torch.pi * x)
 
-        return torch.tensor(x), torch.tensor(u)
+        return x, u
