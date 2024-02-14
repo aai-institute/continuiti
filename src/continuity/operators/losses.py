@@ -1,7 +1,6 @@
 """Loss functions."""
 
 import torch
-from torch import Tensor
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
@@ -14,8 +13,13 @@ class Loss:
 
     @abstractmethod
     def __call__(
-        self, op: "Operator", x: Tensor, u: Tensor, y: Tensor, v: Tensor
-    ) -> Tensor:
+        self,
+        op: "Operator",
+        x: torch.Tensor,
+        u: torch.Tensor,
+        y: torch.Tensor,
+        v: torch.Tensor,
+    ) -> torch.Tensor:
         """Evaluate loss.
 
         Args:
@@ -34,8 +38,13 @@ class MSELoss(Loss):
         self.mse = torch.nn.MSELoss()
 
     def __call__(
-        self, op: "Operator", x: Tensor, u: Tensor, y: Tensor, v: Tensor
-    ) -> Tensor:
+        self,
+        op: "Operator",
+        x: torch.Tensor,
+        u: torch.Tensor,
+        y: torch.Tensor,
+        v: torch.Tensor,
+    ) -> torch.Tensor:
         """Evaluate MSE loss.
 
         Args:

@@ -1,5 +1,4 @@
 import torch
-from torch import Tensor
 
 
 class ResidualLayer(torch.nn.Module):
@@ -14,7 +13,7 @@ class ResidualLayer(torch.nn.Module):
         self.layer = torch.nn.Linear(width, width)
         self.act = torch.nn.Tanh()
 
-    def forward(self, x: Tensor):
+    def forward(self, x: torch.Tensor):
         """Forward pass."""
         return self.act(self.layer(x)) + x
 
@@ -73,7 +72,7 @@ class NeuralNetworkKernel(torch.nn.Module):
             kernel_depth,
         )
 
-    def forward(self, x: Tensor, y: Tensor) -> Tensor:
+    def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         """Compute kernel value.
 
         Args:
