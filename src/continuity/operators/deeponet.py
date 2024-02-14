@@ -1,28 +1,24 @@
 """The DeepONet architecture."""
 
 import torch
-from torch import Tensor
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
+from continuity.data import DatasetShapes
 
 
 class DeepONet(Operator):
     r"""
-    Maps continuous functions given as observation to another continuous
-    functions and returns point-wise evaluations. The architecture is inspired
-    by the universal approximation theorem for operators.
+    Maps continuous functions given as observation to another continuous function and returns point-wise evaluations.
+    The architecture is inspired by the universal approximation theorem for operators.
 
-    *Reference:* Lu Lu et al. Learning nonlinear operators via DeepONet based
-    on the universal approximation theorem of operators. Nat Mach Intell 3
-    218-229 (2021)
+    *Reference:* Lu Lu et al. Learning nonlinear operators via DeepONet based on the universal approximation theorem of
+    operators. Nat Mach Intell 3 218-229 (2021)
 
-    **Note:** This operator is not discretization invariant, i.e., it assumes
-    that all observations were evaluated at the same positions.
+    **Note:** This operator is not discretization invariant, i.e., it assumes that all observations were evaluated at
+    the same positions.
 
     Args:
-        num_sensors: Number of sensors (fixed!)
-        coordinate_dim: Dimension of coordinate space
-        num_channels: Number of channels
+        shapes: Shape variable of the dataset
         branch_width: Width of branch network
         branch_depth: Depth of branch network
         trunk_width: Width of trunk network
@@ -32,9 +28,7 @@ class DeepONet(Operator):
 
     def __init__(
         self,
-        num_sensors: int,
-        coordinate_dim: int = 1,
-        num_channels: int = 1,
+        shapes: DatasetShapes,
         branch_width: int = 32,
         branch_depth: int = 3,
         trunk_width: int = 32,
@@ -43,64 +37,64 @@ class DeepONet(Operator):
     ):
         super().__init__()
 
-        self.coordinate_dim = coordinate_dim
-        self.num_channels = num_channels
-        self.num_sensors = num_sensors
+        self.dataset_shape = shapes
+
         self.basis_functions = basis_functions
-
-        branch_input = num_sensors * num_channels
-        trunk_input = coordinate_dim
-
-        self.branch = DeepResidualNetwork(
-            branch_input,
-            self.num_channels * basis_functions,
-            branch_width,
-            branch_depth,
-        )
-
+        self.dot_dim = shapes.v.dim * basis_functions
+        # trunk network
         self.trunk = DeepResidualNetwork(
-            trunk_input,
-            self.num_channels * basis_functions,
-            trunk_width,
-            trunk_depth,
+            input_size=shapes.y.dim,
+            output_size=self.dot_dim,
+            width=trunk_width,
+            depth=trunk_depth,
+        )
+        # branch network
+        branch_input_dim = shapes.u.num * shapes.u.dim
+        self.branch = DeepResidualNetwork(
+            input_size=branch_input_dim,
+            output_size=self.dot_dim,
+            width=branch_width,
+            depth=branch_depth,
         )
 
-    def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:
+    def forward(
+        self, _: torch.Tensor, u: torch.Tensor, y: torch.Tensor
+    ) -> torch.Tensor:
         """Forward pass through the operator.
 
         Args:
-            x: Ignored.
-            u: Tensor of sensor values of shape (batch_size, num_sensors, [num_channels]). If len(u.shape) < 3, a batch dimension will be added.
-            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, [coordinate_dim]). If len(y.shape) < 3, a batch dimension will be added.
+            _: Ignored.
+            u: Input function values of shape (batch_size, #sensors, u_dim)
+            y: Evaluation coordinates of shape (batch_size, #evaluations, y_dim)
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, y_size, num_channels)
+            Operator output (batch_size, #evaluations, v_dim)
         """
-        # Get batch size
-        batch_size = u.shape[0]
+        assert u.size(0) == y.size(0)
 
-        # Get number of evaluations
-        assert len(y.shape) >= 2
-        y_size = y.shape[1]
+        # flatten inputs for both trunk and branch network
+        u = u.flatten(1, -1)
+        assert u.shape[1:] == torch.Size(
+            [self.dataset_shape.u.num * self.dataset_shape.u.dim]
+        )
 
-        # Check shapes
-        assert y.shape[0] == batch_size
-        assert u.shape[1] == self.num_sensors
-        if len(u.shape) > 2:
-            assert u.shape[2] == self.num_channels
+        y = y.flatten(0, 1)
+        assert u.shape[1:] == torch.Size(
+            [self.dataset_shape.u.num * self.dataset_shape.u.dim]
+        )
 
-        # Reshape branch and trunk inputs
-        u = u.reshape((batch_size, -1))
-        y = y.reshape((-1, self.coordinate_dim))
-
-        # Pass trough branch and trunk networks
+        # Pass through branch and trunk networks
         b = self.branch(u)
         t = self.trunk(y)
 
-        # Compute dot product
-        b = b.reshape((batch_size, self.basis_functions, self.num_channels))
-        t = t.reshape((batch_size, y_size, self.basis_functions, self.num_channels))
-        sum = torch.einsum("ubc,uxbc->uxc", b, t)
-        assert sum.shape == (batch_size, y_size, self.num_channels)
+        # dot product
+        b = b.reshape(-1, self.dataset_shape.v.dim, self.basis_functions)
+        t = t.reshape(
+            b.size(0),
+            -1,
+            self.dataset_shape.v.dim,
+            self.basis_functions,
+        )
+        dot_prod = torch.einsum("abcd,acd->abc", t, b)
 
-        return sum
+        return dot_prod

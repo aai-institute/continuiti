@@ -1,9 +1,9 @@
 import torch
+from torch.utils.data import DataLoader
 from continuity.benchmarks.sine import SineBenchmark
 from continuity.callbacks import OptunaCallback
 from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
-from torch.utils.data import DataLoader
 import optuna
 
 # Set random seed
@@ -22,14 +22,11 @@ def test_optuna():
 
         # Train/val split
         train_dataset, val_dataset = split(benchmark.train_dataset, 0.9)
-        train_dataloader = DataLoader(train_dataset)
-        val_dataloader = DataLoader(val_dataset)
+        train_loader = DataLoader(train_dataset)
 
         # Operator
         operator = DeepONet(
-            benchmark.dataset.num_sensors,
-            benchmark.dataset.coordinate_dim,
-            benchmark.dataset.num_channels,
+            benchmark.dataset.shapes,
             trunk_width=trunk_width,
             trunk_depth=trunk_depth,
         )
@@ -38,11 +35,9 @@ def test_optuna():
         optimizer = torch.optim.Adam(operator.parameters(), lr=lr)
 
         operator.compile(optimizer, verbose=False)
-        operator.fit(
-            train_dataloader, epochs=num_epochs, callbacks=[OptunaCallback(trial)]
-        )
+        operator.fit(train_loader, epochs=num_epochs, callbacks=[OptunaCallback(trial)])
 
-        loss_val = dataset_loss(val_dataloader, operator, benchmark.metric())
+        loss_val = dataset_loss(val_dataset, operator, benchmark.metric())
         print(f"loss/val: {loss_val:.4e}")
 
         return loss_val

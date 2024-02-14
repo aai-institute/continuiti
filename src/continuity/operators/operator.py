@@ -4,8 +4,6 @@ import torch
 from abc import abstractmethod
 from time import time
 from typing import Optional, List
-from torch import Tensor
-from torch.utils.data import Dataset
 from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
 
@@ -20,16 +18,18 @@ class Operator(torch.nn.Module):
     """
 
     @abstractmethod
-    def forward(self, x: Tensor, u: Tensor, y: Tensor) -> Tensor:
+    def forward(
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
+    ) -> torch.Tensor:
         """Forward pass through the operator.
 
         Args:
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, input_coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, input_channels)
-            y: Tensor of coordinates where the mapped function is evaluated of shape (batch_size, y_size, output_coordinate_dim)
+            x: Sensor positions of shape (batch_size, num_sensors, input_coordinate_dim)
+            u: Input function values of shape (batch_size, num_sensors, input_channels)
+            y: Coordinates where the mapped function is evaluated of shape (batch_size, y_size, output_coordinate_dim)
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, y_size, output_channels)
+            Evaluations of the mapped function with shape (batch_size, y_size, output_channels)
         """
 
     def compile(
@@ -41,6 +41,7 @@ class Operator(torch.nn.Module):
         """Compile operator.
 
         Args:
+            verbose: Print number of model parameters to stdout.
             optimizer: Torch-like optimizer.
             loss_fn: Loss function taking (x, u, y, v). Defaults to MSELoss.
         """
@@ -54,13 +55,14 @@ class Operator(torch.nn.Module):
 
     def fit(
         self,
-        dataset: Dataset,
+        data_loader: torch.utils.data.DataLoader,
         epochs: int,
         callbacks: Optional[List[Callback]] = None,
     ):
         """Fit operator to data set.
 
         Args:
+            batch_size: Batch size.
             dataset: Data set.
             epochs: Number of epochs.
             callbacks: List of callbacks.
@@ -78,8 +80,7 @@ class Operator(torch.nn.Module):
             loss_train = 0
 
             start = time()
-            for sample in dataset:
-                x, u, y, v = sample
+            for x, u, y, v in data_loader:
 
                 def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()
@@ -95,7 +96,7 @@ class Operator(torch.nn.Module):
 
             end = time()
             seconds_per_epoch = end - start
-            loss_train /= len(dataset)
+            loss_train /= len(data_loader)
 
             # Callbacks
             logs = {
@@ -110,7 +111,9 @@ class Operator(torch.nn.Module):
         for callback in callbacks:
             callback.on_train_end()
 
-    def loss(self, x: Tensor, u: Tensor, y: Tensor, v: Tensor) -> Tensor:
+    def loss(
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor, v: torch.Tensor
+    ) -> torch.Tensor:
         """Evaluate loss function.
 
         Args:
