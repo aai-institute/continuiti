@@ -40,7 +40,7 @@ class DeepONet(Operator):
         self.dataset_shape = dataset_shape
 
         self.basis_functions = basis_functions
-        self.dot_dim = dataset_shape.v.num * dataset_shape.v.dim * basis_functions
+        self.dot_dim = dataset_shape.v.dim * basis_functions
         # trunk network
         self.trunk = DeepResidualNetwork(
             input_size=dataset_shape.y.dim,
@@ -88,16 +88,13 @@ class DeepONet(Operator):
         t = self.trunk(y)
 
         # dot product
-        b = b.reshape(
-            -1, self.dataset_shape.v.num, self.dataset_shape.v.dim, self.basis_functions
-        )
+        b = b.reshape(-1, self.dataset_shape.v.dim, self.basis_functions)
         t = t.reshape(
             b.size(0),
             -1,
-            self.dataset_shape.v.num,
             self.dataset_shape.v.dim,
             self.basis_functions,
         )
-        dot_prod = torch.einsum("abcde,acde->abd", t, b)
+        dot_prod = torch.einsum("abcd,acd->abc", t, b)
 
         return dot_prod
