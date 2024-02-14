@@ -82,27 +82,27 @@ class NeuralOperator(Operator):
 
     def __init__(
         self,
-        dataset_shape: DatasetShapes,
+        shapes: DatasetShapes,
         depth: int = 1,
         kernel_width: int = 32,
         kernel_depth: int = 3,
     ):
         super().__init__()
 
-        self.dataset_shape = dataset_shape
+        self.shapes = shapes
 
         self.lifting = ContinuousConvolution(
             NeuralNetworkKernel(kernel_width, kernel_depth),
-            dataset_shape.x.dim,
-            dataset_shape.u.dim,
+            shapes.x.dim,
+            shapes.u.dim,
         )
 
         self.hidden_layers = torch.nn.ModuleList(
             [
                 ContinuousConvolution(
                     NeuralNetworkKernel(kernel_width, kernel_depth),
-                    dataset_shape.x.dim,
-                    dataset_shape.u.dim,
+                    shapes.x.dim,
+                    shapes.u.dim,
                 )
                 for _ in range(depth)
             ]
@@ -110,8 +110,8 @@ class NeuralOperator(Operator):
 
         self.projection = ContinuousConvolution(
             NeuralNetworkKernel(kernel_width, kernel_depth),
-            dataset_shape.x.dim,
-            dataset_shape.u.dim,
+            shapes.x.dim,
+            shapes.u.dim,
         )
 
     def forward(
@@ -129,22 +129,18 @@ class NeuralOperator(Operator):
         """
         # Lifting layer (we use x as evaluation coordinates for now)
         v = self.lifting(x, u, x)
-        assert v.shape[1:] == torch.Size(
-            [self.dataset_shape.x.num, self.dataset_shape.u.dim]
-        )
+        assert v.shape[1:] == torch.Size([self.shapes.x.num, self.shapes.u.dim])
 
         # Hidden layers
         for layer in self.hidden_layers:
             # Layer operation (with residual connection)
             v = layer(x, v, x) + v
-            assert v.shape[1:] == torch.Size(
-                [self.dataset_shape.x.num, self.dataset_shape.u.dim]
-            )
+            assert v.shape[1:] == torch.Size([self.shapes.x.num, self.shapes.u.dim])
 
             # Activation
             v = torch.tanh(v)
 
         # Projection layer
         w = self.projection(x, v, y)
-        assert w.shape[1:] == torch.Size([y.size(1), self.dataset_shape.u.dim])
+        assert w.shape[1:] == torch.Size([y.size(1), self.shapes.u.dim])
         return w
