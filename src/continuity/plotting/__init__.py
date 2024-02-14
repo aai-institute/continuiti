@@ -6,14 +6,13 @@ Plotting utilities for Continuity.
 
 import torch
 import numpy as np
-from torch import Tensor
 from typing import Optional
 from matplotlib.axis import Axis
 import matplotlib.pyplot as plt
 from continuity.operators import Operator
 
 
-def plot(x: Tensor, u: Tensor, ax: Optional[Axis] = None):
+def plot(x: torch.Tensor, u: torch.Tensor, ax: Optional[Axis] = None):
     """Plots a function $u(x)$.
 
     Currently only supports coordinate dimensions of $d = 1,2$.
@@ -44,7 +43,7 @@ def plot(x: Tensor, u: Tensor, ax: Optional[Axis] = None):
 
 
 def plot_evaluation(
-    operator: Operator, x: Tensor, u: Tensor, ax: Optional[Axis] = None
+    operator: Operator, x: torch.Tensor, u: torch.Tensor, ax: Optional[Axis] = None
 ):
     """Plots the mapped function `operator(observation)` evaluated on a $[-1, 1]^d$ grid.
 

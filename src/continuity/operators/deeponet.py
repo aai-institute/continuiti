@@ -37,7 +37,7 @@ class DeepONet(Operator):
     ):
         super().__init__()
 
-        self.dataset_shape = shapes
+        self.shapes = shapes
 
         self.basis_functions = basis_functions
         self.dot_dim = shapes.v.dim * basis_functions
@@ -74,25 +74,21 @@ class DeepONet(Operator):
 
         # flatten inputs for both trunk and branch network
         u = u.flatten(1, -1)
-        assert u.shape[1:] == torch.Size(
-            [self.dataset_shape.u.num * self.dataset_shape.u.dim]
-        )
+        assert u.shape[1:] == torch.Size([self.shapes.u.num * self.shapes.u.dim])
 
         y = y.flatten(0, 1)
-        assert u.shape[1:] == torch.Size(
-            [self.dataset_shape.u.num * self.dataset_shape.u.dim]
-        )
+        assert u.shape[1:] == torch.Size([self.shapes.u.num * self.shapes.u.dim])
 
         # Pass through branch and trunk networks
         b = self.branch(u)
         t = self.trunk(y)
 
         # dot product
-        b = b.reshape(-1, self.dataset_shape.v.dim, self.basis_functions)
+        b = b.reshape(-1, self.shapes.v.dim, self.basis_functions)
         t = t.reshape(
             b.size(0),
             -1,
-            self.dataset_shape.v.dim,
+            self.shapes.v.dim,
             self.basis_functions,
         )
         dot_prod = torch.einsum("abcd,acd->abc", t, b)

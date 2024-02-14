@@ -6,7 +6,7 @@ PDEs in Continuity.
 Every PDE is implemented using a physics-informed loss function.
 """
 
-from torch import Tensor
+import torch
 from abc import abstractmethod
 
 from continuity.operators.operator import Operator
@@ -17,8 +17,13 @@ class PDE:
 
     @abstractmethod
     def __call__(
-        self, op: Operator, x: Tensor, u: Tensor, y: Tensor, v: Tensor
-    ) -> Tensor:
+        self,
+        op: Operator,
+        x: torch.Tensor,
+        u: torch.Tensor,
+        y: torch.Tensor,
+        v: torch.Tensor,
+    ) -> torch.Tensor:
         """Computes PDE loss."""
 
 
@@ -33,8 +38,13 @@ class PhysicsInformedLoss:
         self.pde = pde
 
     def __call__(
-        self, op: Operator, x: Tensor, u: Tensor, y: Tensor, v: Tensor
-    ) -> Tensor:
+        self,
+        op: Operator,
+        x: torch.Tensor,
+        u: torch.Tensor,
+        y: torch.Tensor,
+        _: torch.Tensor,
+    ) -> torch.Tensor:
         """Evaluate loss.
 
         Args:

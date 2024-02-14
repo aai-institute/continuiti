@@ -41,9 +41,9 @@ class Operator(torch.nn.Module):
         """Compile operator.
 
         Args:
-            verbose: Print number of model parameters to stdout.
             optimizer: Torch-like optimizer.
             loss_fn: Loss function taking (x, u, y, v). Defaults to MSELoss.
+            verbose: Print number of model parameters to stdout.
         """
         self.optimizer = optimizer
         self.loss_fn = loss_fn or MSELoss()
@@ -62,7 +62,6 @@ class Operator(torch.nn.Module):
         """Fit operator to data set.
 
         Args:
-            batch_size: Batch size.
             dataset: Data set.
             epochs: Number of epochs.
             callbacks: List of callbacks.
