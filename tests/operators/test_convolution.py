@@ -9,7 +9,6 @@ torch.manual_seed(0)
 
 
 def test_convolution():
-    torch.set_default_dtype(torch.float64)
     # Parameters
     num_sensors = 16
     num_evals = num_sensors
@@ -23,7 +22,7 @@ def test_convolution():
     def dirac(x, y):
         dist = ((x - y) ** 2).sum(dim=-1)
         zero = torch.zeros(1)
-        return torch.isclose(dist, zero).to(torch.float64)
+        return torch.isclose(dist, zero).to(torch.get_default_dtype())
 
     # Operator
     operator = ContinuousConvolution(
@@ -31,6 +30,7 @@ def test_convolution():
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
     )
+    operator.to(device)
 
     # Create tensors
     y = torch.linspace(-1, 1, num_evals).reshape(1, -1, 1).to(device)
