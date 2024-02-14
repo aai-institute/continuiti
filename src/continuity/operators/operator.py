@@ -6,7 +6,6 @@ from time import time
 from typing import Optional, List
 from continuity.callbacks import Callback, PrintTrainingLoss
 from continuity.operators.losses import Loss, MSELoss
-from continuity.data import device
 
 
 class Operator(torch.nn.Module):
@@ -76,16 +75,12 @@ class Operator(torch.nn.Module):
         for callback in callbacks:
             callback.on_train_begin()
 
-        # move the operator to the correct device
-        self.to(device)
-
         # Train
         for epoch in range(epochs + 1):
             loss_train = 0
 
             start = time()
             for x, u, y, v in data_loader:
-                x, u, y, v = x.to(device), u.to(device), y.to(device), v.to(device)
 
                 def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()

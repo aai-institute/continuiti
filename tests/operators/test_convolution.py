@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from continuity.data import Sine, device
+from continuity.data import Sine
 from continuity.operators import ContinuousConvolution
 
 # Set random seed
@@ -30,10 +30,9 @@ def test_convolution():
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,
     )
-    operator.to(device)
 
     # Create tensors
-    y = torch.linspace(-1, 1, num_evals).reshape(1, -1, 1).to(device)
+    y = torch.linspace(-1, 1, num_evals).reshape(1, -1, 1)
 
     # Apply operator
     v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
