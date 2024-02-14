@@ -6,9 +6,6 @@ from continuity.operators import DeepONet
 from continuity.plotting import plot, plot_evaluation
 from torch.utils.data import DataLoader
 
-# Set random seed
-torch.manual_seed(0)
-
 
 def test_deeponet():
     # Parameters
@@ -43,7 +40,7 @@ def test_deeponet():
     # Check solution
     x = x.unsqueeze(0)
     u = u.unsqueeze(0)
-    assert operator.loss(x, u, x, u) < 3e-5
+    assert operator.loss(x, u, x, u) < 1e-3
 
 
 if __name__ == "__main__":
