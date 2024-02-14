@@ -8,7 +8,19 @@ class TensorShape:
 
 
 @dataclass
-class DatasetShape:
+class DatasetShapes:
+    """Shapes of all elements inside an OperatorDataset.
+
+    Attributes:
+        num_observations: Total number of all observations in the dataset.
+        x: Sensor locations.
+        u: Input function evaluated at sensor locations.
+        y: Evaluation locations.
+        v: Output function evaluated at evaluation locations.
+
+    """
+
+    num_observations: int
     x: TensorShape
     u: TensorShape
     y: TensorShape

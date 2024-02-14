@@ -3,7 +3,7 @@
 import torch
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
-from continuity.data import DatasetShape
+from continuity.data import DatasetShapes
 
 
 class DeepONet(Operator):
@@ -18,7 +18,7 @@ class DeepONet(Operator):
     the same positions.
 
     Args:
-        dataset_shape: Shape variable of the dataset
+        shapes: Shape variable of the dataset
         branch_width: Width of branch network
         branch_depth: Depth of branch network
         trunk_width: Width of trunk network
@@ -28,7 +28,7 @@ class DeepONet(Operator):
 
     def __init__(
         self,
-        dataset_shape: DatasetShape,
+        shapes: DatasetShapes,
         branch_width: int = 32,
         branch_depth: int = 3,
         trunk_width: int = 32,
@@ -37,19 +37,19 @@ class DeepONet(Operator):
     ):
         super().__init__()
 
-        self.dataset_shape = dataset_shape
+        self.dataset_shape = shapes
 
         self.basis_functions = basis_functions
-        self.dot_dim = dataset_shape.v.dim * basis_functions
+        self.dot_dim = shapes.v.dim * basis_functions
         # trunk network
         self.trunk = DeepResidualNetwork(
-            input_size=dataset_shape.y.dim,
+            input_size=shapes.y.dim,
             output_size=self.dot_dim,
             width=trunk_width,
             depth=trunk_depth,
         )
         # branch network
-        branch_input_dim = dataset_shape.u.num * dataset_shape.u.dim
+        branch_input_dim = shapes.u.num * shapes.u.dim
         self.branch = DeepResidualNetwork(
             input_size=branch_input_dim,
             output_size=self.dot_dim,

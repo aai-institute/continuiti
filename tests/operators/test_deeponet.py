@@ -24,7 +24,7 @@ def test_output_shape():
         v=torch.rand((set_size, n_evals, v_dim)),
     )
 
-    model = DeepONet(dset.shape)
+    model = DeepONet(dset.shapes)
 
     x, u, y, v = dset[:batch_size]
 
@@ -50,7 +50,7 @@ def test_deeponet():
 
     # Operator
     operator = DeepONet(
-        dataset.shape,
+        dataset.shapes,
         branch_width=32,
         branch_depth=1,
         trunk_width=32,

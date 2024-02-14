@@ -4,7 +4,7 @@ import torch
 from typing import Callable, Union
 from continuity.operators import Operator
 from continuity.operators.common import NeuralNetworkKernel
-from continuity.data import DatasetShape
+from continuity.data import DatasetShapes
 
 
 class ContinuousConvolution(Operator):
@@ -82,7 +82,7 @@ class NeuralOperator(Operator):
 
     def __init__(
         self,
-        dataset_shape: DatasetShape,
+        dataset_shape: DatasetShapes,
         depth: int = 1,
         kernel_width: int = 32,
         kernel_depth: int = 3,

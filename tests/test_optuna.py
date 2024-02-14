@@ -26,7 +26,7 @@ def test_optuna():
 
         # Operator
         operator = DeepONet(
-            benchmark.dataset.shape,
+            benchmark.dataset.shapes,
             trunk_width=trunk_width,
             trunk_depth=trunk_depth,
         )

@@ -19,7 +19,7 @@ def test_neuraloperator():
 
     # Operator
     operator = NeuralOperator(
-        dataset_shape=dataset.shape,
+        dataset_shape=dataset.shapes,
         depth=1,
         kernel_width=32,
         kernel_depth=3,

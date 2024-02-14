@@ -9,7 +9,7 @@ import torch
 import torch.utils.data as td
 from typing import Tuple
 
-from .shape import DatasetShape, TensorShape
+from .shape import DatasetShapes, TensorShape
 
 
 class OperatorDataset(td.Dataset):
@@ -28,7 +28,7 @@ class OperatorDataset(td.Dataset):
         v: Tensor of shape (#observations, #evaluations, v-dim) with ground truth operator mappings.
 
     Attributes:
-        shape (dataclass): Shape of all tensors.
+        shapes (dataclass): Shape of all tensors.
         transform (dict): Transformations for each tensor.
     """
 
@@ -58,7 +58,8 @@ class OperatorDataset(td.Dataset):
         self.v = v
 
         # used to initialize architectures
-        self.shape = DatasetShape(
+        self.shapes = DatasetShapes(
+            num_observations=int(x.size(0)),
             x=TensorShape(*x.size()[1:]),
             u=TensorShape(*u.size()[1:]),
             y=TensorShape(*y.size()[1:]),
@@ -82,7 +83,7 @@ class OperatorDataset(td.Dataset):
         Returns:
             number of samples in the entire set.
         """
-        return len(self.u)
+        return self.shapes.num_observations
 
     def __getitem__(
         self, idx
@@ -112,11 +113,10 @@ class OperatorDataset(td.Dataset):
 
 class SelfSupervisedOperatorDataset(OperatorDataset):
     """
-    A `SelfSupervisedOperatorDataset` is a data set that exports batches of observations
-    and labels for self-supervised learning.
-    Every data point is created by taking one sensor as label.
+    A `SelfSupervisedOperatorDataset` is a data set that contains data for self-supervised learning.
+    Every data point is created by taking one sensor as a label.
 
-    Every batch consists of tuples `(x, u, y, v)`, where `x` contains the sensor
+    Every observation consists of tuples `(x, u, y, v)`, where `x` contains the sensor
     positions, `u` the sensor values, and `y = x_i` and `v = u_i` are
     the label's coordinate its value for all `i`.
 
