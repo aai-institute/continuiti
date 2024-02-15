@@ -1,7 +1,7 @@
 import torch
 from typing import List
 
-from transform import Transform
+from . import Transform
 
 
 class Compose(Transform):
