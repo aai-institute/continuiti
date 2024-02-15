@@ -84,15 +84,8 @@ class Div(Operator):
 
         assert x.requires_grad, "x must require gradients for divergence operator"
 
-        # Compute gradients
-        gradients = torch.autograd.grad(
-            u,
-            x,
-            grad_outputs=torch.ones_like(u),
-            create_graph=True,
-            retain_graph=True,
-        )[0]
-
+        # Compute divergence
+        gradients = Grad()(x, u)
         return torch.sum(gradients, dim=-1, keepdim=True)
 
 
