@@ -1,3 +1,4 @@
+import pytest
 import torch
 import matplotlib.pyplot as plt
 from continuity.data import Sine
@@ -9,6 +10,7 @@ from torch.utils.data import DataLoader
 torch.manual_seed(0)
 
 
+@pytest.mark.slow
 def test_neuraloperator():
     # Parameters
     num_sensors = 16

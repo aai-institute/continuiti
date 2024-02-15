@@ -1,3 +1,4 @@
+import pytest
 import torch
 from torch.utils.data import DataLoader
 from continuity.benchmarks.sine import SineBenchmark
@@ -10,6 +11,7 @@ import optuna
 torch.manual_seed(0)
 
 
+@pytest.mark.slow
 def test_optuna():
     def objective(trial):
         trunk_width = trial.suggest_int("trunk_width", 4, 16)

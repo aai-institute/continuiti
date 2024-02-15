@@ -78,6 +78,13 @@ by [CI pipelines](#CI). Before pushing your changes to the remote we recommend
 to execute `pytest` locally in order to detect mistakes early on and to avoid
 failing pipelines.
 
+Slow tests (> 5s) are marked by the `@pytest.mark.slow` decorator.
+To run all tests except the slow ones, use:
+
+```shell
+pytest -m "not slow"
+```
+
 ## Notebooks
 
 We use notebooks both as documentation (copied over to `docs/examples`) and as
