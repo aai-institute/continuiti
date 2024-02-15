@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+import pytest
 
 from continuity.plotting import plot, plot_evaluation
 from torch.utils.data import DataLoader
@@ -40,6 +41,7 @@ def test_output_shape():
     assert v_other_pred.shape == v_other.shape
 
 
+@pytest.mark.slow
 def test_deeponet():
     # Parameters
     num_sensors = 16

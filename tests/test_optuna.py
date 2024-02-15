@@ -6,10 +6,13 @@ from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
 import optuna
 
+import pytest
+
 # Set random seed
 torch.manual_seed(0)
 
 
+@pytest.mark.slow
 def test_optuna():
     def objective(trial):
         trunk_width = trial.suggest_int("trunk_width", 4, 16)
