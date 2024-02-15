@@ -14,6 +14,12 @@ class Transform(nn.Module, ABC):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+
+        Args:
+            *args: Arguments passed to nn.Module parent class.
+            **kwargs: Arbitrary keyword arguments passed to nn.Module parent class.
+        """
         super().__init__(*args, **kwargs)
 
     @abstractmethod
@@ -30,8 +36,8 @@ class Transform(nn.Module, ABC):
     def backward(self, tensor: torch.Tensor) -> torch.Tensor:
         """Applies the inverse transformation (given the transformation is bijective).
 
-        When the transformation is not bijective (one-to-one correspondence of data) the inverse/backward transformation
-        is not applied. Instead, a warning is raised.
+        When the transformation is not bijective (one-to-one correspondence of data), the inverse/backward
+        transformation is not applied. Instead, a warning is raised.
 
         Args:
             tensor: Transformed tensor.

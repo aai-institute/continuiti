@@ -17,8 +17,8 @@ class Compose(Transform):
 
         Args:
             transforms: transformations that should be applied in the order they are in the list.
-            *args:
-            **kwargs:
+            *args: Arguments of parent class.
+            **kwargs: Arbitrary keyword arguments of parent class.
         """
         super().__init__(*args, **kwargs)
         self.transforms = transforms
