@@ -1,3 +1,4 @@
+import pytest
 import torch
 from torch.utils.data import DataLoader
 from continuity.benchmarks.sine import SineBenchmark
@@ -5,8 +6,6 @@ from continuity.callbacks import OptunaCallback
 from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
 import optuna
-
-import pytest
 
 # Set random seed
 torch.manual_seed(0)
