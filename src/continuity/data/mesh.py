@@ -1,4 +1,4 @@
-"""Gmsh."""
+"""Mesh file readers."""
 
 import torch
 import gmsh
@@ -7,7 +7,22 @@ import numpy as np
 
 class Gmsh:
     """
-    A `Gmsh` objects contains the content of a Gmsh `.msh` file.
+    [Gmsh](https://gmsh.info/) is an open source 3D finite element mesh generator.
+
+    You can find example `.msh` files in the `data/meshes` directory.
+
+    A `Gmsh` object reads and provides the content of a Gmsh file
+    in a tensor format that can also be used with `matplotlib`.
+
+    Example:
+        ```python
+        mesh = Gmsh("path/to/file.msh")
+        vertices = mesh.get_vertices()
+        cells = mesh.get_cells()
+
+        from matplotlib.tri import Triangulation
+        tri = Triangulation(vertices[:, 0], vertices[:, 1], cells)
+        ```
 
     Args:
         filename: Path to `.msh` file.
