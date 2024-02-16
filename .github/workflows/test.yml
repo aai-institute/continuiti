@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          lfs: "true"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -45,6 +47,7 @@ jobs:
 
       - name: Test notebooks
         run: |
+          sudo apt install gmsh
           pytest --nbmake notebooks/
 
   run_tests_macos:
@@ -61,6 +64,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          lfs: "true"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
