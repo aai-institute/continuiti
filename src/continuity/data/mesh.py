@@ -1,7 +1,6 @@
 """Mesh file readers."""
 
 import torch
-import gmsh
 import numpy as np
 
 
@@ -32,9 +31,12 @@ class Gmsh:
         self,
         filename: str,
     ):
+        import gmsh
+
         self.filename = filename
 
         gmsh.initialize()
+        gmsh.option.setNumber("General.Verbosity", 0)
         gmsh.open(self.filename)
         self.dim = gmsh.model.getDimension()
         self.nodes = gmsh.model.mesh.getNodes()
