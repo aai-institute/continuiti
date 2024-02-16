@@ -9,6 +9,7 @@ import os
 import torch
 
 from .dataset import OperatorDataset, SelfSupervisedOperatorDataset
+from .mesh import Gmsh
 from .shape import DatasetShapes
 from .sine import Sine
 from .flame import Flame, FlameDataLoader
@@ -17,6 +18,7 @@ __all__ = [
     "OperatorDataset",
     "SelfSupervisedOperatorDataset",
     "DatasetShapes",
+    "Gmsh",
     "Sine",
     "Flame",
     "FlameDataLoader",

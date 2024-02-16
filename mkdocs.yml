@@ -177,8 +177,9 @@ nav:
       - Examples:
           - Basics: examples/basics.ipynb
           - Physics-informed: examples/physicsinformed.ipynb
-          - Self-supervised: examples/selfsupervised.ipynb
           - Super-resolution: examples/superresolution.ipynb
+          - Meshes: examples/meshes.ipynb
+          - Self-supervised: examples/selfsupervised.ipynb
   - Code:
       - API: api/continuity/
       - Changelog: CHANGELOG.md

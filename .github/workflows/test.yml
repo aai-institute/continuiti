@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          lfs: "true"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -33,10 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest
-          pip install nbmake
-          pip install sh
+          pip install -e ".[testing]"
 
       - name: List dependencies
         run: |
@@ -48,6 +47,7 @@ jobs:
 
       - name: Test notebooks
         run: |
+          sudo apt install gmsh
           pytest --nbmake notebooks/
 
   run_tests_macos:
@@ -64,6 +64,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          lfs: "true"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -73,10 +75,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest
-          pip install nbmake
-          pip install sh
+          pip install -e ".[testing]"
 
       - name: List dependencies
         run: |
@@ -106,10 +105,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest
+          pip install -e ".[testing]"
           pip install pytest-cov[toml]
-          pip install sh
 
       - name: Run tests and collect coverage
         run: pytest --cov src
