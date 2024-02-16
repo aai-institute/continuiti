@@ -53,6 +53,13 @@ class Grad(Operator):
 def grad(u: Callable[[Tensor], Tensor]) -> Callable[[Tensor], Tensor]:
     """Compute the gradient of a function.
 
+    Example:
+        Computing the gradient of the output function of an operator:
+        ```python
+        v = lambda y: operator(x, u, y)
+        g = grad(v)(y)
+        ```
+
     Args:
         u: Function to compute the gradient of.
 
@@ -91,6 +98,13 @@ class Div(Operator):
 
 def div(u: Callable[[Tensor], Tensor]) -> Callable[[Tensor], Tensor]:
     """Compute the divergence of a function.
+
+    Example:
+        Computing the divergence of the output function of an operator:
+        ```python
+        v = lambda y: operator(x, u, y)
+        d = div(v)(y)
+        ```
 
     Args:
         u: Function to compute the divergence of.
