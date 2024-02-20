@@ -55,7 +55,7 @@ class PrintTrainingLoss(Callback):
 
         print(
             f"\rEpoch {epoch}:  loss/train = {loss_train:.4e}  "
-            f"({seconds_per_epoch:.2f} s/epoch)",
+            f"({seconds_per_epoch:.3g} s/epoch)",
             end="",
         )
 
