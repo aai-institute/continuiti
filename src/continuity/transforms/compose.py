@@ -46,5 +46,5 @@ class Compose(Transform):
             Tensor with undone transformations (if possible).
         """
         for transform in reversed(self.transforms):
-            tensor = transform.backward(tensor)
+            tensor = transform.undo(tensor)
         return tensor
