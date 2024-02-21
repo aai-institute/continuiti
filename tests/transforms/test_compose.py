@@ -24,5 +24,5 @@ def test_compose_backward(random_negative_tensor, plus_one_times_two):
     transformed_tensor = plus_one_times_two(random_negative_tensor)
 
     assert torch.allclose(
-        plus_one_times_two.backward(transformed_tensor), random_negative_tensor
+        plus_one_times_two.undo(transformed_tensor), random_negative_tensor
     )

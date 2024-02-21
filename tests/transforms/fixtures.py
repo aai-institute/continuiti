@@ -1,5 +1,6 @@
 import pytest
 import torch
+import warnings
 
 from continuity.transforms import Transform
 
@@ -13,7 +14,7 @@ def plus_one_transform() -> Transform:
         def forward(self, tensor: torch.Tensor) -> torch.Tensor:
             return tensor + torch.ones(tensor.shape)
 
-        def backward(self, tensor: torch.Tensor) -> torch.Tensor:
+        def undo(self, tensor: torch.Tensor) -> torch.Tensor:
             return tensor - torch.ones(tensor.shape)
 
     return PlusOne()
@@ -28,7 +29,7 @@ def times_two_transform() -> Transform:
         def forward(self, tensor: torch.Tensor) -> torch.Tensor:
             return tensor * 2.0
 
-        def backward(self, tensor: torch.Tensor) -> torch.Tensor:
+        def undo(self, tensor: torch.Tensor) -> torch.Tensor:
             return tensor / 2.0
 
     return TimesTwo()
@@ -42,5 +43,13 @@ def abs_transform() -> Transform:
 
         def forward(self, tensor: torch.Tensor) -> torch.Tensor:
             return torch.abs(tensor)
+
+        def undo(self, tensor: torch.Tensor) -> torch.Tensor:
+            warnings.warn(
+                f"The {self.__class__.__name__} transformation is not bijective. "
+                f"Returns the identity instead!",
+                stacklevel=2,
+            )
+            return tensor
 
     return Abs()

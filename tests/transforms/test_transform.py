@@ -15,12 +15,12 @@ def test_transform_forward(plus_one_transform, abs_transform, random_tensor):
     assert torch.allclose(abs_transform(random_tensor), torch.abs(random_tensor))
 
 
-def test_transform_backward(plus_one_transform, random_tensor):
+def test_transform_undo(plus_one_transform, random_tensor):
     assert torch.allclose(
-        plus_one_transform.backward(random_tensor),
+        plus_one_transform.undo(random_tensor),
         random_tensor - torch.ones(random_tensor.shape),
     )
 
 
-def test_transform_backward_not_bijective(abs_transform, random_tensor):
-    assert torch.allclose(abs_transform.backward(random_tensor), random_tensor)
+def test_transform_undo_not_bijective(abs_transform, random_tensor):
+    assert torch.allclose(abs_transform.undo(random_tensor), random_tensor)

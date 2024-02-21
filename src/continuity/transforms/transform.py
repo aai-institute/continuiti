@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import warnings
 
 from abc import ABC, abstractmethod
 
@@ -33,11 +32,13 @@ class Transform(nn.Module, ABC):
             Transformed tensor.
         """
 
-    def backward(self, tensor: torch.Tensor) -> torch.Tensor:
-        """Applies the inverse transformation (given the transformation is bijective).
+    @abstractmethod
+    def undo(self, tensor: torch.Tensor) -> torch.Tensor:
+        """Undoes the inverse (given the transformation is bijective).
 
         When the transformation is not bijective (one-to-one correspondence of data), the inverse/backward
-        transformation is not applied. Instead, a warning is raised.
+        transformation is not applied. Instead, a warning should be given to the user and an appropriate approximate
+        inverse transformation should be provided.
 
         Args:
             tensor: Transformed tensor.
@@ -45,9 +46,3 @@ class Transform(nn.Module, ABC):
         Returns:
             Tensor with the transformation undone (given it is possible).
         """
-        warnings.warn(
-            f"Backward pass for transformation {self.__class__.__name__} not implement! "
-            f"Backward pass is performed as identity!",
-            stacklevel=2,
-        )
-        return tensor

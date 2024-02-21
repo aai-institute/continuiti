@@ -36,8 +36,8 @@ class Compose(Transform):
             tensor = transform(tensor)
         return tensor
 
-    def backward(self, tensor: torch.Tensor) -> torch.Tensor:
-        """Reverses multiple transformations.
+    def undo(self, tensor: torch.Tensor) -> torch.Tensor:
+        """Undoes multiple transformations.
 
         Args:
             tensor: Transformed tensor.
