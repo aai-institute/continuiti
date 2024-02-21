@@ -88,7 +88,7 @@ pytest -m "not slow"
 ## Notebooks
 
 We use notebooks both as documentation (copied over to `docs/examples`) and as
-integration tests. All notebooks in the `notebooks` directory are executed
+integration tests. All notebooks in the `examples` directory are executed
 during the test run.
 
 Because we want documentation to include the full dataset, we commit notebooks

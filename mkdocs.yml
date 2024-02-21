@@ -8,7 +8,7 @@ remote_branch: gh-pages
 
 watch:
   - src/continuity
-  - notebooks
+  - examples
 
 hooks:
   - build_scripts/copy_notebooks.py

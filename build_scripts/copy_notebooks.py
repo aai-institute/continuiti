@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 root_dir = Path(__file__).parent.parent
 docs_examples_dir = root_dir / "docs" / "examples"
-notebooks_dir = root_dir / "notebooks"
+notebooks_dir = root_dir / "examples"
 
 
 @mkdocs.plugins.event_priority(100)
