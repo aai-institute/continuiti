@@ -1,18 +1,26 @@
-"""Sine benchmark."""
+"""
+`continuity.benchmarks.sine`
+
+Sine benchmark.
+"""
 
 from continuity.benchmarks import Benchmark
-from continuity.data import Sine, split
+from continuity.data import split
+from continuity.data.sine import Sine
 from continuity.operators.losses import Loss, MSELoss
 from torch.utils.data import Dataset
 
 
 class SineBenchmark(Benchmark):
-    """Sine benchmark."""
+    """Sine benchmark.
+
+    A sine wave data set containing 100 samples with 32 sensors,
+    split randomly into 90% training and 10% test data.
+    """
 
     def __init__(self):
         self.num_sensors = 32
         self.size = 100
-        self.batch_size = 1
 
         self.dataset = Sine(
             num_sensors=32,
@@ -34,5 +42,5 @@ class SineBenchmark(Benchmark):
         return self.test_dataset
 
     def metric(self) -> Loss:
-        """Return metric."""
+        """Return MSELoss."""
         return MSELoss()

@@ -1,4 +1,8 @@
-"""The DeepONet architecture."""
+"""
+`continuity.operators.deeponet`
+
+The DeepONet architecture.
+"""
 
 import torch
 from continuity.operators import Operator

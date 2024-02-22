@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from continuity.data import SelfSupervisedOperatorDataset
+from continuity.data.selfsupervised import SelfSupervisedOperatorDataset
 from continuity.plotting import plot
 
 # Set random seed

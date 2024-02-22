@@ -1,3 +1,7 @@
+"""
+`continuity.data.shape`
+"""
+
 from dataclasses import dataclass
 
 

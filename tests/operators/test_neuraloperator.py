@@ -1,7 +1,7 @@
 import pytest
 import torch
 import matplotlib.pyplot as plt
-from continuity.data import Sine
+from continuity.data.sine import Sine
 from continuity.operators import NeuralOperator
 from continuity.plotting import plot, plot_evaluation
 from torch.utils.data import DataLoader

@@ -1,4 +1,8 @@
-"""Callbacks for Trainer in Continuity."""
+"""
+`continuity.trainer.callbacks`
+
+Callbacks for Trainer in Continuity.
+"""
 
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict

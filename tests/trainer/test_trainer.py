@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from continuity.operators import DeepONet
-from continuity.data import device, Sine
+from continuity.data.sine import Sine
 from continuity.trainer import Trainer
 
 torch.manual_seed(0)
@@ -12,8 +12,8 @@ def test_trainer():
     data_loader = DataLoader(dataset)
     operator = DeepONet(dataset.shapes)
 
-    print(f"Using device: {device}")
-    trainer = Trainer(operator, device=device)
+    trainer = Trainer(operator)
+    print(f"Using device: {trainer.device}")
     trainer.fit(data_loader, epochs=2)
 
     # Make sure we can use operator output on cpu again

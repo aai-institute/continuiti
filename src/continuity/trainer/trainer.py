@@ -1,15 +1,18 @@
+"""
+`continuity.trainer.trainer`
+"""
+
 import torch
 from time import time
 from typing import Optional, List
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.callbacks import Callback, PrintTrainingLoss
+from continuity.trainer.device import get_device
 
 
 class Trainer:
-    """Trainer.
-
-    Implements a default training loop for operator learning.
+    """Trainer implements a default training loop for operator learning.
 
     Example:
         ```python
@@ -25,16 +28,19 @@ class Trainer:
     Args:
         operator: Operator to be trained.
         optimizer: Torch-like optimizer. Default is Adam.
-        criterion: Loss function taking (op, x, u, y, v). Default is MSELoss.
+        loss_fn: Loss function taking (op, x, u, y, v). Default is MSELoss.
         device: Device to train on. Default is CPU.
+        verbose: Print model parameters and use PrintTrainingLoss callback by default. Default is True.
     """
+
+    device = get_device()
 
     def __init__(
         self,
         operator: Operator,
         optimizer: Optional[torch.optim.Optimizer] = None,
         loss_fn: Optional[Loss] = None,
-        device: Optional[torch.device] = None,
+        device: torch.device = device,
         verbose: bool = True,
     ):
         self.operator = operator
@@ -44,7 +50,7 @@ class Trainer:
             else torch.optim.Adam(operator.parameters(), lr=1e-3)
         )
         self.loss_fn = loss_fn if loss_fn is not None else MSELoss()
-        self.device = device if device is not None else torch.device("cpu")
+        self.device = device
         self.verbose = verbose
 
     def fit(

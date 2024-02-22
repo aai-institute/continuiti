@@ -2,6 +2,7 @@
 
 ## 0.1
 
+- Move all content of `__init__.py` files to sub-modules.
 - Add `Trainer` class to replace `operator.fit` method.
 
 

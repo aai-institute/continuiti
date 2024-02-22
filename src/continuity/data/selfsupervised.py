@@ -1,0 +1,59 @@
+"""
+`continuity.data.selfsupervised`
+
+Self-supervised data set.
+"""
+
+import torch
+
+from .dataset import OperatorDataset
+
+
+class SelfSupervisedOperatorDataset(OperatorDataset):
+    """
+    A `SelfSupervisedOperatorDataset` is a data set that contains data for self-supervised learning.
+    Every data point is created by taking one sensor as a label.
+
+    Every observation consists of tuples `(x, u, y, v)`, where `x` contains the sensor
+    positions, `u` the sensor values, and `y = x_i` and `v = u_i` are
+    the label's coordinate its value for all `i`.
+
+    Args:
+        x: Sensor positions of shape (num_observations, num_sensors, coordinate_dim)
+        u: Sensor values of shape (num_observations, num_sensors, num_channels)
+    """
+
+    def __init__(self, x: torch.Tensor, u: torch.Tensor):
+        self.num_observations = u.shape[0]
+        self.num_sensors = u.shape[1]
+        self.coordinate_dim = x.shape[-1]
+        self.num_channels = u.shape[-1]
+
+        # Check consistency across observations
+        for i in range(self.num_observations):
+            assert (
+                x[i].shape[-1] == self.coordinate_dim
+            ), "Inconsistent coordinate dimension."
+            assert (
+                u[i].shape[-1] == self.num_channels
+            ), "Inconsistent number of channels."
+
+        xs, us, ys, vs = [], [], [], []
+
+        for i in range(self.num_observations):
+            # Add one data point for every sensor
+            for j in range(self.num_sensors):
+                y = x[i][j].unsqueeze(0)
+                v = u[i][j].unsqueeze(0)
+
+                xs.append(x[i])
+                us.append(u[i])
+                ys.append(y)
+                vs.append(v)
+
+        xs = torch.stack(xs)
+        us = torch.stack(us)
+        ys = torch.stack(ys)
+        vs = torch.stack(vs)
+
+        super().__init__(xs, us, ys, vs)

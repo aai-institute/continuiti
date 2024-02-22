@@ -1,24 +1,9 @@
 """
+`continuity.benchmarks`
+
 Benchmarks for operator learning.
 """
 
-from abc import ABC, abstractmethod
+from .benchmark import Benchmark
 
-
-class Benchmark(ABC):
-    """Benchmark base class."""
-
-    @abstractmethod
-    def train_dataset(self):
-        """Return training data set."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def test_dataset(self):
-        """Return test data set."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def metric(self):
-        """Return metric."""
-        raise NotImplementedError
+__all__ = ["Benchmark"]
