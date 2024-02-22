@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.1
+
+- Add `Trainer` class to replace `operator.fit` method.
+
+
 ## 0.0.0 (2024-02-22)
 
 - Set up project structure.
