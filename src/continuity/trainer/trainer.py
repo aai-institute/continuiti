@@ -8,6 +8,7 @@ from typing import Optional, List
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.callbacks import Callback, PrintTrainingLoss
+from continuity.trainer.device import get_device
 
 
 class Trainer:
@@ -31,12 +32,14 @@ class Trainer:
         device: Device to train on. Default is CPU.
     """
 
+    device = get_device()
+
     def __init__(
         self,
         operator: Operator,
         optimizer: Optional[torch.optim.Optimizer] = None,
         loss_fn: Optional[Loss] = None,
-        device: Optional[torch.device] = None,
+        device: torch.device = device,
         verbose: bool = True,
     ):
         self.operator = operator
@@ -46,7 +49,7 @@ class Trainer:
             else torch.optim.Adam(operator.parameters(), lr=1e-3)
         )
         self.loss_fn = loss_fn if loss_fn is not None else MSELoss()
-        self.device = device if device is not None else torch.device("cpu")
+        self.device = device
         self.verbose = verbose
 
     def fit(
