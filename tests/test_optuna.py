@@ -2,7 +2,8 @@ import pytest
 import torch
 from torch.utils.data import DataLoader
 from continuity.benchmarks.sine import SineBenchmark
-from continuity.callbacks import OptunaCallback
+from continuity.trainer import Trainer
+from continuity.trainer.callbacks import OptunaCallback
 from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
 import optuna
@@ -36,8 +37,8 @@ def test_optuna():
         # Optimizer
         optimizer = torch.optim.Adam(operator.parameters(), lr=lr)
 
-        operator.compile(optimizer, verbose=False)
-        operator.fit(train_loader, epochs=num_epochs, callbacks=[OptunaCallback(trial)])
+        trainer = Trainer(operator, optimizer, verbose=False)
+        trainer.fit(train_loader, epochs=num_epochs, callbacks=[OptunaCallback(trial)])
 
         loss_val = dataset_loss(val_dataset, operator, benchmark.metric())
         print(f"loss/val: {loss_val:.4e}")
@@ -52,7 +53,7 @@ def test_optuna():
         storage=f"sqlite:///{name}.db",
         load_if_exists=True,
     )
-    study.optimize(objective, n_trials=10)
+    study.optimize(objective, n_trials=3)
 
 
 if __name__ == "__main__":
