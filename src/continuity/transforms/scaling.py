@@ -4,7 +4,7 @@ import warnings
 from .transform import Transform
 
 
-class Normalization(Transform):
+class Normalize(Transform):
     r"""Z-normalization transformation.
 
     This transformation uses the mean $\mu$ and the standard deviation $\sigma$ passed in the initialization and scales

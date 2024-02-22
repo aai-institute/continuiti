@@ -1,9 +1,9 @@
 from .transform import Transform
 from .compose import Compose
-from .scaling import Normalization
+from .scaling import Normalize
 
 __all__ = [
     "Transform",
     "Compose",
-    "Normalization",
+    "Normalize",
 ]
