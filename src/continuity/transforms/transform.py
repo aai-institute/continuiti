@@ -32,17 +32,18 @@ class Transform(nn.Module, ABC):
             Transformed tensor.
         """
 
-    @abstractmethod
     def undo(self, tensor: torch.Tensor) -> torch.Tensor:
-        """Undoes the inverse (given the transformation is bijective).
-
-        When the transformation is not bijective (one-to-one correspondence of data), the inverse/backward
-        transformation is not applied. Instead, a warning should be given to the user and an appropriate approximate
-        inverse transformation should be provided.
+        """Applies the inverse of the transformation (if it exists).
 
         Args:
             tensor: Transformed tensor.
 
         Returns:
-            Tensor with the transformation undone (given it is possible).
+            Tensor with the transformation undone.
+
+        Raises:
+            NotImplementedError: If the inverse of the transformation is not implemented.
         """
+        raise NotImplementedError(
+            "The undo method is not implemented for this transform."
+        )

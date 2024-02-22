@@ -1,6 +1,5 @@
 import pytest
 import torch
-import warnings
 
 from continuity.transforms import Transform
 
@@ -45,11 +44,7 @@ def abs_transform() -> Transform:
             return torch.abs(tensor)
 
         def undo(self, tensor: torch.Tensor) -> torch.Tensor:
-            warnings.warn(
-                f"The {self.__class__.__name__} transformation is not bijective. "
-                f"Returns the identity instead!",
-                stacklevel=2,
-            )
+            """The `abs_transform` transformation is not bijective, therefore returns identity."""
             return tensor
 
     return Abs()
