@@ -1,4 +1,8 @@
-"""Various data set implementations."""
+"""
+`continuity.data.sine`
+
+Various data set implementations.
+"""
 
 import torch
 from typing import Tuple

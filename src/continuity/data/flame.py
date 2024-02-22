@@ -1,4 +1,8 @@
-"""Flame data set."""
+"""
+`continuity.data.flame`
+
+Flame data set.
+"""
 
 import os
 import torch

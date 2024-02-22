@@ -1,4 +1,8 @@
-"""Mesh file readers."""
+"""
+`continuity.data.mesh`
+
+Mesh file readers.
+"""
 
 import torch
 import numpy as np
