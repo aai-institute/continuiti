@@ -1,14 +1,120 @@
-
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
 requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "continuity"
+description = "Mapping continuous functions with neural networks."
+authors = [{ name = "Samuel Burbulla", email = "s.burbulla@appliedai-institute.de" }]
+license = { file = "LICENSE.txt" }
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Alpha",
+    "Programming Language :: Python",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+keywords = ["Artificial Intelligence", "Mathematics", "Physics", "Neural Operator", "Operator"]
+dynamic = ["version"]
+dependencies = [
+    "black", # code formatting
+    "flake8", # code analysis
+    "isort", # import sorting
+
+    # --------- loggers --------- #
+    # wandb
+    # neptune-client
+    # mlflow
+    # comet-ml
+    "tensorboard",
+    # --------- linters --------- #
+    "pre-commit", # hooks for applying linters on commit
+    "pudb", # debugger
+    "pytest", # tests
+
+    # --------- others --------- #
+    "python-dotenv", # loading env variables from .env file
+    "rich", # beautiful text formatting in terminal
+    "sh", # for running bash commands in some tests
+    # dvc             # data version control
+
+    # --------- dependencies --------- #
+    "torch==2.1.0",
+    "dadaptation==3.1",
+    "matplotlib",
+    "pandas",
+    "optuna==3.5.0",
+]
+
+[project.optional-dependencies]
+testing = [
+    "setuptools",
+    "pytest",
+    "pytest-cov",
+    "nbmake",
+    "gmsh",
+]
 
 [tool.setuptools_scm]
 # See configuration details in https://github.com/pypa/setuptools_scm
 version_scheme = "no-guess-dev"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["continuity"]
+
+[project.urls]
+Repository = "https://github.com/aai-institute/continuity.git"
+Homepage = "https://www.appliedai-institute.de/en/"
+Documentation = "https://aai-institute.github.io/continuity/"
+Changelog = "https://github.com/aai-institute/continuity/blob/main/CHANGELOG.md"
+
 [tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--durations=0 --strict-markers --doctest-modules"
 markers = [
     "slow: marks tests as slow (> 5s)",
 ]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.flake8]
+max-line-length = 99
+show_source = true
+format = "pylint"
+ignore = [
+    # Module imported but unused
+    "F401",
+    # Line break occurred after a binary operator
+    "W504",
+    # Local variable name is assigned to but never used
+    "F841",
+    # Line too long
+    "E501",
+    # White space before ':'
+    "E203",
+]
+
+exclude = [
+    ".git",
+    "__pycache__",
+    "datasets/*",
+    "tests/*",
+    "examples/*",
+    "logs/*",
+    ".tox",
+    "build",
+    "dist",
+    ".eggs",
+    "docs/conf.py",
+    "venv",
+]
+
+[tool.isort]
+line_length = 99
+profile = "black"
+filter_files = true
