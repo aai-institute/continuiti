@@ -1,8 +1,4 @@
-"""
-`continuity.callbacks`
-
-Callbacks for training in Continuity.
-"""
+"""Callbacks for Trainer in Continuity."""
 
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict
@@ -11,7 +7,7 @@ import matplotlib.pyplot as plt
 
 class Callback(ABC):
     """
-    Callback base class for `fit` method of `Operator`.
+    Callback base class for `fit` method of `Trainer`.
     """
 
     @abstractmethod
@@ -55,7 +51,7 @@ class PrintTrainingLoss(Callback):
 
         print(
             f"\rEpoch {epoch}:  loss/train = {loss_train:.4e}  "
-            f"({seconds_per_epoch:.2f} s/epoch)",
+            f"({seconds_per_epoch:.3g} s/epoch)",
             end="",
         )
 
