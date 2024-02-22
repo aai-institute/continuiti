@@ -24,3 +24,4 @@ The package is structured into the following modules:
 ::/cards::
 
 """
+__version__ = "0.0.0"

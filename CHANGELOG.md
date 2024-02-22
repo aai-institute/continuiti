@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## 0.0.0 (2024-02-22)
 
 - Set up project structure.
 - Implement basic functionality.
