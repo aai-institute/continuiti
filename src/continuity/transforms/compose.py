@@ -1,3 +1,9 @@
+"""
+`continuity.transforms.compose`
+
+Composes multiple transformations.
+"""
+
 import torch
 from typing import List
 
@@ -7,19 +13,16 @@ from .transform import Transform
 class Compose(Transform):
     """Handles the chained sequential application of multiple transformations.
 
+    Args:
+        transforms: transformations that should be applied in the order they are in the list.
+        *args: Arguments of parent class.
+        **kwargs: Arbitrary keyword arguments of parent class.
+
     Attributes:
         transforms (List): Encapsulates multiple transformations into one.
-
     """
 
     def __init__(self, transforms: List[Transform], *args, **kwargs):
-        """
-
-        Args:
-            transforms: transformations that should be applied in the order they are in the list.
-            *args: Arguments of parent class.
-            **kwargs: Arbitrary keyword arguments of parent class.
-        """
         super().__init__(*args, **kwargs)
         self.transforms = transforms
 

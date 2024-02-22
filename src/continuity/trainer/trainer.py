@@ -1,3 +1,7 @@
+"""
+`continuity.trainer.trainer`
+"""
+
 import torch
 from time import time
 from typing import Optional, List
@@ -7,9 +11,7 @@ from continuity.trainer.callbacks import Callback, PrintTrainingLoss
 
 
 class Trainer:
-    """Trainer.
-
-    Implements a default training loop for operator learning.
+    """Trainer implements a default training loop for operator learning.
 
     Example:
         ```python

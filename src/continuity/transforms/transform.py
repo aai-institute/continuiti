@@ -1,3 +1,8 @@
+"""
+`continuity.transforms.transform`
+
+Transform base class.
+"""
 import torch
 import torch.nn as nn
 
@@ -10,15 +15,13 @@ class Transform(nn.Module, ABC):
     Transformations are applied to tensors to improve model performance, enhance generalization, handle varied input
     sizes, facilitate specific features, reduce overfitting, improve computational efficiency or many other reasons.
     This class takes some tensor and transforms it into some other tensor.
+
+    Args:
+        *args: Arguments passed to nn.Module parent class.
+        **kwargs: Arbitrary keyword arguments passed to nn.Module parent class.
     """
 
     def __init__(self, *args, **kwargs):
-        """
-
-        Args:
-            *args: Arguments passed to nn.Module parent class.
-            **kwargs: Arbitrary keyword arguments passed to nn.Module parent class.
-        """
         super().__init__(*args, **kwargs)
 
     @abstractmethod
