@@ -1,8 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-from continuity.data import Sine
-from continuity.operators import ContinuousConvolution
+from continuity.data.sine import Sine
+from continuity.operators.integralkernel import NaiveIntegralKernel
 
 # Set random seed
 torch.manual_seed(0)
@@ -25,7 +25,7 @@ def test_convolution():
         return torch.isclose(dist, zero).to(torch.get_default_dtype())
 
     # Operator
-    operator = ContinuousConvolution(
+    operator = NaiveIntegralKernel(
         kernel=dirac,
         coordinate_dim=dataset.coordinate_dim,
         num_channels=dataset.num_channels,

@@ -5,7 +5,7 @@ import pytest
 from continuity.plotting import plot, plot_evaluation
 from torch.utils.data import DataLoader
 from continuity.operators import DeepONet
-from continuity.data import OperatorDataset, Sine
+from continuity.data.sine import OperatorDataset, Sine
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
