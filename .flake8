@@ -1,31 +1,29 @@
 [flake8]
 max-line-length = 99
 show_source = true
-format = "pylint"
-ignore = [
+format = pylint
+ignore =
     # Module imported but unused
-    "F401",
+    F401,
     # Line break occurred after a binary operator
-    "W504",
+    W504,
     # Local variable name is assigned to but never used
-    "F841",
+    F841,
     # Line too long
-    "E501",
+    E501,
     # White space before ':'
-    "E203",
-]
+    E203
 
-exclude = [
-    ".git",
-    "__pycache__",
-    "datasets/*",
-    "tests/*",
-    "notebooks/*",
-    "logs/*",
-    ".tox",
-    "build",
-    "dist",
-    ".eggs",
-    "docs/conf.py",
-    "venv",
-]
+exclude =
+    .git,
+    __pycache__,
+    datasets/*,
+    tests/*,
+    notebooks/*,
+    logs/*,
+    .tox,
+    build,
+    dist,
+    .eggs,
+    docs/conf.py,
+    venv,
