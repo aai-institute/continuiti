@@ -77,7 +77,6 @@ class DeepONet(Operator):
         assert u.shape[1:] == torch.Size([self.shapes.u.num * self.shapes.u.dim])
 
         y = y.flatten(0, 1)
-    
         assert y.shape[-1:] == torch.Size([self.shapes.y.dim])
 
         # Pass through branch and trunk networks
