@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "continuity"
-description = "Mapping continuous functions with neural networks."
+description = "Learning function operators with neural networks."
 authors = [{ name = "Samuel Burbulla", email = "s.burbulla@appliedai-institute.de" }]
 license = { file = "LICENSE.txt" }
 readme = "README.md"
@@ -17,12 +17,15 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Scientific/Engineering :: Physics",
 ]
-keywords = ["Artificial Intelligence", "Mathematics", "Physics", "Neural Operator", "Operator"]
+keywords = [
+    "Artificial Intelligence", "Machine Learning", "Mathematics", "Physics",
+    "Operator Learning", "Physics-Informed ML", "Neural Operator", "DeepONet",
+]
 dynamic = ["version"]
 dependencies = [
-    "black", # code formatting
-    "flake8", # code analysis
-    "isort", # import sorting
+    "black",            # code formatting
+    "flake8",           # code analysis
+    "isort",            # import sorting
 
     # --------- loggers --------- #
     # wandb
@@ -30,16 +33,17 @@ dependencies = [
     # mlflow
     # comet-ml
     "tensorboard",
+
     # --------- linters --------- #
-    "pre-commit", # hooks for applying linters on commit
-    "pudb", # debugger
-    "pytest", # tests
+    "pre-commit",       # hooks for applying linters on commit
+    "pudb",             # debugger
+    "pytest",           # tests
 
     # --------- others --------- #
-    "python-dotenv", # loading env variables from .env file
-    "rich", # beautiful text formatting in terminal
-    "sh", # for running bash commands in some tests
-    # dvc             # data version control
+    "python-dotenv",    # loading env variables from .env file
+    "rich",             # beautiful text formatting in terminal
+    "sh",               # for running bash commands in some tests
+    # dvc               # data version control
 
     # --------- dependencies --------- #
     "torch==2.1.0",
@@ -68,9 +72,9 @@ include = ["continuity"]
 
 [project.urls]
 Repository = "https://github.com/aai-institute/continuity.git"
-Homepage = "https://www.appliedai-institute.de/en/"
 Documentation = "https://aai-institute.github.io/continuity/"
-Changelog = "https://github.com/aai-institute/continuity/blob/main/CHANGELOG.md"
+Organization = "https://www.appliedai-institute.de/en/"
+TransferLab = "https://transferlab.ai/"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
