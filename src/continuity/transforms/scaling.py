@@ -4,11 +4,11 @@ import warnings
 from .transform import Transform
 
 
-class ZNormalization(Transform):
+class Normalization(Transform):
     r"""Z-normalization transformation.
 
-    This transformation takes the mean $\mu$ and the standard deviation $\sigma$ of the tensor and scales it
-    with $z(x)=\frac{x - \mu}{\sigma}$.
+    This transformation uses the mean $\mu$ and the standard deviation $\sigma$ passed in the initialization and scales
+    tensors $x$ with the mapping $z(x)=\frac{x - \mu}{\sigma}$.
 
     Attributes:
         mean: mean value of the tensor.
@@ -25,9 +25,9 @@ class ZNormalization(Transform):
         """
 
         Args:
-            mean: mean of the tensor that should be scaled. To scale a (100, 40, 3) tensor along the last
+            mean: mean used to scale tensors in forward. To scale a (100, 40, 3) tensor along the last
             dimension, provide the mean along the last dimension in the shape (1, 1, 3).
-            std: standard deviation of the tensor that should be scaled. Should have the same shape as the mean.
+            std: standard deviation used to scale tensors in forward. Should have the same shape as the mean.
             epsilon: Value for numerical stability (to prevent divide by zero).
         """
         assert mean.shape == std.shape

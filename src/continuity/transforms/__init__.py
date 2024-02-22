@@ -1,13 +1,9 @@
 from .transform import Transform
 from .compose import Compose
-from .scaling import ZNormalization
-
-# aliases
-Standardization = ZNormalization
+from .scaling import Normalization
 
 __all__ = [
     "Transform",
     "Compose",
-    "ZNormalization",
-    "Standardization",
+    "Normalization",
 ]
