@@ -10,7 +10,7 @@ license = { file = "LICENSE.txt" }
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    "Development Status :: 4 - Alpha",
+    "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -62,9 +62,8 @@ testing = [
     "gmsh",
 ]
 
-[tool.setuptools_scm]
-# See configuration details in https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+[tool.setuptools.dynamic]
+version = {attr = "continuity.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
