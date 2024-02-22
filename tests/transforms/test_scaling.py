@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from continuity.transforms import ZNormalization
+from continuity.transforms import ZNormalization, Standardization
 
 
 def test_z_norm_zero():
@@ -67,3 +67,7 @@ def test_z_norm_singular():
     t = torch.rand((100, 3))
 
     assert not torch.any(torch.isnan(tf(t)))
+
+
+def test_z_norm_alias():
+    assert Standardization == ZNormalization
