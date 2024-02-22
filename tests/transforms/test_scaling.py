@@ -1,3 +1,4 @@
+import pytest
 import torch
 
 from continuity.transforms import ZNormalization
@@ -54,3 +55,15 @@ def test_z_norm_correct():
     tf = ZNormalization(mean, std)
 
     assert torch.allclose(tf(t), (t - 5.0) / 2.0)
+
+
+def test_z_norm_singular():
+    mean = torch.zeros((1, 3))
+    std = torch.zeros((1, 3))
+    with pytest.warns(UserWarning) as record:
+        tf = ZNormalization(mean=mean, std=std)
+    assert len(record) == 1
+
+    t = torch.rand((100, 3))
+
+    assert not torch.any(torch.isnan(tf(t)))
