@@ -67,3 +67,11 @@ def test_normalization_singular():
     t = torch.rand((100, 3))
 
     assert not torch.any(torch.isnan(tf(t)))
+
+
+def test_normalization_dimensions():
+    mean = torch.rand((1, 1, 1, 7))
+    std = torch.rand((1, 1, 1, 7))
+    tf = Normalization(mean=mean, std=std)
+    t = torch.rand((100, 3, 15, 7))
+    assert tf(t).shape == t.shape
