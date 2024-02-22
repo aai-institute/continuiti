@@ -1,4 +1,8 @@
-"""In Continuity, all models for operator learning are based on the `Operator` base class."""
+"""
+`continuity.operators.operator`
+
+In Continuity, all models for operator learning are based on the `Operator` base class.
+"""
 
 import torch
 from abc import abstractmethod

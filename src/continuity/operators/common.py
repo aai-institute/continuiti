@@ -1,3 +1,9 @@
+"""
+`continuity.operators.common`
+
+Common functionality for operators in Continuity.
+"""
+
 import torch
 
 
@@ -57,6 +63,8 @@ class NeuralNetworkKernel(torch.nn.Module):
     Args:
         kernel_width: Width of kernel network
         kernel_depth: Depth of kernel network
+
+    TODO: As it is implemented, this is a convolution `k(x - y)`, but it should be more general.
     """
 
     def __init__(

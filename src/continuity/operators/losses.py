@@ -1,4 +1,15 @@
-"""Loss functions."""
+"""
+`continuity.operators.losses`
+
+Loss functions for operator learning.
+
+Every loss function takes an operator `op`, sensor positions `x`, sensor values `u`,
+evaluation coordinates `y`, and labels `v` as input and returns a scalar loss:
+
+```python
+loss = loss_fn(op, x, u, y, v)
+```
+"""
 
 import torch
 from abc import abstractmethod
@@ -32,7 +43,12 @@ class Loss:
 
 
 class MSELoss(Loss):
-    """Mean-squared error loss for supervised training."""
+    """Computes the mean-squared error between the predicted and true labels.
+
+    ```python
+    loss = mse(op(x, u, y), v)
+    ```
+    """
 
     def __init__(self):
         self.mse = torch.nn.MSELoss()
