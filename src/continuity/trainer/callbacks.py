@@ -1,4 +1,4 @@
-"""Callbacks for trainer in Continuity."""
+"""Callbacks for Trainer in Continuity."""
 
 from abc import ABC, abstractmethod
 from typing import Optional, List, Dict
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 class Callback(ABC):
     """
-    Callback base class for `fit` method of `Operator`.
+    Callback base class for `fit` method of `Trainer`.
     """
 
     @abstractmethod

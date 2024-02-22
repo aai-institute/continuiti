@@ -14,8 +14,11 @@ class Trainer:
     Example:
         ```python
         from continuity.trainer import Trainer
+        from continuity.operators.losses import MSELoss
         ...
-        trainer = Trainer(operator)
+        optimizer = torch.optim.Adam(operator.parameters(), lr=1e-3)
+        loss_fn = MSELoss()
+        trainer = Trainer(operator, optimizer, loss_fn, device="cuda:0")
         trainer.fit(data_loader, epochs=100)
         ```
 
