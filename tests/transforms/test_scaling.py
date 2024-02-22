@@ -75,3 +75,11 @@ def test_normalization_dimensions():
     tf = Normalization(mean=mean, std=std)
     t = torch.rand((100, 3, 15, 7))
     assert tf(t).shape == t.shape
+
+
+def test_normalization_other_dimensions():
+    mean = torch.rand((1, 1, 15, 7))
+    std = torch.rand((1, 1, 15, 7))
+    tf = Normalization(mean=mean, std=std)
+    t = torch.rand((100, 3, 15, 7))
+    assert tf(t).shape == t.shape
