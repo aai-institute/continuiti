@@ -48,7 +48,7 @@ jobs:
       - name: Test notebooks
         run: |
           sudo apt install gmsh
-          pytest --nbmake notebooks/
+          pytest --nbmake examples/
 
   run_tests_macos:
     runs-on: ${{ matrix.os }}
@@ -87,7 +87,7 @@ jobs:
 
       - name: Test notebooks
         run: |
-          pytest --nbmake notebooks/
+          pytest --nbmake examples/
 
   # upload code coverage report
   code-coverage:

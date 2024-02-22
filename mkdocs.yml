@@ -8,7 +8,7 @@ remote_branch: gh-pages
 
 watch:
   - src/continuity
-  - notebooks
+  - examples
 
 hooks:
   - build_scripts/copy_notebooks.py
@@ -174,12 +174,13 @@ nav:
       - First Steps: getting-started/first-steps.md
   - Learning Operators:
       - Introduction: operators/index.md
-      - Examples:
-          - Basics: examples/basics.ipynb
-          - Physics-informed: examples/physicsinformed.ipynb
-          - Super-resolution: examples/superresolution.ipynb
-          - Meshes: examples/meshes.ipynb
-          - Self-supervised: examples/selfsupervised.ipynb
+      - Architectures: operators/architectures.md
+  - Examples:
+      - Basics: examples/basics.ipynb
+      - Physics-informed: examples/physicsinformed.ipynb
+      - Super-resolution: examples/superresolution.ipynb
+      - Meshes: examples/meshes.ipynb
+      - Self-supervised: examples/selfsupervised.ipynb
   - Code:
       - API: api/continuity/
       - Changelog: CHANGELOG.md
