@@ -28,8 +28,9 @@ class Trainer:
     Args:
         operator: Operator to be trained.
         optimizer: Torch-like optimizer. Default is Adam.
-        criterion: Loss function taking (op, x, u, y, v). Default is MSELoss.
+        loss_fn: Loss function taking (op, x, u, y, v). Default is MSELoss.
         device: Device to train on. Default is CPU.
+        verbose: Print model parameters and use PrintTrainingLoss callback by default. Default is True.
     """
 
     device = get_device()
