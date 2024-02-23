@@ -4,6 +4,15 @@ import torch
 from continuity.transforms import Normalize
 
 
+@pytest.fixture(scope="module")
+def random_normalization_set():
+    mean = torch.rand((1, 1, 15, 7))
+    std = torch.rand((1, 1, 15, 7))
+    tf = Normalize(mean=mean, std=std)
+    t = torch.rand((100, 3, 15, 7))
+    return tf, t
+
+
 def test_normalization_zero():
     mean = torch.zeros((1, 3))
     std = torch.rand((1, 3))
@@ -69,17 +78,13 @@ def test_normalization_singular():
     assert not torch.any(torch.isnan(tf(t)))
 
 
-def test_normalization_dimensions():
-    mean = torch.rand((1, 1, 1, 7))
-    std = torch.rand((1, 1, 1, 7))
-    tf = Normalize(mean=mean, std=std)
-    t = torch.rand((100, 3, 15, 7))
+def test_normalization_dimensions(random_normalization_set):
+    tf, t = random_normalization_set
     assert tf(t).shape == t.shape
 
 
-def test_normalization_other_dimensions():
-    mean = torch.rand((1, 1, 15, 7))
-    std = torch.rand((1, 1, 15, 7))
-    tf = Normalize(mean=mean, std=std)
-    t = torch.rand((100, 3, 15, 7))
-    assert tf(t).shape == t.shape
+def test_normalization_undo(random_normalization_set):
+    tf, t = random_normalization_set
+
+    t_normalized = tf(t)
+    assert torch.allclose(tf.undo(t_normalized), t)
