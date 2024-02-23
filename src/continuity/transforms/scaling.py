@@ -11,8 +11,8 @@ class Normalize(Transform):
     tensors $x$ with the mapping $z(x)=\frac{x - \mu}{\sigma}$.
 
     Attributes:
-        mean: mean value of the tensor.
-        std: standard deviation of the tensor.
+        mean: mean value used to scale tensors.
+        std: standard deviation used to scale tensors.
         epsilon: Value to prevent divide by zero.
     """
 
@@ -25,12 +25,10 @@ class Normalize(Transform):
         """
 
         Args:
-            mean: mean used to scale tensors in forward. To scale a (100, 40, 3) tensor along the last
-            dimension, provide the mean along the last dimension in the shape (1, 1, 3).
-            std: standard deviation used to scale tensors in forward. Should have the same shape as the mean.
+            mean: mean used to scale tensors.
+            std: standard deviation used to scale tensors in forward.
             epsilon: Value for numerical stability (to prevent divide by zero).
         """
-        assert mean.shape == std.shape
         assert torch.all(torch.greater_equal(std, torch.zeros(std.shape)))
         super().__init__()
         self.mean = mean
@@ -47,16 +45,23 @@ class Normalize(Transform):
             self.epsilon = epsilon
 
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
-        r"""
-        $$\frac{x - \mu}{\sigma}$$
+        r"""Applies normalization to the input tensor.
 
         Args:
             tensor: input.
 
         Returns:
-            Z-normalized tensor.
+            normalized tensor.
         """
         return (tensor - self.mean) / (self.std + self.epsilon)
 
-    def backward(self, tensor: torch.Tensor) -> torch.Tensor:
+    def undo(self, tensor: torch.Tensor) -> torch.Tensor:
+        r"""Reverse the normalization.
+
+        Args:
+            tensor: normalized tensor.
+
+        Returns:
+            tensor with normalization undone.
+        """
         return tensor * (self.std + self.epsilon) + self.mean
