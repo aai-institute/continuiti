@@ -87,5 +87,5 @@ def test_normalization_undo(random_normalization_set):
     tf, t = random_normalization_set
 
     t_normalized = tf(t)
-    # higher tolerance required because of epsilon (introduced for numerical stability).
-    assert torch.allclose(tf.undo(t_normalized), t, atol=1e-7)
+    # higher tolerance required because of numerical accuracy of these operations.
+    assert torch.allclose(tf.undo(t_normalized), t)
