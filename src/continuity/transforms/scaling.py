@@ -1,60 +1,58 @@
-import torch
-import warnings
+"""
+`continuity.transforms.scaling`
+"""
 
+import torch
 from .transform import Transform
 
 
 class Normalize(Transform):
-    r"""Z-normalization transformation.
+    r"""Normalization transformation (Z-normalization).
 
-    This transformation uses the mean $\mu$ and the standard deviation $\sigma$ passed in the initialization and scales
-    tensors $x$ with the mapping $z(x)=\frac{x - \mu}{\sigma}$.
+    This transformation takes a mean $\mu$ and standard deviation $\sigma$
+    to scale tensors $x$ according to
+
+    $$\operatorname{Normalize}(x) = \frac{x - \mu}{\sigma + \varepsilon} := z,$$
+
+    where $\varepsilon$ is a small value to prevent division by zero.
 
     Attributes:
-        mean: mean value used to scale tensors.
-        std: standard deviation used to scale tensors.
-        epsilon: Value to prevent divide by zero.
+        epsilon: small value to prevent division by zero (`torch.finfo.tiny`)
+
+    Args:
+        mean: mean used to scale tensors
+        std: standard deviation used to scale tensors
     """
 
-    def __init__(self, mean: torch.Tensor, std: torch.Tensor):
-        """
+    epsilon = torch.finfo(torch.get_default_dtype()).tiny
 
-        Args:
-            mean: mean used to scale tensors.
-            std: standard deviation used to scale tensors in forward.
-        """
+    def __init__(self, mean: torch.Tensor, std: torch.Tensor):
         super().__init__()
         self.mean = mean
-        if not std.all():
-            # some value is zero
-            epsilon = torch.finfo(torch.get_default_dtype()).tiny
-            warnings.warn(
-                "Normalization with standard deviation 0. "
-                "Some or all features do not have any discriminative power! "
-                f"Introducing a epsilon={epsilon} to account for numerical stability.",
-                stacklevel=2,
-            )
-            std[std == 0] = epsilon
         self.std = std
 
-    def forward(self, tensor: torch.Tensor) -> torch.Tensor:
-        r"""Applies normalization to the input tensor.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        r"""Apply normalization to the input tensor.
+
+        $$z = \frac{x - \mu}{\sigma + \varepsilon}$$
 
         Args:
-            tensor: input.
+            x: input tensor $x$
 
         Returns:
-            normalized tensor.
+            normalized tensor $z$
         """
-        return (tensor - self.mean) / self.std
+        return (x - self.mean) / (self.std + self.epsilon)
 
-    def undo(self, tensor: torch.Tensor) -> torch.Tensor:
-        r"""Reverse the normalization.
+    def undo(self, z: torch.Tensor) -> torch.Tensor:
+        r"""Undo the normalization.
+
+        $$x = z~(\sigma + \varepsilon) + \mu$$
 
         Args:
-            tensor: normalized tensor.
+            z: (normalized) tensor $z$
 
         Returns:
-            tensor with normalization undone.
+            un-normalized tensor $x$
         """
-        return tensor * self.std + self.mean
+        return z * (self.std + self.epsilon) + self.mean
