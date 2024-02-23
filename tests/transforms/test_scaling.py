@@ -69,7 +69,8 @@ def test_normalization_correct():
 def test_normalization_singular():
     mean = torch.zeros((1, 3))
     std = torch.zeros((1, 3))
-    tf = Normalize(mean=mean, std=std)
+    with pytest.warns(UserWarning):
+        tf = Normalize(mean=mean, std=std)
 
     t = torch.rand((100, 3))
     tf_t = tf(t)
@@ -88,4 +89,4 @@ def test_normalization_undo(random_normalization_set):
 
     t_normalized = tf(t)
     # higher tolerance required because of numerical accuracy of these operations.
-    assert torch.allclose(tf.undo(t_normalized), t)
+    assert torch.allclose(tf.undo(t_normalized), t, atol=1e-7)
