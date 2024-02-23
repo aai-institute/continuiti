@@ -16,33 +16,26 @@ class Normalize(Transform):
         epsilon: Value to prevent divide by zero.
     """
 
-    def __init__(
-        self,
-        mean: torch.Tensor,
-        std: torch.Tensor,
-        epsilon: float = None,
-    ):
+    def __init__(self, mean: torch.Tensor, std: torch.Tensor):
         """
 
         Args:
             mean: mean used to scale tensors.
             std: standard deviation used to scale tensors in forward.
-            epsilon: Value for numerical stability (to prevent divide by zero).
         """
-        assert torch.all(torch.greater_equal(std, torch.zeros(std.shape)))
         super().__init__()
         self.mean = mean
-        if torch.allclose(std, torch.zeros(std.shape)):
+        if not std.all():
+            # some value is zero
+            epsilon = torch.finfo(torch.get_default_dtype()).tiny
             warnings.warn(
-                "Z-normalization with standard deviation 0! "
-                "The feature vector does not have any discriminative power!",
+                "Normalization with standard deviation 0. "
+                "Some or all features do not have any discriminative power! "
+                f"Introducing a epsilon={epsilon} to account for numerical stability.",
                 stacklevel=2,
             )
+            std[std == 0] = epsilon
         self.std = std
-        if epsilon is None:
-            self.epsilon = torch.finfo(torch.get_default_dtype()).tiny
-        else:
-            self.epsilon = epsilon
 
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
         r"""Applies normalization to the input tensor.
@@ -53,7 +46,7 @@ class Normalize(Transform):
         Returns:
             normalized tensor.
         """
-        return (tensor - self.mean) / (self.std + self.epsilon)
+        return (tensor - self.mean) / self.std
 
     def undo(self, tensor: torch.Tensor) -> torch.Tensor:
         r"""Reverse the normalization.
@@ -64,4 +57,4 @@ class Normalize(Transform):
         Returns:
             tensor with normalization undone.
         """
-        return tensor * (self.std + self.epsilon) + self.mean
+        return tensor * self.std + self.mean

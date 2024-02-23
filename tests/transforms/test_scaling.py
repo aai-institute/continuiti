@@ -69,13 +69,13 @@ def test_normalization_correct():
 def test_normalization_singular():
     mean = torch.zeros((1, 3))
     std = torch.zeros((1, 3))
-    with pytest.warns(UserWarning) as record:
-        tf = Normalize(mean=mean, std=std)
-    assert len(record) == 1
+    tf = Normalize(mean=mean, std=std)
 
     t = torch.rand((100, 3))
+    tf_t = tf(t)
 
-    assert not torch.any(torch.isnan(tf(t)))
+    assert not torch.any(torch.isnan(tf_t))
+    assert not torch.any(torch.isinf(tf_t))
 
 
 def test_normalization_dimensions(random_normalization_set):
