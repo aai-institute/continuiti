@@ -1,6 +1,7 @@
 import torch
 import pytest
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from continuity.operators import DeepONet
 from continuity.data.sine import Sine
 from continuity.trainer import Trainer
@@ -11,8 +12,11 @@ torch.manual_seed(0)
 
 
 def train(rank: int = "cpu", verbose: bool = True):
-    dataset = Sine(num_sensors=32, size=16)
-    data_loader = DataLoader(dataset)
+    dataset = Sine(num_sensors=32, size=256)
+
+    # Use DistributedSampler to distribute data across GPUs
+    data_loader = DataLoader(dataset, batch_size=8, sampler=DistributedSampler(dataset))
+
     operator = DeepONet(dataset.shapes)
 
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
@@ -40,11 +44,12 @@ def train_parallel():
 
     dist.init_process_group("nccl")
     rank = dist.get_rank()
-
-    if rank == 0:
-        print(f" == Number of GPUs: {dist.get_world_size()}")
-
     verbose = rank == 0
+
+    if verbose:
+        print(f" == GPUs: {dist.get_world_size()}")
+
+    # Train model
     train(rank, verbose=verbose)
 
     dist.destroy_process_group()
