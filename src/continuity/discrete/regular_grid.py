@@ -1,7 +1,7 @@
 """
-`continuity.discrete.uniform_grid`
+`continuity.discrete.regular_grid`
 
-Samplers sampling uniformly from n-dimensional boxes in uniform grids.
+Samplers sampling on a regular grid from n-dimensional boxes.
 """
 
 import torch
@@ -9,10 +9,10 @@ import torch
 from .box_sampler import BoxSampler
 
 
-class UniformGridSampler(BoxSampler):
-    """Uniform Grid sampler class.
+class RegularGridSampler(BoxSampler):
+    """Regular Grid sampler class.
 
-    A class for generating uniformly distributed samples within an n-dimensional box defined by its minimum and maximum
+    A class for generating regularly spaced samples within an n-dimensional box defined by its minimum and maximum
     corner points. This sampler aims to distribute samples as evenly as possible across all dimensions, adjusting the
     number of samples per dimension based on the box's size and the total desired number of samples. The goal is to
     achieve a uniform aspect ratio of distances between adjacent samples in all dimensions, with an option to
@@ -28,7 +28,7 @@ class UniformGridSampler(BoxSampler):
     Example usage:
         >>> min_corner = torch.tensor([0, 0, 0])  # Define the minimum corner of the box
         >>> max_corner = torch.tensor([1, 1, 1])  # Define the maximum corner of the box
-        >>> sampler = UniformGridSampler(min_corner, max_corner, prefer_more_samples=True)
+        >>> sampler = RegularGridSampler(min_corner, max_corner, prefer_more_samples=True)
         >>> samples = sampler(100)
         >>> print(samples.shape)
         torch.Size([125, 3])
