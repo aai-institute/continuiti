@@ -32,7 +32,7 @@ class BoxSampler(Sampler, ABC):
     def __init__(self, x_min: torch.Tensor, x_max: torch.Tensor):
         assert x_min.shape == x_max.shape
         assert x_min.ndim == x_max.ndim == 1
-        super().__init__(x_min.size())
+        super().__init__(len(x_min))
         self.x_min = x_min
         self.x_max = x_max
         self.x_delta = x_max - x_min

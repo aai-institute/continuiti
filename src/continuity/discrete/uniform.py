@@ -19,6 +19,8 @@ class UniformBoxSampler(BoxSampler):
     hyperrectangle (or box). The sampling considers an inclusive range for each dimension, meaning that the edge values
     of the box can also be sampled.
 
+    While the base class samples on a closed interval, the UniformBoxSampler class samples from a right-open interval.
+
     Example:
         >>> sampler = UniformBoxSampler(torch.tensor([0, 0]), torch.tensor([1, 1]))
         >>> samples = sampler(100)
@@ -26,7 +28,7 @@ class UniformBoxSampler(BoxSampler):
 
     def __call__(self, n_samples: int) -> torch.Tensor:
         """Generates a sample within the n-dimensional box. The sample is uniformly distributed, and every point within
-        the specified box, including the edges, has an equal chance of being sampled.
+        the specified box, including the left edge, has an equal chance of being sampled.
 
         Args:
             n_samples: number of samples to draw.
@@ -35,7 +37,4 @@ class UniformBoxSampler(BoxSampler):
             samples as tensor of shape (n_samples, ndim)
         """
         sample = torch.rand((n_samples, self.ndim))
-        sample = sample * (
-            1 + torch.finfo(torch.get_default_dtype()).tiny
-        )  # inclusive upper interval bound
         return sample * self.x_delta + self.x_min
