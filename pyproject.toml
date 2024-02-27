@@ -51,6 +51,7 @@ dependencies = [
     "matplotlib",
     "pandas",
     "optuna==3.5.0",
+    "numpy",
 ]
 
 [project.optional-dependencies]
