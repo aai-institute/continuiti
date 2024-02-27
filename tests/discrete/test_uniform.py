@@ -54,3 +54,21 @@ def test_uniform_distribution(sampler_list):
 
         var = sampler.x_delta**2 / 12
         assert torch.allclose(sample.var(dim=0), var, atol=1e-1)
+
+
+def test_uniform_dist_zero():
+    n_samples = 100
+    sampler = UniformBoxSampler(
+        torch.tensor([0.0, 0.0, 0.0]), torch.tensor([0.0, 1.0, 0.0])
+    )
+    samples = sampler(n_samples)
+    assert samples.size(0) == n_samples
+
+
+def test_uniform_dist_neg():
+    n_samples = 100
+    sampler = UniformBoxSampler(
+        torch.tensor([0.0, 0.0, 0.0]), torch.tensor([0.0, -1.0, 0.0])
+    )
+    samples = sampler(n_samples)
+    assert samples.size(0) == n_samples
