@@ -1,5 +1,6 @@
-import torch
 import pytest
+import torch.optim
+import torch.cuda
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from continuity.operators import DeepONet
