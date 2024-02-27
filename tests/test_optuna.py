@@ -8,9 +8,6 @@ from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
 import optuna
 
-# Set random seed
-torch.manual_seed(0)
-
 
 @pytest.mark.slow
 def test_optuna():

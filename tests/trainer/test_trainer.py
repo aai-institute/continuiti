@@ -7,8 +7,6 @@ from continuity.data.sine import Sine
 from continuity.trainer import Trainer
 import torch.distributed as dist
 
-torch.manual_seed(0)
-
 
 def train(rank: int = "cpu", verbose: bool = True):
     dataset = Sine(num_sensors=32, size=256)

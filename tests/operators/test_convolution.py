@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 from continuity.data.sine import Sine
 from continuity.operators.integralkernel import NaiveIntegralKernel
 
-# Set random seed
-torch.manual_seed(0)
-
 
 def test_convolution():
     # Parameters

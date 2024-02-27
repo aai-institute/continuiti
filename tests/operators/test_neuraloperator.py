@@ -8,9 +8,6 @@ from torch.utils.data import DataLoader
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
-# Set random seed
-torch.manual_seed(0)
-
 
 @pytest.mark.slow
 def test_neuraloperator():
