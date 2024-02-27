@@ -22,16 +22,18 @@ class RegularGridSampler(BoxSampler):
         x_min: The minimum corner point of the n-dimensional box, specifying the start of each dimension.
         x_max: The maximum corner point of the n-dimensional box, specifying the end of each dimension.
         prefer_more_samples: Flag indicating whether to prefer a sample count slightly above (True) or below (False) the
-            desired total if an exact match isn't possible due to the construction of the mesh. Defaults to True.
+            desired total if an exact match isn't possible due to the properties of the regular grid. Defaults to True.
 
 
     Example usage:
-        >>> min_corner = torch.tensor([0, 0, 0])  # Define the minimum corner of the box
-        >>> max_corner = torch.tensor([1, 1, 1])  # Define the maximum corner of the box
-        >>> sampler = RegularGridSampler(min_corner, max_corner, prefer_more_samples=True)
-        >>> samples = sampler(100)
-        >>> print(samples.shape)
+        ```
+        min_corner = torch.tensor([0, 0, 0])  # Define the minimum corner of the box
+        max_corner = torch.tensor([1, 1, 1])  # Define the maximum corner of the box
+        sampler = RegularGridSampler(min_corner, max_corner, prefer_more_samples=True)
+        samples = sampler(100)
+        print(samples.shape)
         torch.Size([125, 3])
+        ```
     """
 
     def __init__(
