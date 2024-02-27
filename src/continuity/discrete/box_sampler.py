@@ -14,15 +14,16 @@ from .sampler import Sampler
 class BoxSampler(Sampler, ABC):
     r"""Abstract base class for sampling from n-dimensional boxes.
 
-    An n-dimensional box (hyper-rectangle), is described as a Cartesian product of intervals. Each of these intervals
-    corresponds to one of the dimensions in an n-dimensional space. Given an n dimensional space $\mathbb{R}^n$, an
-    n-dimensional box $\mathcal{B}$ is definded by two points in this space.
-    $P_{min}=(x_1^{(min)},x_2^{(min)},\dots,x_n^{(min)})$ and $P_{max}=(x_1^{(max)},x_2^{(max)},\dots,x_n^{(max)})$ are
-    the minimum and maximum coordinates of the box along the $i$--th dimension, respectively.
-    $\mathcal{B}$ can be represented as:
-    $$B = [x_1^{(min)}, x_1^{(max)}] \times [x_2^{(min)}, x_2^{(max)}] \times \dots \times [x_n^{(min)}, x_n^{(max)}]$$,
-    where $[x_i^{(min)}, x_i^{(max)}]$$ denotes the closed interval on the $i$-th dimension and $\times$ the Cartesian
-    product of the intervals.
+    Given two points in $\mathbb{R}^n$ with coordinates
+    $$
+    (x_1^{(min)},x_2^{(min)},\dots,x_n^{(min)}), \quad
+    (x_1^{(max)},x_2^{(max)},\dots,x_n^{(max)}),
+    $$
+    an n-dimensional box $B \subset \mathbb{R}^n$ is given by the
+    Cartesian product
+    $$
+    B = [x_1^{(min)}, x_1^{(max)}] \times \dots \times [x_n^{(min)}, x_n^{(max)}].
+    $$
 
     Args:
         x_min: Minimum corner point of the n-dimensional box.

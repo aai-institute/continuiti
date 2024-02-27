@@ -1,7 +1,7 @@
 """
 `continuity.discrete.uniform`
 
-Samplers sampling uniformly from n-dimensional boxes.
+Uniform samplers.
 """
 
 import torch
@@ -10,31 +10,32 @@ from .box_sampler import BoxSampler
 
 
 class UniformBoxSampler(BoxSampler):
-    r"""Class for sampling uniformly from a n-dimensional box.
-
-    A sampler for uniformly sampling points from a given n-dimensional box, where the sampling interval for each
-    dimension is inclusive of both the lower and upper bounds.
-
-    This class extends BoxSampler and provides functionality to sample points uniformly from an n-dimensional
-    hyperrectangle (or box). The sampling considers an inclusive range for each dimension, meaning that the edge values
-    of the box can also be sampled.
-
-    While the base class samples on a closed interval, the UniformBoxSampler class samples from a right-open interval.
+    r"""Sample uniformly from an n-dimensional box.
 
     Example:
-        >>> sampler = UniformBoxSampler(torch.tensor([0, 0]), torch.tensor([1, 1]))
-        >>> samples = sampler(100)
+        ```python
+        sampler = UniformBoxSampler(torch.tensor([0, 0]), torch.tensor([1, 1]))
+        samples = sampler(100)
+        samples.shape
+        ```
+        Output:
+        ```
+        torch.Size([100, 2])
+        ```
+
+    Note:
+        Using `torch.rand` the UniformBoxSampler samples from a right-open
+        interval in every dimension.
     """
 
-    def __call__(self, n_samples: int) -> torch.Tensor:
-        """Generates a sample within the n-dimensional box. The sample is uniformly distributed, and every point within
-        the specified box, including the left edge, has an equal chance of being sampled.
+    def __call__(self, n: int) -> torch.Tensor:
+        """Generates `n` uniformly distributed samples within the n-dimensional box.
 
         Args:
-            n_samples: number of samples to draw.
+            n: Number of samples to draw.
 
         Returns:
-            samples as tensor of shape (n_samples, ndim)
+            Samples as tensor of shape (n, dim).
         """
-        sample = torch.rand((n_samples, self.ndim))
+        sample = torch.rand((n, self.ndim))
         return sample * self.x_delta + self.x_min

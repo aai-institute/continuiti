@@ -42,7 +42,7 @@ def test_sample_within_bounds(sampler_list):
 
 
 def test_uniform_distribution(sampler_list):
-    n_samples = 2**10
+    n_samples = 2**20
     for sampler in sampler_list:
         sample = sampler(n_samples)
 
