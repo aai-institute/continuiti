@@ -1,0 +1,7 @@
+_target_: continuity.operators.belnet.BelNet
+
+K: 4
+N_1: 32
+D_1: 1
+N_2: 32
+D_2: 1

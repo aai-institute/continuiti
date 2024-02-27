@@ -45,7 +45,6 @@ def test_optuna():
     study = optuna.create_study(
         direction="minimize",
         study_name=name,
-        storage=f"sqlite:///{name}.db",
         load_if_exists=True,
     )
     study.optimize(objective, n_trials=3)
