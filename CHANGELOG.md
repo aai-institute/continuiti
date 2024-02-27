@@ -5,6 +5,8 @@
 - Move all content of `__init__.py` files to sub-modules.
 - Add `Trainer` class to replace `operator.fit` method.
 - Implement `BelNet`.
+- Moved `DataLoader` into the `fit` method of the `Trainer`.
+  Therefore, `Trainer.fit` expects an `OperatorDataset` now.
 
 ## 0.0.0 (2024-02-22)
 
