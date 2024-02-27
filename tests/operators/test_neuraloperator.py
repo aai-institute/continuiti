@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from continuity.data.sine import Sine
 from continuity.operators import NeuralOperator
 from continuity.plotting import plot, plot_evaluation
-from torch.utils.data import DataLoader
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
@@ -19,7 +18,6 @@ def test_neuraloperator():
 
     # Data set
     dataset = Sine(num_sensors, size=1)
-    data_loader = DataLoader(dataset, batch_size=32)
 
     # Operator
     operator = NeuralOperator(
@@ -32,7 +30,7 @@ def test_neuraloperator():
     # Train self-supervised
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
     trainer = Trainer(operator, optimizer)
-    trainer.fit(data_loader, epochs=400)
+    trainer.fit(dataset, epochs=400)
 
     # Plotting
     fig, ax = plt.subplots(1, 1)
