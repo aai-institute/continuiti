@@ -89,7 +89,15 @@ def test_samples_over(sampler_list_over):
         assert samples.size(0) > n_samples
 
 
-def test_dist_zero():
+def test_dist_zero_single():
+    n_samples = 121
+    sampler = RegularGridSampler(torch.zeros(3), torch.tensor([1.0, 1.0, 0.0]))
+    samples = sampler(n_samples)
+
+    assert samples.size(0) == n_samples
+
+
+def test_dist_zero_double():
     n_samples = 100
     sampler = RegularGridSampler(torch.zeros(3), torch.tensor([0.0, 1.0, 0.0]))
     samples = sampler(n_samples)
