@@ -1,0 +1,16 @@
+{
+    "SineBenchmark": {
+        "BelNet(K=4, P=(32, 1), Q=(32, 1))": {
+            "loss/test": 0.7507284879684448,
+            "loss/train": 7.466615676879883
+        },
+        "DeepONet(branch=(32, 3), trunk=(32, 3), basis=8)": {
+            "loss/test": 0.2013445347547531,
+            "loss/train": 1.8961658477783203
+        },
+        "NeuralOperator(depth=3, kernel=(32, 3))": {
+            "loss/test": 0.1441805511713028,
+            "loss/train": 1.4120795726776123
+        }
+    }
+}

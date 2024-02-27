@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - benchmark: sine
+  - operator: deeponet
+  - trainer: default
+
+seed: 0
+
+hydra:
+  mode: "MULTIRUN"
+
+  sweeper:
+    params:
+      benchmark: sine
+      operator: deeponet, belnet, neuraloperator

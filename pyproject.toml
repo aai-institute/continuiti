@@ -47,8 +47,6 @@ dependencies = [
 
     # --------- dependencies --------- #
     "torch>=2.1.0,<3.0.0",
-    "dadaptation>=3.1,<4.0",
-    "matplotlib",
     "pandas",
     "optuna>=3.5.0,<4.0.0",
     "numpy",
@@ -79,6 +77,10 @@ docs = [
     "mknotebooks>=0.8.0",
     "neoteroi-mkdocs",
     "pygments",
+]
+
+benchmarks = [
+    "hydra-core",
 ]
 
 [tool.setuptools.dynamic]
