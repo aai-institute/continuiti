@@ -32,6 +32,10 @@ class Operator(torch.nn.Module):
             Evaluations of the mapped function with shape (batch_size, y_size, output_channels)
         """
 
+    def __str__(self):
+        """String representation of the operator."""
+        return self.__class__.__name__
+
     def save(self, path: str):
         """Save the operator to a file.
 

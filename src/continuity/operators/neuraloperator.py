@@ -43,6 +43,9 @@ class NeuralOperator(Operator):
         super().__init__()
 
         self.shapes = shapes
+        self.depth = depth
+        self.kernel_width = kernel_width
+        self.kernel_depth = kernel_depth
 
         self.lifting = NaiveIntegralKernel(
             NeuralNetworkKernel(kernel_width, kernel_depth),
@@ -66,6 +69,12 @@ class NeuralOperator(Operator):
             shapes.x.dim,
             shapes.u.dim,
         )
+
+    def __str__(self):
+        """String representation of the operator."""
+        s = f"NeuralOperator(depth={self.depth}, "
+        s += f"kernel=({self.kernel_width}, {self.kernel_depth}))"
+        return s
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor

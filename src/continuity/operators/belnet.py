@@ -55,6 +55,10 @@ class BelNet(Operator):
 
         self.shapes = shapes
         self.K = K
+        self.N_1 = N_1
+        self.D_1 = D_1
+        self.N_2 = N_2
+        self.D_2 = D_2
         self.a_x = a_x or torch.nn.Tanh()
         self.a_u = a_u or torch.nn.LeakyReLU()
         self.a_y = a_y or torch.nn.Tanh()
@@ -85,6 +89,12 @@ class BelNet(Operator):
             depth=D_2,
             act=self.a_y,
         )
+
+    def __str__(self):
+        """String representation of the operator."""
+        s = f"BelNet(K={self.K}, P=({self.N_1}, {self.D_1}), "
+        s += f"Q=({self.N_2}, {self.D_2}))"
+        return s
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
