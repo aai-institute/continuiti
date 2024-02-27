@@ -6,7 +6,7 @@ from continuity.plotting import plot, plot_evaluation
 from torch.utils.data import DataLoader
 from continuity.operators import DeepONet
 from continuity.data import OperatorDataset
-from continuity.data.sine import OperatorDataset, Sine
+from continuity.data.sine import Sine
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
@@ -64,7 +64,7 @@ def test_deeponet():
     )
 
     # Train self-supervised
-    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
+    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-3)
     trainer = Trainer(operator, optimizer)
     trainer.fit(data_loader, epochs=1000)
 

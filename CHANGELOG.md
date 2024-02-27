@@ -5,6 +5,7 @@
 - Move all content of `__init__.py` files to sub-modules.
 - Add `Trainer` class to replace `operator.fit` method.
 - Implement `BelNet`.
+- Add `Sampler`, `BoxSampler`, and `UniformBoxSampler` classes.
 
 ## 0.0.0 (2024-02-22)
 
