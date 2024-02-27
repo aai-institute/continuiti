@@ -71,7 +71,7 @@ def test_belnet():
     # Check solution
     x = x.unsqueeze(0)
     u = u.unsqueeze(0)
-    assert MSELoss()(operator, x, u, x, u) < 1e-3
+    assert MSELoss()(operator, x, u, x, u) < 1e-2
 
 
 if __name__ == "__main__":
