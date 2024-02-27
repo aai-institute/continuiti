@@ -3,6 +3,8 @@
 """
 
 import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
 from time import time
 from typing import Optional, List
 from continuity.operators import Operator
@@ -79,14 +81,19 @@ class Trainer:
             print(f"Model parameters: {num_params}")
 
         # Move operator to device
-        self.operator.to(self.device)
+        operator = self.operator.to(self.device)
+
+        if dist.is_available() and dist.is_initialized():
+            operator = DDP(
+                operator, device_ids=[self.device], output_device=self.device
+            )
 
         # Call on_train_begin
         for callback in callbacks:
             callback.on_train_begin()
 
         # Train
-        self.operator.train()
+        operator.train()
         for epoch in range(epochs):
             loss_train = 0
 
@@ -97,14 +104,14 @@ class Trainer:
 
                 def closure(x=x, u=u, y=y, v=v):
                     self.optimizer.zero_grad()
-                    loss = self.loss_fn(self.operator, x, u, y, v)
+                    loss = self.loss_fn(operator, x, u, y, v)
                     loss.backward(retain_graph=True)
                     return loss
 
                 self.optimizer.step(closure)
 
                 # Compute mean loss
-                loss_train += self.loss_fn(self.operator, x, u, y, v).detach().item()
+                loss_train += self.loss_fn(operator, x, u, y, v).detach().item()
 
             end = time()
             seconds_per_epoch = end - start

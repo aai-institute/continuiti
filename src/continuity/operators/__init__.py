@@ -15,10 +15,12 @@ from .common import DeepResidualNetwork
 from .operator import Operator
 from .neuraloperator import NeuralOperator
 from .deeponet import DeepONet
+from .belnet import BelNet
 
 __all__ = [
     "Operator",
     "DeepONet",
     "NeuralOperator",
     "DeepResidualNetwork",
+    "BelNet",
 ]
