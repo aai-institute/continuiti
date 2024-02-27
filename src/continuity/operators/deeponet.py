@@ -42,6 +42,11 @@ class DeepONet(Operator):
         super().__init__()
 
         self.shapes = shapes
+        self.branch_width = branch_width
+        self.branch_depth = branch_depth
+        self.trunk_width = trunk_width
+        self.trunk_depth = trunk_depth
+        self.basis_functions = basis_functions
 
         self.basis_functions = basis_functions
         self.dot_dim = shapes.v.dim * basis_functions
@@ -60,6 +65,13 @@ class DeepONet(Operator):
             width=branch_width,
             depth=branch_depth,
         )
+
+    def __str__(self):
+        """String representation of the operator."""
+        s = f"DeepONet(branch=({self.branch_width}, {self.branch_depth}), "
+        s += f"trunk=({self.trunk_width}, {self.trunk_depth}), "
+        s += f"basis={self.basis_functions})"
+        return s
 
     def forward(
         self, _: torch.Tensor, u: torch.Tensor, y: torch.Tensor
