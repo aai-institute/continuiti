@@ -6,6 +6,7 @@ Default torch device.
 
 import torch
 import os
+import torch.distributed as dist
 
 
 def get_device() -> torch.device:
@@ -25,6 +26,8 @@ def get_device() -> torch.device:
         device = torch.device("mps")
 
     if torch.cuda.is_available():
-        device = torch.device("cuda")
+        dist.init_process_group("nccl")
+        rank = dist.get_rank()
+        device = torch.device(f"cuda:{rank}")
 
     return device

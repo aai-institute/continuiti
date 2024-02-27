@@ -1,5 +1,4 @@
 import torch
-from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 from continuity.data.sine import Sine
 from continuity.operators.integralkernel import NaiveIntegralKernel
@@ -15,8 +14,7 @@ def test_convolution():
 
     # Data set
     dataset = Sine(num_sensors, size=1)
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
-    x, u, _, _ = next(iter(dataloader))
+    x, u, _, _ = [a.unsqueeze(0) for a in dataset[0]]
 
     # Kernel
     def dirac(x, y):

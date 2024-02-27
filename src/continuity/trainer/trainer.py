@@ -5,8 +5,11 @@
 import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from time import time
 from typing import Optional, List
+from continuity.data import OperatorDataset
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.callbacks import Callback, PrintTrainingLoss
@@ -43,7 +46,7 @@ class Trainer:
         optimizer: Optional[torch.optim.Optimizer] = None,
         loss_fn: Optional[Loss] = None,
         device: torch.device = device,
-        verbose: bool = True,
+        verbose: Optional[bool] = None,
     ):
         self.operator = operator
         self.optimizer = (
@@ -53,13 +56,16 @@ class Trainer:
         )
         self.loss_fn = loss_fn if loss_fn is not None else MSELoss()
         self.device = device
-        self.verbose = verbose
+        self.rank = device.index or 0
+        self.verbose = verbose if verbose is not None else self.rank == 0
 
     def fit(
         self,
-        data_loader: torch.utils.data.DataLoader,
+        dataset: OperatorDataset,
         epochs: int = 100,
         callbacks: Optional[List[Callback]] = None,
+        batch_size: int = 32,
+        shuffle: bool = True,
     ):
         """Fit operator to data set.
 
@@ -67,6 +73,8 @@ class Trainer:
             dataset: Data set.
             epochs: Number of epochs.
             callbacks: List of callbacks.
+            batch_size: Batch size.
+            shuffle: Shuffle data set.
         """
         # Default callback
         if callbacks is None:
@@ -83,10 +91,26 @@ class Trainer:
         # Move operator to device
         operator = self.operator.to(self.device)
 
+        # Use DistributedDataParallel if available
+        sampler = None
         if dist.is_available() and dist.is_initialized():
             operator = DDP(
                 operator, device_ids=[self.device], output_device=self.device
             )
+            sampler = DistributedSampler(dataset)
+            shuffle = False
+
+            if self.verbose:
+                ngpu = dist.get_world_size()
+                print(f"Device: CUDA ({ngpu} GPU{'' if ngpu == 1 else 's'})")
+        else:
+            if self.verbose:
+                print(f"Device: {self.device}")
+
+        # Create data loader
+        data_loader = DataLoader(
+            dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler
+        )
 
         # Call on_train_begin
         for callback in callbacks:
