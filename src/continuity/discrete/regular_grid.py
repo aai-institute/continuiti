@@ -50,7 +50,7 @@ class RegularGridSampler(BoxSampler):
         Returns:
             Tensor containing the samples of shape (~n_samples, ndim)
         """
-        samples_per_dim = self.calculate_samples_pre_dim(n_samples)
+        samples_per_dim = self.calculate_samples_per_dim(n_samples)
         samples_per_dim = self.adjust_samples_to_fit(n_samples, samples_per_dim)
 
         # Generate grid
@@ -64,7 +64,7 @@ class RegularGridSampler(BoxSampler):
 
         return torch.stack(mesh, dim=-1).reshape(-1, self.ndim)
 
-    def calculate_samples_pre_dim(self, n_samples: int) -> torch.Tensor:
+    def calculate_samples_per_dim(self, n_samples: int) -> torch.Tensor:
         """Calculate an approximate distribution of samples across each dimension.
 
         Args:
