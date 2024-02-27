@@ -7,9 +7,6 @@ from continuity.plotting import plot, plot_evaluation
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
-# Set random seed
-torch.manual_seed(0)
-
 
 @pytest.mark.slow
 def test_neuraloperator():

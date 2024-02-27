@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 from continuity.data.selfsupervised import SelfSupervisedOperatorDataset
 from continuity.plotting import plot
 
-# Set random seed
-torch.manual_seed(0)
-
 
 def test_dataset():
     # Sensors

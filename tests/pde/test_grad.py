@@ -1,9 +1,6 @@
 import torch
 from continuity.pde.grad import grad, Grad, div, Div
 
-# Set random seed
-torch.manual_seed(0)
-
 
 def test_grad():
     # f(x) = x_0^2 + x_1^3

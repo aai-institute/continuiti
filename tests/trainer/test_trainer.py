@@ -1,10 +1,7 @@
-import torch
 import pytest
 from continuity.operators import DeepONet
 from continuity.data.sine import Sine
 from continuity.trainer import Trainer
-
-torch.manual_seed(0)
 
 
 def train():
