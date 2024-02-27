@@ -73,9 +73,10 @@ class RegularGridSampler(BoxSampler):
         Returns:
             Approximate number of samples for each dimension as a float vector.
         """
-        samples_per_dim = torch.pow(
-            n_samples / torch.prod(self.x_aspect), 1 / self.ndim
-        )
+        mask = ~torch.isclose(self.x_aspect, torch.zeros(self.x_aspect.shape))
+        scale_fac = torch.prod(self.x_aspect[mask])
+        relevant_ndim = torch.sum(mask)
+        samples_per_dim = torch.pow(n_samples / scale_fac, 1 / relevant_ndim)
         samples_per_dim = self.x_aspect * samples_per_dim
         samples_per_dim = torch.max(
             samples_per_dim, torch.ones(samples_per_dim.shape)
