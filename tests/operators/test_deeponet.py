@@ -64,7 +64,7 @@ def test_deeponet():
     )
 
     # Train self-supervised
-    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
+    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-3)
     trainer = Trainer(operator, optimizer)
     trainer.fit(data_loader, epochs=1000)
 
