@@ -5,6 +5,8 @@ format = pylint
 ignore =
     # Module imported but unused
     F401,
+    # Line break occurred before a binary operator
+    W503,
     # Line break occurred after a binary operator
     W504,
     # Local variable name is assigned to but never used
