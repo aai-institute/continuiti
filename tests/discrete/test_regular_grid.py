@@ -11,6 +11,11 @@ def regular_grid_sampler() -> RegularGridSampler:
 
 
 @pytest.fixture(scope="module")
+def regular_grid_sampler_negative() -> RegularGridSampler:
+    return RegularGridSampler(x_min=torch.zeros(2), x_max=torch.tensor(([1.0, -1.0])))
+
+
+@pytest.fixture(scope="module")
 def regular_grid_random_sampler() -> RegularGridSampler:
     x_min = -2.0 * torch.rand((5,))
     x_max = 2.0 * torch.rand((5,))
@@ -33,9 +38,13 @@ def regular_grid_random_sampler_under() -> RegularGridSampler:
 
 @pytest.fixture(scope="module")
 def sampler_list_over(
-    regular_grid_sampler, regular_grid_random_sampler
+    regular_grid_sampler, regular_grid_sampler_negative, regular_grid_random_sampler
 ) -> List[RegularGridSampler]:
-    return [regular_grid_sampler, regular_grid_random_sampler]
+    return [
+        regular_grid_sampler,
+        regular_grid_sampler_negative,
+        regular_grid_random_sampler,
+    ]
 
 
 @pytest.fixture(scope="module")
@@ -61,8 +70,10 @@ def test_sample_within_bounds(sampler_list):
         samples = sampler(n_samples)
         samples_min, _ = samples.min(dim=0)
         samples_max, _ = samples.max(dim=0)
-        assert torch.greater_equal(samples_min, sampler.x_min).all()
-        assert torch.less_equal(samples_max, sampler.x_max).all()
+        box_min = torch.min(sampler.x_min, sampler.x_max)
+        box_max = torch.max(sampler.x_min, sampler.x_max)
+        assert torch.greater_equal(samples_min, box_min).all()
+        assert torch.less_equal(samples_max, box_max).all()
 
 
 def test_perfect_samples(regular_grid_sampler, regular_grid_sampler_under):

@@ -12,17 +12,16 @@ from .box_sampler import BoxSampler
 class RegularGridSampler(BoxSampler):
     """Regular Grid sampler class.
 
-    A class for generating regularly spaced samples within an n-dimensional box defined by its minimum and maximum
-    corner points. The goal of this sampler is to create a regular grid evenly spaced in all dimensions. Evenly spaced
-    does mean that the sub-boxes created by the grid are as close to cubical as possible. To achieve this, the number of
-    samples in each is adjusted dimension based on the box's size and the total desired number of samples. However, as
-    this is not always possible (e.g. drawing 8 samples from a 2d unit square as 8 is not a power of 2) there is an
-    option to either over or undersample the domain to achieve a regular mesh. If more samples are preferred, the
-    sampler will oversample the domain, exceeding the requested number of samples if necessary. If more samples are not
-    preferred, the sampler will undersample the domain if necessary. For this, the necessary number of samples is
-    distributed to all dimensions according to the aspect ratio of the box. If the product the number of samples in each
-    dimension does not equal the requested number of samples, the most under/over-sampled dimension will gain/lose one
-    sample.
+    A class for generating regularly spaced samples within an n-dimensional box
+    defined by its minimum and maximum corner points. This sampler creates a
+    regular grid evenly spaced in each dimension, trying to create sub-boxes
+    that are as close to cubical as possible.
+
+    If cubical sub-boxes are not possible (e.g., drawing 8 samples from a unit
+    square as 8 is not a power of 2), the `prefer_more_samples` flag determines
+    of we either over or undersample the domain: If the product of the number of
+    samples in each dimension does not equal the requested number of samples,
+    the most under/over-sampled dimension will gain/lose one sample.
 
     Args:
         x_min: The minimum corner point of the n-dimensional box, specifying the start of each dimension.
@@ -31,7 +30,7 @@ class RegularGridSampler(BoxSampler):
             desired total if an exact match isn't possible due to the properties of the regular grid. Defaults to True.
 
 
-    Example usage:
+    Example:
         ```
         min_corner = torch.tensor([0, 0, 0])  # Define the minimum corner of the box
         max_corner = torch.tensor([1, 1, 1])  # Define the maximum corner of the box
@@ -39,7 +38,7 @@ class RegularGridSampler(BoxSampler):
         samples = sampler(100)
         print(samples.shape)
         ```
-    Output:
+        Output:
         ```
         torch.Size([125, 3])
         ```
@@ -55,7 +54,8 @@ class RegularGridSampler(BoxSampler):
             self.x_aspect = torch.zeros(self.x_delta.shape)
             self.x_aspect[0] = 1.0
         else:
-            self.x_aspect = self.x_delta / torch.sum(self.x_delta)
+            abs_x_delta = torch.abs(self.x_delta)
+            self.x_aspect = abs_x_delta / torch.sum(abs_x_delta)
 
     def __call__(self, n_samples: int) -> torch.Tensor:
         """Generate a uniformly spaced grid of samples within an n-dimensional box.
@@ -66,8 +66,8 @@ class RegularGridSampler(BoxSampler):
         Returns:
             Tensor containing the samples of shape (~n_samples, ndim)
         """
-        samples_per_dim = self.calculate_samples_per_dim(n_samples)
-        samples_per_dim = self.adjust_samples_to_fit(n_samples, samples_per_dim)
+        samples_per_dim = self.__calculate_samples_per_dim(n_samples)
+        samples_per_dim = self.__adjust_samples_to_fit(n_samples, samples_per_dim)
 
         # Generate grid
         grids = [
@@ -80,28 +80,27 @@ class RegularGridSampler(BoxSampler):
 
         return torch.stack(mesh, dim=-1).reshape(-1, self.ndim)
 
-    def calculate_samples_per_dim(self, n_samples: int) -> torch.Tensor:
-        """Calculate an approximate distribution of samples across each dimension.
+    def __calculate_samples_per_dim(self, n_samples: int) -> torch.Tensor:
+        """Calculate the (floating point) number of samples in each dimension to
+        obtain an evenly spaced grid. This method also ensures that there is at
+        least one sample in each dimension. The implemented method is best
+        understood by the following example.
 
-        This is done by taking the product of all non-zero aspect ratios. This scaling factor is used to adjust the
-        sample distribution across different dimensions according to their aspect ratios. A higher scale factor
-        indicates that the cumulative aspect ratio product is large, suggesting that more samples are needed to
-        adequately represent the multidimensional space in proportion to its dimensions' scales. It effectively
-        normalizes the sampling process. This normalized aspect ratio is then used to calculate the samples required in
-        each dimension to get the exact number of required samples in each dimension. This method also ensures that
-        there is at least one sample in each dimension.
+        Example:
+            For `x_min = [0, 0, 1]`, `xmax = [1, 2, 1]` and `n_samples = 200`, this method computes:
 
-        Examples:
-            ```python
-            xmin=[0,0]
-            xmax=[1,2]
-            x_aspect = [1/3, 2/3]
-            n_samples = 200
-            mask = [1,1]
+            ```
+            x_aspect = [1/3, 2/3, 0]
+            mask = [1, 1, 0]
             scale_fac = 2/9
             relevant_ndim = 2
-            samples_per_dim = (200 / 2/9)^(1 / 2) = sqrt(900) = 30
-            samples_per_dim = [1/3, 2/3]*30 = [10,20]
+            samples_per_dim = (200 / (2/9))^(1 / 2) = sqrt(900) = 30
+            samples_per_dim = x_aspect*30 = [10, 20, 0]
+            samples_per_dim = max(samples_per_dim, 1) = [10, 20, 1]
+            ```
+            Output:
+            ```
+            tensor([10, 20, 1])
             ```
 
         Args:
@@ -120,14 +119,16 @@ class RegularGridSampler(BoxSampler):
         )  # ensure every dimension is sampled
         return samples_per_dim
 
-    def adjust_samples_to_fit(
+    def __adjust_samples_to_fit(
         self, n_samples: int, samples_per_dim: torch.Tensor
     ) -> torch.Tensor:
-        """Adjust the samples distribution to better fit the total_samples requirement.
+        """Round and adjust the `samples_per_dim` to fit the `n_samples` requirement.
 
-        The first guess drawn in `calculate_samples_per_dim` is in a floating point representation. This method rounds
-        this guess to the next integer. If the product of all samples is the required number of samples, this guess is
-        returned. Otherwise, the most under-sampled dimension or the most over-sampled dimension are adjusted according
+        The result of `__calculate_samples_per_dim` is a floating point
+        representation, which is rounded by this method to the next integer value.
+        If the product of the rounded samples equals the required number of samples,
+        we return this number. Otherwise, the most under-sampled dimension or
+        the most over-sampled dimension will gain or lose one sample, according
         to the `prefer_more_samples` flag.
 
         Args:
