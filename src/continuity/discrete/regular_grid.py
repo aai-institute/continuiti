@@ -13,10 +13,16 @@ class RegularGridSampler(BoxSampler):
     """Regular Grid sampler class.
 
     A class for generating regularly spaced samples within an n-dimensional box defined by its minimum and maximum
-    corner points. This sampler aims to distribute samples as evenly as possible across all dimensions, adjusting the
-    number of samples per dimension based on the box's size and the total desired number of samples. The goal is to
-    achieve a uniform aspect ratio of distances between adjacent samples in all dimensions, with an option to
-    preferentially overshoot or undershoot the total sample count when an exact distribution is not feasible.
+    corner points. The goal of this sampler is to create a regular grid evenly spaced in all dimensions. Evenly spaced
+    does mean that the sub-boxes created by the grid are as close to cubical as possible. To achieve this, the number of
+    samples in each is adjusted dimension based on the box's size and the total desired number of samples. However, as
+    this is not always possible (e.g. drawing 8 samples from a 2d unit square as 8 is not a power of 2) there is an
+    option to either over or undersample the domain to achieve a regular mesh. If more samples are preferred, the
+    sampler will oversample the domain, exceeding the requested number of samples if necessary. If more samples are not
+    preferred, the sampler will undersample the domain if necessary. For this, the necessary number of samples is
+    distributed to all dimensions according to the aspect ratio of the box. If the product the number of samples in each
+    dimension does not equal the requested number of samples, the most under/over-sampled dimension will gain/lose one
+    sample.
 
     Args:
         x_min: The minimum corner point of the n-dimensional box, specifying the start of each dimension.
@@ -32,6 +38,9 @@ class RegularGridSampler(BoxSampler):
         sampler = RegularGridSampler(min_corner, max_corner, prefer_more_samples=True)
         samples = sampler(100)
         print(samples.shape)
+        ```
+    Output:
+        ```
         torch.Size([125, 3])
         ```
     """
