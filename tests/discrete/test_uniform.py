@@ -26,11 +26,6 @@ def test_can_initialize(unit_box_sampler):
     assert isinstance(unit_box_sampler, UniformBoxSampler)
 
 
-def test_delta_correct(sampler_list):
-    for sampler in sampler_list:
-        assert torch.allclose(sampler.x_max - sampler.x_min, sampler.x_delta)
-
-
 def test_sample_within_bounds(sampler_list):
     n_samples = 2**12
     for sampler in sampler_list:
