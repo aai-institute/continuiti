@@ -89,15 +89,8 @@ def test_samples_over(sampler_list_over):
         assert samples.size(0) > n_samples
 
 
-def test_dist_zero_null():
-    n_samples = 100
-    sampler = RegularGridSampler(torch.zeros(3), torch.zeros(3))
-    samples = sampler(n_samples)
-
-    assert samples.size(0) == n_samples
-
-
 def test_dist_zero_single():
+    """delta x in a single dimension is zero."""
     n_samples = 121
     sampler = RegularGridSampler(torch.zeros(3), torch.tensor([1.0, 1.0, 0.0]))
     samples = sampler(n_samples)
@@ -106,8 +99,18 @@ def test_dist_zero_single():
 
 
 def test_dist_zero_double():
+    """delta x in multiple dimensions is zero."""
     n_samples = 100
     sampler = RegularGridSampler(torch.zeros(3), torch.tensor([0.0, 1.0, 0.0]))
+    samples = sampler(n_samples)
+
+    assert samples.size(0) == n_samples
+
+
+def test_dist_zero_all():
+    """samples are drawn from a single point"""
+    n_samples = 100
+    sampler = RegularGridSampler(torch.zeros(3), torch.zeros(3))
     samples = sampler(n_samples)
 
     assert samples.size(0) == n_samples
