@@ -10,7 +10,7 @@ def test_convolution():
     num_evals = num_sensors
 
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    dataset = Sine(n_sensors=num_sensors, n_observations=1)
     x, u, _, _ = [a.unsqueeze(0) for a in dataset[0]]
 
     # Kernel
@@ -22,8 +22,8 @@ def test_convolution():
     # Operator
     operator = NaiveIntegralKernel(
         kernel=dirac,
-        coordinate_dim=dataset.coordinate_dim,
-        num_channels=dataset.num_channels,
+        coordinate_dim=dataset.shapes.x.dim,
+        num_channels=dataset.shapes.v.dim,
     )
 
     # Create tensors

@@ -5,7 +5,7 @@ import pytest
 from continuity.plotting import plot, plot_evaluation
 from continuity.operators import BelNet
 from continuity.data import OperatorDataset
-from continuity.data.sine import OperatorDataset, Sine
+from continuity.data.sine import Sine
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
@@ -49,7 +49,7 @@ def test_belnet():
     num_sensors = 16
 
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    dataset = Sine(n_sensors=num_sensors, n_observations=1)
 
     # Operator
     operator = BelNet(

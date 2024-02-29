@@ -49,7 +49,7 @@ def test_deeponet():
     num_sensors = 16
 
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    dataset = Sine(n_sensors=num_sensors, n_observations=1)
 
     # Operator
     operator = DeepONet(

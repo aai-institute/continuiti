@@ -23,8 +23,8 @@ class SineBenchmark(Benchmark):
         self.size = 100
 
         self.dataset = Sine(
-            num_sensors=32,
-            size=100,
+            n_sensors=32,
+            n_observations=100,
         )
 
         self.train_dataset, self.test_dataset = split(self.dataset, 0.9)

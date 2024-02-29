@@ -47,7 +47,7 @@ class FunctionOperatorDataset(OperatorDataset):
         self.y_sampler = y_sampler
         self.p_sampler = p_sampler
 
-        x, u, y, v = self.generate_observation(
+        x, u, y, v = self.generate_observations(
             n_sensors=n_sensors,
             n_evaluations=n_evaluations,
             n_observations=n_observations,
@@ -64,7 +64,7 @@ class FunctionOperatorDataset(OperatorDataset):
             v_transform=v_transform,
         )
 
-    def generate_observation(
+    def generate_observations(
         self,
         n_sensors: int,
         n_evaluations: int,

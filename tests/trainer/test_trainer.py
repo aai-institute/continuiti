@@ -5,7 +5,7 @@ from continuity.trainer import Trainer
 
 
 def train():
-    dataset = Sine(num_sensors=32, size=256)
+    dataset = Sine(n_sensors=32, n_observations=256)
     operator = DeepONet(dataset.shapes)
 
     trainer = Trainer(operator)
