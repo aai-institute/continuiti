@@ -3,9 +3,9 @@
 
 Function implementation.
 """
-
+from __future__ import annotations
 import torch
-from typing import Self, Callable
+from typing import Callable
 
 
 class Function:
@@ -43,51 +43,51 @@ class Function:
             x: The input tensor to apply the function to.
 
         Returns:
-            torch.Tensor: The result of applying the function to `x`.
+            The result of applying the function to `x`.
         """
         return self.mapping(x)
 
-    def __add__(self, other: Self) -> Self:
+    def __add__(self, other: Function) -> Function:
         """Creates a new Function representing the addition of this function with another.
 
         Args:
-            other (Function): Another Function instance to add to this one.
+            other: Another Function instance to add to this one.
 
         Returns:
-            Function: A new Function instance representing the addition of the two functions.
+            A new Function instance representing the addition of the two functions.
         """
         return Function(mapping=lambda x: self.mapping(x) + other.mapping(x))
 
-    def __sub__(self, other: Self) -> Self:
+    def __sub__(self, other: Function) -> Function:
         """
         Creates a new Function representing the subtraction of another function from this one.
 
         Args:
-            other (Function): Another Function instance to subtract from this one.
+            other: Another Function instance to subtract from this one.
 
         Returns:
-            Function: A new Function instance representing the subtraction of the two functions.
+            A new Function instance representing the subtraction of the two functions.
         """
         return Function(mapping=lambda x: self.mapping(x) - other.mapping(x))
 
-    def __mul__(self, other: Self) -> Self:
+    def __mul__(self, other: Function) -> Function:
         """Creates a new Function representing the multiplication of this function with another.
 
         Args:
-            other (Function): Another Function instance to multiply with this one.
+            other: Another Function instance to multiply with this one.
 
         Returns:
-            Function: A new Function instance representing the multiplication of the two functions.
+            A new Function instance representing the multiplication of the two functions.
         """
         return Function(mapping=lambda x: self.mapping(x) * other.mapping(x))
 
-    def __truediv__(self, other: Self) -> Self:
+    def __truediv__(self, other: Function) -> Function:
         """Creates a new Function representing the division of this function by another.
 
         Args:
             other: Another Function instance to divide this one by.
 
         Returns:
-            Function: A new Function instance representing the division of the two functions.
+            A new Function instance representing the division of the two functions.
         """
         return Function(mapping=lambda x: self.mapping(x) / other.mapping(x))

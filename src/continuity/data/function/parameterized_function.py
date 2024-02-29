@@ -3,9 +3,9 @@
 
 Parameterized function implementation.
 """
-
+from __future__ import annotations
 import torch
-from typing import List, Self, Callable
+from typing import List, Callable
 from .function import Function
 
 
@@ -25,14 +25,6 @@ class ParameterizedFunction:
         n_parameters: The number of parameters that the `mapping` function expects.
         parameters_dtype: A list specifying the data types of the parameters, which aids in
             the construction and manipulation of parameters.
-
-
-    Example:
-        ```python
-        mapping = lambda params, x: params[0] * x + params[1]
-        pf = ParameterizedFunction(mapping, 2, [torch.float, torch.float])
-        ```
-        This creates a linear parameterized function `ax + b` where `a` and `b` are parameters.
     """
 
     def __init__(self, mapping: Callable, n_parameters: int):
@@ -51,7 +43,7 @@ class ParameterizedFunction:
         """
         return [Function(lambda x, a=param: self.mapping(a, x)) for param in parameters]
 
-    def __get_operator_parameter_update(self, other: Self) -> int:
+    def __get_operator_parameter_update(self, other: ParameterizedFunction) -> int:
         """
         Private method to calculate the updated number of parameters and their data types after an arithmetic operation.
 
@@ -65,7 +57,7 @@ class ParameterizedFunction:
         n_parameters = self.n_parameters + other.n_parameters
         return n_parameters
 
-    def __add__(self, other: Self) -> Self:
+    def __add__(self, other: ParameterizedFunction) -> ParameterizedFunction:
         """Creates a new ParameterisedFunction representing the addition of this parameterized function
         with another parameterized function.
 
@@ -73,7 +65,7 @@ class ParameterizedFunction:
             other: Another ParameterizedFunction instance to add to this one.
 
         Returns:
-            Function: A new Function instance representing the addition of the two functions.
+            A new Function instance representing the addition of the two functions.
         """
         n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
@@ -82,7 +74,7 @@ class ParameterizedFunction:
             n_parameters=n_parameters,
         )
 
-    def __sub__(self, other: Self) -> Self:
+    def __sub__(self, other: ParameterizedFunction) -> ParameterizedFunction:
         """Creates a new ParameterisedFunction representing the subtraction of another parameterized function from this
         parameterized function.
 
@@ -90,7 +82,7 @@ class ParameterizedFunction:
             other: Another ParameterizedFunction instance to subtract from this one.
 
         Returns:
-            Function: A new Function instance representing the subtraction of the two functions.
+            A new Function instance representing the subtraction of the two functions.
         """
 
         n_parameters = self.__get_operator_parameter_update(other)
@@ -100,14 +92,14 @@ class ParameterizedFunction:
             n_parameters=n_parameters,
         )
 
-    def __mul__(self, other: Self) -> Self:
+    def __mul__(self, other: ParameterizedFunction) -> ParameterizedFunction:
         """Creates a new Function representing the multiplication of this parameterized function with another.
 
         Args:
             other: Another ParameterizedFunction instance to multiply with this one.
 
         Returns:
-            Function: A new ParameterizedFunction instance representing the multiplication of the two functions.
+            A new ParameterizedFunction instance representing the multiplication of the two functions.
         """
         n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
@@ -116,14 +108,14 @@ class ParameterizedFunction:
             n_parameters=n_parameters,
         )
 
-    def __truediv__(self, other: Self) -> Self:
+    def __truediv__(self, other: ParameterizedFunction) -> ParameterizedFunction:
         """Creates a new ParameterizedFunction representing the division of this parameterized function by another.
 
         Args:
             other: Another ParameterizedFunction instance to divide this one by.
 
         Returns:
-            Function: A new ParameterizedFunction instance representing the division of the two functions.
+            A new ParameterizedFunction instance representing the division of the two functions.
         """
         n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
