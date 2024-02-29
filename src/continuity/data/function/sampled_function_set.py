@@ -1,3 +1,9 @@
+"""
+`continuity.data.function.sampled_function_set`
+
+Sampled function set implementation.
+"""
+
 import torch
 
 from .function_set import FunctionSet

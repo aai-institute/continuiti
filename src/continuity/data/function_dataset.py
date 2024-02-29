@@ -1,3 +1,9 @@
+"""
+`continuity.data.function_dataset`
+
+Function data set implementations.
+"""
+
 import torch
 from typing import Optional, Tuple
 from continuity.discrete.sampler import Sampler

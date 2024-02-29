@@ -1,5 +1,12 @@
+"""
+`continuity.data.function.function_set`
+
+Function set implementation.
+"""
+
 from typing import List, Self
-from .function import ParameterizedFunction, Function
+from .function import Function
+from .parameterized_function import ParameterizedFunction
 
 
 class FunctionSet:
