@@ -75,18 +75,20 @@ class DeepResidualNetwork(torch.nn.Module):
         depth: int,
         act: Optional[torch.nn.Module] = None,
     ):
+        assert depth >= 1, "DeepResidualNetwork has at least depth 1."
         super().__init__()
 
         self.act = act or torch.nn.Tanh()
         self.first_layer = torch.nn.Linear(input_size, width)
         self.hidden_layers = torch.nn.ModuleList(
-            [ResidualLayer(width, act=self.act) for _ in range(depth)]
+            [ResidualLayer(width, act=self.act) for _ in range(1, depth)]
         )
         self.last_layer = torch.nn.Linear(width, output_size)
 
     def forward(self, x):
         """Forward pass."""
         x = self.first_layer(x)
+        x = self.act(x)
         for layer in self.hidden_layers:
             x = layer(x)
         return self.last_layer(x)
