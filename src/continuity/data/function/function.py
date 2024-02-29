@@ -1,5 +1,5 @@
 import torch
-from typing import List, Tuple, Self, Callable
+from typing import List, Self, Callable
 
 
 class Function:
@@ -84,7 +84,7 @@ class Function:
         Returns:
             Function: A new Function instance representing the division of the two functions.
         """
-        return Function(mapping=lambda x: self.mapping(x) * other.mapping(x))
+        return Function(mapping=lambda x: self.mapping(x) / other.mapping(x))
 
 
 class ParameterizedFunction:
@@ -113,10 +113,9 @@ class ParameterizedFunction:
         This creates a linear parameterized function `ax + b` where `a` and `b` are parameters.
     """
 
-    def __init__(self, mapping: Callable, n_parameters: int, parameters_dtype: List):
+    def __init__(self, mapping: Callable, n_parameters: int):
         self.mapping = mapping
         self.n_parameters = n_parameters
-        self.parameters_dtype = parameters_dtype
 
     def __call__(self, parameters: torch.Tensor) -> List[Function]:
         """Applies the parameterized function to the given parameters, returning a list of Function instances.
@@ -130,7 +129,7 @@ class ParameterizedFunction:
         """
         return [Function(lambda x, a=param: self.mapping(a, x)) for param in parameters]
 
-    def __get_operator_parameter_update(self, other: Self) -> Tuple[int, List]:
+    def __get_operator_parameter_update(self, other: Self) -> int:
         """
         Private method to calculate the updated number of parameters and their data types after an arithmetic operation.
 
@@ -138,12 +137,11 @@ class ParameterizedFunction:
             other: Another ParameterizedFunction instance to perform the operation with.
 
         Returns:
-            A tuple containing the updated number of parameters and their data types. The order in which the parameters
-                are updated follows self and then the others' parameters.
+            Integer representing the new number of parameters. The order in which the parameters are updated follows
+                self and then the others' parameters.
         """
         n_parameters = self.n_parameters + other.n_parameters
-        parameters_dtype = self.parameters_dtype + other.parameters_dtype
-        return n_parameters, parameters_dtype
+        return n_parameters
 
     def __add__(self, other: Self) -> Self:
         """Creates a new ParameterisedFunction representing the addition of this parameterized function
@@ -155,12 +153,11 @@ class ParameterizedFunction:
         Returns:
             Function: A new Function instance representing the addition of the two functions.
         """
-        n_parameters, parameters_dtype = self.__get_operator_parameter_update(other)
+        n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
             mapping=lambda a, x: self.mapping(a[: self.n_parameters], x)
             + other.mapping(a[self.n_parameters :], x),
             n_parameters=n_parameters,
-            parameters_dtype=parameters_dtype,
         )
 
     def __sub__(self, other: Self) -> Self:
@@ -174,12 +171,11 @@ class ParameterizedFunction:
             Function: A new Function instance representing the subtraction of the two functions.
         """
 
-        n_parameters, parameters_dtype = self.__get_operator_parameter_update(other)
+        n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
             mapping=lambda a, x: self.mapping(a[: self.n_parameters], x)
             - other.mapping(a[self.n_parameters :], x),
             n_parameters=n_parameters,
-            parameters_dtype=parameters_dtype,
         )
 
     def __mul__(self, other: Self) -> Self:
@@ -191,12 +187,11 @@ class ParameterizedFunction:
         Returns:
             Function: A new ParameterizedFunction instance representing the multiplication of the two functions.
         """
-        n_parameters, parameters_dtype = self.__get_operator_parameter_update(other)
+        n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
             mapping=lambda a, x: self.mapping(a[: self.n_parameters], x)
             * other.mapping(a[self.n_parameters :], x),
             n_parameters=n_parameters,
-            parameters_dtype=parameters_dtype,
         )
 
     def __truediv__(self, other: Self) -> Self:
@@ -208,10 +203,9 @@ class ParameterizedFunction:
         Returns:
             Function: A new ParameterizedFunction instance representing the division of the two functions.
         """
-        n_parameters, parameters_dtype = self.__get_operator_parameter_update(other)
+        n_parameters = self.__get_operator_parameter_update(other)
         return ParameterizedFunction(
             mapping=lambda a, x: self.mapping(a[: self.n_parameters], x)
             / other.mapping(a[self.n_parameters :], x),
             n_parameters=n_parameters,
-            parameters_dtype=parameters_dtype,
         )

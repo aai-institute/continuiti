@@ -21,9 +21,8 @@ class SineSet(FunctionSet):
 
     def __init__(self):
         function = ParameterizedFunction(
-            lambda a, x: a[0] * torch.sin(a[1] * x + a[2]),
+            lambda a, x: a[0] * torch.sin(a[1] * (x + a[2])),
             n_parameters=3,
-            parameters_dtype=[torch.float, torch.float, torch.float],
         )
         super().__init__(function)
 
