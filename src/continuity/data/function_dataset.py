@@ -36,10 +36,10 @@ class FunctionOperatorDataset(OperatorDataset):
         n_evaluations: int,
         p_sampler: Sampler,
         n_observations: int,
-        x_transform: Optional,
-        u_transform: Optional,
-        y_transform: Optional,
-        v_transform: Optional,
+        x_transform: Optional = None,
+        u_transform: Optional = None,
+        y_transform: Optional = None,
+        v_transform: Optional = None,
     ):
         # sample the parameter space
         p_samples = p_sampler(n_observations)
