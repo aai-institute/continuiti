@@ -1,5 +1,5 @@
 import torch
-from typing import Optional
+from typing import Optional, Tuple
 from continuity.discrete.sampler import Sampler
 from .function import SampledFunctionSet, FunctionSet
 from .dataset import OperatorDataset
@@ -41,24 +41,17 @@ class FunctionOperatorDataset(OperatorDataset):
         y_transform: Optional = None,
         v_transform: Optional = None,
     ):
-        # sample the parameter space
-        p_samples = p_sampler(n_observations)
+        self.input_function_set = input_function_set
+        self.x_sampler = x_sampler
+        self.solution_function_set = solution_function_set
+        self.y_sampler = y_sampler
+        self.p_sampler = p_sampler
 
-        # sample function spaces
-        sampled_input_space = SampledFunctionSet(
-            function_set=input_function_set, samples=p_samples
+        x, u, y, v = self.generate_observation(
+            n_sensors=n_sensors,
+            n_evaluations=n_evaluations,
+            n_observations=n_observations,
         )
-        sampled_solution_space = SampledFunctionSet(
-            function_set=solution_function_set, samples=p_samples
-        )
-
-        # sample physical spaces
-        x = torch.stack([x_sampler(n_sensors) for _ in range(n_observations)])
-        y = torch.stack([y_sampler(n_evaluations) for _ in range(n_observations)])
-
-        # create ground truth data
-        u = sampled_input_space(x)
-        v = sampled_solution_space(y)
 
         super().__init__(
             x=x,
@@ -70,3 +63,54 @@ class FunctionOperatorDataset(OperatorDataset):
             y_transform=y_transform,
             v_transform=v_transform,
         )
+
+    def generate_observation(
+        self,
+        n_sensors: int,
+        n_evaluations: int,
+        n_observations: int,
+        x_sampler: Sampler = None,
+        y_sampler: Sampler = None,
+        p_sampler: Sampler = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Generates new observations from the function dataset.
+
+        Args:
+            n_sensors: The number of sensors to sample in the input physical space.
+            n_evaluations: The number of evaluation points to sample in the solution physical space.
+            n_observations: The number of observations to generate.
+            x_sampler: A sampler for generating discrete representations of the input function in space.
+            y_sampler: A sampler for generating discrete representations of the solution function in space.
+            p_sampler: A sampler for sampling parameters to instantiate functions from the function sets.
+
+        Returns:
+            Tuple containing the space samples $x$ of the input space, the evaluated input function $u$, the space
+                samples $y$ of the solution space, and the evaluated solution function $v$.
+        """
+        if x_sampler is None:
+            x_sampler = self.x_sampler
+        if y_sampler is None:
+            y_sampler = self.y_sampler
+        if p_sampler is None:
+            p_sampler = self.p_sampler
+
+        # sample the parameter space
+        p_samples = p_sampler(n_observations)
+
+        # sample function spaces
+        sampled_input_space = SampledFunctionSet(
+            function_set=self.input_function_set, samples=p_samples
+        )
+        sampled_solution_space = SampledFunctionSet(
+            function_set=self.solution_function_set, samples=p_samples
+        )
+
+        # sample physical spaces
+        x = torch.stack([x_sampler(n_sensors) for _ in range(n_observations)])
+        y = torch.stack([y_sampler(n_evaluations) for _ in range(n_observations)])
+
+        # create ground truth data
+        u = sampled_input_space(x)
+        v = sampled_solution_space(y)
+
+        return x, u, y, v
