@@ -8,8 +8,7 @@ stack of continuous convolutions with a lifting layer and a projection layer.
 import torch
 from continuity.operators import Operator
 from continuity.data import DatasetShapes
-from continuity.operators.common import NeuralNetworkKernel
-from continuity.operators.integralkernel import NaiveIntegralKernel
+from continuity.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
 
 
 class NeuralOperator(Operator):
@@ -43,28 +42,21 @@ class NeuralOperator(Operator):
         super().__init__()
 
         self.shapes = shapes
-
         self.lifting = NaiveIntegralKernel(
-            NeuralNetworkKernel(kernel_width, kernel_depth),
-            shapes.x.dim,
-            shapes.u.dim,
+            NeuralNetworkKernel(shapes, kernel_width, kernel_depth),
         )
 
         self.hidden_layers = torch.nn.ModuleList(
             [
                 NaiveIntegralKernel(
-                    NeuralNetworkKernel(kernel_width, kernel_depth),
-                    shapes.x.dim,
-                    shapes.u.dim,
+                    NeuralNetworkKernel(shapes, kernel_width, kernel_depth),
                 )
                 for _ in range(depth)
             ]
         )
 
         self.projection = NaiveIntegralKernel(
-            NeuralNetworkKernel(kernel_width, kernel_depth),
-            shapes.x.dim,
-            shapes.u.dim,
+            NeuralNetworkKernel(shapes, kernel_width, kernel_depth),
         )
 
     def forward(
