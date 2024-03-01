@@ -1,8 +1,6 @@
 import torch
-import matplotlib.pyplot as plt
 import pytest
 
-from continuity.plotting import plot, plot_evaluation
 from continuity.operators import DeepONet
 from continuity.data import OperatorDataset
 from continuity.data.sine import Sine
@@ -61,21 +59,11 @@ def test_deeponet():
         basis_functions=4,
     )
 
-    # Train self-supervised
-    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-3)
-    trainer = Trainer(operator, optimizer)
-    trainer.fit(dataset, epochs=1000, batch_size=1, shuffle=True)
-
-    # Plotting
-    fig, ax = plt.subplots(1, 1)
-    x, u, _, _ = dataset[0]
-    plot(x, u, ax=ax)
-    plot_evaluation(operator, x, u, ax=ax)
-    fig.savefig(f"test_deeponet.png")
+    # Train
+    Trainer(operator).fit(dataset, tol=1e-3, batch_size=1)
 
     # Check solution
-    x = x.unsqueeze(0)
-    u = u.unsqueeze(0)
+    x, u = dataset.x, dataset.u
     assert MSELoss()(operator, x, u, x, u) < 1e-3
 
 

@@ -8,6 +8,8 @@
 - Add `Sampler`, `BoxSampler`, `UniformBoxSampler`, and `RegularGridSampler` classes.
 - Moved `DataLoader` into the `fit` method of the `Trainer`.
   Therefore, `Trainer.fit` expects an `OperatorDataset` now.
+- A `Criterion` now enables stopping the training loop.
+- The `plotting` module has been removed.
 
 ## 0.0.0 (2024-02-22)
 

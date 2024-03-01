@@ -1,5 +1,4 @@
 import torch
-import matplotlib.pyplot as plt
 from continuity.data.sine import Sine
 from continuity.data.shape import DatasetShapes, TensorShape
 from continuity.operators.integralkernel import NeuralNetworkKernel, NaiveIntegralKernel
@@ -67,13 +66,6 @@ def test_naiveintegralkernel():
 
     # Apply operator
     v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
-
-    # Plotting
-    fig, ax = plt.subplots(1, 1)
-    x_plot = x[0].squeeze().detach().numpy()
-    ax.plot(x_plot, u[0].squeeze().detach().numpy(), "x-")
-    ax.plot(x_plot, v[0].squeeze().detach().numpy(), "--")
-    fig.savefig(f"test_naiveintegralkernel.png")
 
     # For num_sensors == num_evals, we get v = u / num_sensors.
     if num_sensors == num_evals:
