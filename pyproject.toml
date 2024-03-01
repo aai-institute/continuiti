@@ -62,6 +62,24 @@ testing = [
     "nbmake",
     "gmsh",
 ]
+docs = [
+    "markdown-captions",
+    "mike",
+    "mkdocs==1.5.2",
+    "mkdocs-alias-plugin>=0.6.0",
+    "mkdocs-autorefs",
+    "mkdocs-gen-files",
+    "mkdocs-git-revision-date-localized-plugin",
+    "mkdocs-glightbox",
+    "mkdocs-literate-nav",
+    "mkdocs-macros-plugin",
+    "mkdocs-material",
+    "mkdocs-section-index",
+    "mkdocstrings[python]>=0.18",
+    "mknotebooks>=0.8.0",
+    "neoteroi-mkdocs",
+    "pygments",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "continuity.__version__"}
