@@ -13,6 +13,7 @@ watch:
 hooks:
   - build_scripts/copy_notebooks.py
   - build_scripts/copy_changelog.py
+  - build_scripts/copy_contributing.py
 
 plugins:
   - autorefs
@@ -184,3 +185,4 @@ nav:
   - Code:
       - API: api/continuity/
       - Changelog: CHANGELOG.md
+      - Contributing: CONTRIBUTING.md

@@ -1,4 +1,4 @@
-# CONTRIBUTING TO CONTINUITY
+# Contributing
 
 Continuity aims to be a repository of architectures and benchmarks for
 operator learning with neural networks and its applications.
