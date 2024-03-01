@@ -25,10 +25,6 @@ The package is structured into the following modules:
   content: Loss functions for physics-informed training.
   url: pde/index.md
 
-- title: Plotting
-  content: Plotting utilities.
-  url: plotting/index.md
-
 - title: Trainer
   content: Default training loop for operator models.
   url: trainer/index.md
