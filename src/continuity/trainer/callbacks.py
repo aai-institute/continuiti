@@ -5,8 +5,9 @@ Callbacks for Trainer in Continuity.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Dict
+from typing import Optional, List
 import matplotlib.pyplot as plt
+from .logs import Logs
 
 
 class Callback(ABC):
@@ -15,13 +16,12 @@ class Callback(ABC):
     """
 
     @abstractmethod
-    def __call__(self, epoch, logs: Dict[str, float]):
+    def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
 
         Args:
-            epoch: Current epoch.
-            logs: Dictionary of logs.
+            logs: Training logs.
         """
         raise NotImplementedError
 
@@ -42,20 +42,17 @@ class PrintTrainingLoss(Callback):
     def __init__(self):
         super().__init__()
 
-    def __call__(self, epoch: int, logs: Dict[str, float]):
+    def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
 
         Args:
-            epoch: Current epoch.
-            logs: Dictionary of logs.
+            logs: Training logs.
         """
-        loss_train = logs["loss/train"]
-        seconds_per_epoch = logs["seconds_per_epoch"]
-
         print(
-            f"\rEpoch {epoch}:  loss/train = {loss_train:.4e}  "
-            f"({seconds_per_epoch:.3g} s/epoch)",
+            f"\rEpoch {logs.epoch}:  "
+            f"loss/train = {logs.loss_train:.4e}  "
+            f"({logs.seconds_per_epoch:.3f} s/epoch)",
             end="",
         )
 
@@ -72,28 +69,30 @@ class LearningCurve(Callback):
     Callback to plot learning curve.
 
     Args:
-        keys: List of keys to plot. Default is ["loss/train"].
+        keys: List of keys to plot. Default is ["loss_train"].
     """
 
     def __init__(self, keys: Optional[List[str]] = None):
         if keys is None:
-            keys = ["loss/train"]
+            keys = ["loss_train"]
 
         self.keys = keys
         self.on_train_begin()
         super().__init__()
 
-    def __call__(self, epoch: int, logs: Dict[str, float]):
+    def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
 
         Args:
-            epoch: Current epoch.
-            logs: Dictionary of logs.
+            logs: Training logs.
         """
         for key in self.keys:
-            if key in logs:
-                self.losses[key].append(logs[key])
+            try:
+                val = logs.__getattribute__(key)
+                self.losses[key].append(val)
+            except AttributeError:
+                pass
 
     def on_train_begin(self):
         """Called at the beginning of training."""
@@ -125,15 +124,14 @@ class OptunaCallback(Callback):
         self.trial = trial
         super().__init__()
 
-    def __call__(self, epoch: int, logs: Dict[str, float]):
+    def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
 
         Args:
-            epoch: Current epoch.
-            logs: Dictionary of logs.
+            logs: Training logs.
         """
-        self.trial.report(logs["loss/train"], step=epoch)
+        self.trial.report(logs.loss_train, step=logs.epoch)
 
     def on_train_begin(self):
         """Called at the beginning of training."""

@@ -12,8 +12,10 @@ from typing import Optional, List
 from continuity.data import OperatorDataset
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
-from continuity.trainer.callbacks import Callback, PrintTrainingLoss
 from continuity.trainer.device import get_device
+from .callbacks import Callback, PrintTrainingLoss
+from .criterion import Criterion, TrainingLossCriterion
+from .logs import Logs
 
 
 class Trainer:
@@ -27,12 +29,12 @@ class Trainer:
         optimizer = torch.optim.Adam(operator.parameters(), lr=1e-3)
         loss_fn = MSELoss()
         trainer = Trainer(operator, optimizer, loss_fn, device="cuda:0")
-        trainer.fit(data_loader, epochs=100)
+        trainer.fit(dataset, tol=1e-3, epochs=1000)
         ```
 
     Args:
         operator: Operator to be trained.
-        optimizer: Torch-like optimizer. Default is Adam.
+        optimizer: Torch-like optimizer. Default is Adam with learning rate 1e-3.
         loss_fn: Loss function taking (op, x, u, y, v). Default is MSELoss.
         device: Device to train on. Default is CPU.
         verbose: Print model parameters and use PrintTrainingLoss callback by default. Default is True.
@@ -62,8 +64,10 @@ class Trainer:
     def fit(
         self,
         dataset: OperatorDataset,
-        epochs: int = 100,
+        tol: float = 1e-5,
+        epochs: int = 1000,
         callbacks: Optional[List[Callback]] = None,
+        criterion: Optional[Criterion] = None,
         batch_size: int = 32,
         shuffle: bool = True,
     ):
@@ -71,8 +75,10 @@ class Trainer:
 
         Args:
             dataset: Data set.
-            epochs: Number of epochs.
-            callbacks: List of callbacks.
+            tol: Tolerance for stopping criterion. Ignored if criterion is not None.
+            epochs: Maximum number of epochs.
+            callbacks: List of callbacks. Defaults to [PrintTrainingLoss] if verbose.
+            criterion: Stopping criterion. Defaults to TrainingLossCriteria(tol).
             batch_size: Batch size.
             shuffle: Shuffle data set.
         """
@@ -82,6 +88,10 @@ class Trainer:
                 callbacks = [PrintTrainingLoss()]
             else:
                 callbacks = []
+
+        # Default criterion
+        if criterion is None:
+            criterion = TrainingLossCriterion(tol)
 
         # Print number of model parameters
         if self.verbose:
@@ -142,13 +152,19 @@ class Trainer:
             loss_train /= len(data_loader)
 
             # Callbacks
-            logs = {
-                "loss/train": loss_train,
-                "seconds_per_epoch": seconds_per_epoch,
-            }
+            logs = Logs(
+                epoch=epoch + 1,
+                loss_train=loss_train,
+                seconds_per_epoch=seconds_per_epoch,
+            )
 
             for callback in callbacks:
-                callback(epoch + 1, logs)
+                callback(logs)
+
+            # Stopping criterion
+            if criterion is not None:
+                if criterion(logs):
+                    break
 
         # Call on_train_end
         for callback in callbacks:
