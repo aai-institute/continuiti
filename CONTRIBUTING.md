@@ -1,7 +1,7 @@
 # CONTRIBUTING TO CONTINUITY
 
-The goal of Continuity is to be a repository of architectures and benchmarks for
-operator learning with neural networks, and its applications.
+Continuity aims to be a repository of architectures and benchmarks for
+operator learning with neural networks and its applications.
 
 Contributions are welcome from anyone in the form of pull requests,
 bug reports and feature requests.
@@ -20,15 +20,12 @@ pre-commit install --hook-type pre-push
 ## Setting up your environment
 
 We strongly suggest using some form of virtual environment for working with the
-library. E.g. with venv:
+library, e.g., with venv:
 
 ```shell
-python -m venv ./venv
-. venv/bin/activate
-pip install -r docs/requirements.txt
+python3 -m venv ./venv
+source venv/bin/activate
 ```
-
-## Editable installation
 
 A very convenient way of working with your library during development is to
 install it in editable mode into your environment by running
@@ -40,19 +37,16 @@ pip install -e .
 ## Build documentation
 
 API documentation and examples from notebooks are built with
-[mkdocs](https://www.mkdocs.org/), with versioning handled by
-[mike](https://github.com/jimporter/mike).
-
+[mkdocs](https://www.mkdocs.org/).
 Notebooks are an integral part of the documentation as well.
 
-Use the following command to build the documentation the same way it is
-done in CI:
+Install the documentation dependencies:
 
 ```bash
-mkdocs build
+pip install -e ".[docs]"
 ```
 
-Locally, you can use this command instead to continuously rebuild documentation
+You can use this command to continuously rebuild documentation
 on changes to the `docs` and `src` folder:
 
 ```bash
@@ -62,14 +56,6 @@ mkdocs serve
 This will rebuild the documentation on changes to `.md` files inside `docs`,
 notebooks and python files.
 
-In order to build the documentation locally (which is done as part of the tox
-suite) [pandoc](https://pandoc.org/) is required. Except for OSX, it should be
-installed automatically as a dependency with `requirements-docs.txt`. Under OSX
-you can install pandoc (you'll need at least version 2.11) with:
-
-```shell
-brew install pandoc
-```
 
 ## Testing
 
@@ -77,6 +63,12 @@ Automated builds, tests, generation of documentation and publishing are handled
 by [CI pipelines](#CI). Before pushing your changes to the remote we recommend
 to execute `pytest` locally in order to detect mistakes early on and to avoid
 failing pipelines.
+
+For testing, install the testing dependencies:
+
+```bash
+pip install -e ".[testing]"
+```
 
 Slow tests (> 5s) are marked by the `@pytest.mark.slow` decorator.
 To run all tests except the slow ones, use:
