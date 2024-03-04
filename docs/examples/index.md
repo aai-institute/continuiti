@@ -11,14 +11,14 @@ Continuity.
   content: Learning function operators with Continuity
   url: basics
 
+- title: Super-resolution
+  content: Neural operators for super-resolution
+  url: superresolution
+
 - title: Physics-informed
   content: >
     Training physics-informed neural operators
   url: physicsinformed
-
-- title: Super-resolution
-  content: Neural operators for super-resolution
-  url: superresolution
 
 - title: Meshes
   content: >

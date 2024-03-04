@@ -178,8 +178,8 @@ nav:
       - Architectures: operators/architectures.md
   - Examples:
       - Basics: examples/basics.ipynb
-      - Physics-informed: examples/physicsinformed.ipynb
       - Super-resolution: examples/superresolution.ipynb
+      - Physics-informed: examples/physicsinformed.ipynb
       - Meshes: examples/meshes.ipynb
       - Self-supervised: examples/selfsupervised.ipynb
   - Code:
