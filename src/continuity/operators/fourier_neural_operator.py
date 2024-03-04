@@ -1,19 +1,10 @@
-# %%
-
-'''
+""" Fourier neural operator.
 
 TODO:
-    - Think about how to define shapes properly, FFT needs uniform grid -> Reshaping
-    - generalize to N dimensions
-    - Generalize kernel to (x-dim, y-dim)
-    - Add W and bias: Why is this a convolution in the repo of the original paper?
+    - Add tests
+    - Generalize kernel to (u-dim, v-dim)
     - x and y are ignored! Should we add options to make kernel dependent?
-    - Think about how to make Operator more layer like
-
-    
-    K(u) + W * u(x) + b
-FourierLayer
-'''
+"""
 
 from continuity.operators import Operator
 import torch
@@ -22,7 +13,17 @@ import torch.nn as nn
 import math
 from torch.fft import rfft, irfft, rfftn, irfftn
 
-class FNO1d(Operator):
+
+# TODO: this is not allowed to have 'b', 'd' or 's' in it. How to make this safer?
+TENSOR_INDICES = "acefghijklmnopqrtuvxyz"
+
+
+class FourierLayer1d(Operator):
+    """Fourier layer for x.dim = 1.
+
+    Note: This will be removed in the future. See FourierLayer() for general implementation.
+
+    """
 
     def __init__(
         self,
@@ -31,11 +32,17 @@ class FNO1d(Operator):
     ) -> None:
         super().__init__()
 
-        assert shapes.x.dim == 1
+        assert (
+            shapes.x.dim == 1
+        ), f"This is the implementation of a 1d Fourier operator. However given dimensionality is x.dim = {shapes.x.dim}"
 
-        self.num_frequencies = shapes.x.num // 2 + 1 if num_frequencies is None else num_frequencies
-        assert self.num_frequencies > shapes.x.num // 2,\
-            "num_frequencies is too large. The fft of a real valued function has only (shapes.x.num // 2 + 1) unique frequencies."
+        self.num_frequencies = (
+            shapes.x.num // 2 + 1 if num_frequencies is None else num_frequencies
+        )
+
+        assert (
+            self.num_frequencies <= shapes.x.num // 2 + 1
+        ), "num_frequencies is too large. The fft of a real valued function has only (shapes.x.num // 2 + 1) unique frequencies."
 
         assert shapes.u.dim == shapes.v.dim
 
@@ -51,26 +58,32 @@ class FNO1d(Operator):
         self.kernel = torch.nn.Parameter(self.weights_complex)
 
     def forward(
-        self,
-        x: torch.Tensor,
-        u: torch.Tensor,
-        y: torch.Tensor
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
+        """Forward pass.
 
-        #assert u.shape[:-1] == x.shape[:-1] == y.shape[:-1]
-        del x, y # not used
+        Args:
+            x: Sensor positions of shape (batch_size, num_sensors, x_dim)
+            u: Input function values of shape (batch_size, num_sensors, u_dim)
+            y: Evaluation coordinates of shape (batch_size, num_sensors, y_dim)
 
-        # f(w) = f*(-w)
-        u_fourier = rfft(u, axis=1) # real-valued fft -> skip negative frequencies
-        out_fourier = torch.einsum('nds,bns->bnd', self.kernel, u_fourier[:, :self.num_frequencies, :])
+        Returns:
+            Evaluations of the mapped function with shape (batch_size, num_sensors, v_dim)
+        """
+
+        del x, y  # not used
+
+        u_fourier = rfft(u, axis=1)  # real-valued fft -> skip negative frequencies
+        out_fourier = torch.einsum(
+            "nds,bns->bnd", self.kernel, u_fourier[:, : self.num_frequencies, :]
+        )
         out = irfft(out_fourier, axis=1, n=u.shape[1])
 
         return out
 
 
-# FourierLayer
-# 
-class FNO(Operator):
+class FourierLayer(Operator):
+    """Fourier layer."""
 
     def __init__(
         self,
@@ -79,24 +92,38 @@ class FNO(Operator):
     ) -> None:
         super().__init__()
 
-        # u.shape = (batchsize, x.num, u.dim) -> (100, 16, 2)
-        # u.shape = (100, 4, 4)
-
-        # is this still correct?
-        points_per_dimension = int(shapes.x.num ** (1 / shapes.x.dim))
-        self.num_frequencies = points_per_dimension // 2 + 1 if num_frequencies is None else num_frequencies
-        assert self.num_frequencies > points_per_dimension // 2,\
-            "num_frequencies is too large. The fft of a real valued function has only (shapes.x.num // 2 + 1) unique frequencies."
-
-        assert shapes.u.dim == shapes.v.dim
+        # TODO: u.dim == v.dim so far -> generalize
 
         self.shapes = shapes
 
-        shape = (self.num_frequencies,) * self.shapes.x.dim + (shapes.u.dim, shapes.u.dim)
-        weigths_real = torch.Tensor(*shape)
-        weigths_img = torch.Tensor(*shape)
+        points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
+        assert (
+            points_per_dimension.is_integer()
+        ), "If shapes.x.num ** (1 / shapes.x.dim) is not an integer, the sensor points were not chosen to be on a grid."
 
-        # initialize
+        # Evaluate the number of frequencies if not specified. By using the rfft method we only need half
+        # of the function evaluations because of redundancies for the negative frequencies. This assumes
+        # real-valued input functions.
+        self.num_frequencies = (
+            int(points_per_dimension) // 2 + 1
+            if num_frequencies is None
+            else num_frequencies
+        )
+        assert self.num_frequencies <= int(points_per_dimension) // 2 + 1, (
+            "num_frequencies is too large. The fft of a real valued function has only (shapes.x.num // 2 + 1) unique values."
+            f" Given {self.num_frequencies} Max={int(points_per_dimension) // 2}"
+        )
+
+        assert shapes.u.dim == shapes.v.dim  # TODO
+
+        # create and initialize weights and kernel
+        weights_shape = (self.num_frequencies,) * self.shapes.x.dim + (
+            shapes.u.dim,
+            shapes.u.dim,
+        )
+        weigths_real = torch.Tensor(*weights_shape)
+        weigths_img = torch.Tensor(*weights_shape)
+
         nn.init.kaiming_uniform_(weigths_real, a=math.sqrt(5))
         nn.init.kaiming_uniform_(weigths_img, a=math.sqrt(5))
 
@@ -104,85 +131,81 @@ class FNO(Operator):
         self.kernel = torch.nn.Parameter(self.weights_complex)
 
     def forward(
-        self,
-        x: torch.Tensor,
-        u: torch.Tensor,
-        y: torch.Tensor
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
+        """Forward pass.
 
-        #assert u.shape[:-1] == x.shape[:-1] == y.shape[:-1]
-        del x, y # not used
+        Args:
+            x: Sensor positions of shape (batch_size, num_sensors, x_dim)
+            u: Input function values of shape (batch_size, num_sensors, u_dim)
+            y: Evaluation coordinates of shape (batch_size, num_sensors, y_dim)
 
-        batch_size = u.shape[0]
+        Returns:
+            Evaluations of the mapped function with shape (batch_size, num_sensors, v_dim)
+        """
+
+        # TODO: check x for grid. However, expensive maybe expensive computation
+        assert x.shape[:-1] == y.shape[:-1]
+        del x, y  # not used
+
+        assert u.shape[-1] == self.shapes.u.dim
+
+        # fourier transform input function
+        num_fourier_dimensions = self.shapes.x.dim
         u = self._reshape(u)
+        assert u.dim() == num_fourier_dimensions + 2
 
-        print(f"u-shape {u.shape}")
-        print(f"kernel-shape {self.kernel.shape}")
+        # compute n-dimensional fourier transform
+        u_fourier = rfftn(u, dim=list(range(1, num_fourier_dimensions + 1)))
 
-        u_fourier = rfftn(u, dim=list(range(1, u.dim()-1))) # real-valued fft -> skip negative frequencies
+        assert (
+            len(TENSOR_INDICES) > num_fourier_dimensions
+        ), f"Too many dimensions. The current limit for the number of dimensions is {len(TENSOR_INDICES)}."
 
-        frequency_indices = "".join("acefghijklmnopqrtuvxyz"[:int(u.dim()-2)])
-        contraction_string = "{}ds,b{}s->b{}d".format(frequency_indices, frequency_indices, frequency_indices)
+        # contraction equation for torch.einsum method
+        # d: v-dim, s: u-dim, b: batch-dim
+        frequency_indices = "".join(TENSOR_INDICES[: int(num_fourier_dimensions)])
+        contraction_equation = "{}ds,b{}s->b{}d".format(
+            frequency_indices, frequency_indices, frequency_indices
+        )
 
-        print(f"contraction string: {contraction_string}")
-
-
-        slices = [slice(batch_size)] + [slice(self.num_frequencies)]*(u.dim() - 2) + [slice(u.shape[-1])]
+        # for the frequency dimensions: cut away high frequencies
+        slices = [slice(u.shape[0])]
+        slices += [slice(self.num_frequencies)] * num_fourier_dimensions
+        slices += [slice(u.shape[-1])]
         u_fourier_sliced = u_fourier[slices]
 
-        print(f"slices  {u_fourier_sliced.shape}")
+        # perform kernel operation in frequency space
+        out_fourier = torch.einsum(contraction_equation, self.kernel, u_fourier_sliced)
 
-        out_fourier = torch.einsum(contraction_string, self.kernel, u_fourier_sliced)
-        print(f"Output fourier after tensor {out_fourier.shape}")
-        print(f"dim={list(range(1, u.dim()))}, s={u.shape[1:-1]}")
-        out = irfftn(out_fourier, dim=list(range(1, u.dim()-1)), s=u.shape[1:-1]) # TODO: u.shape will change
-
-        # reshape
-        out = out.reshape(batch_size, -1, self.shapes.u.dim)
+        # transform back into real-space
+        out = irfftn(
+            out_fourier, dim=list(range(1, num_fourier_dimensions + 1)), s=u.shape[1:-1]
+        )  # TODO: u.shape will change
+        out = out.reshape(u.shape[0], -1, self.shapes.u.dim)
 
         return out
 
+    def _reshape(self, u: torch.Tensor) -> torch.Tensor:
+        """Reshaping input function to make it work with torch.fft.fftn.
 
-    def _reshape(
-        self,
-        u,
-    ):
-        batch_size = u.shape[0]
-        points_per_dim = int((self.shapes.x.num)**(1./self.shapes.x.dim))
+        For the FFT we need $u$ to be evaluated on a grid.
+        Args:
+            u: input function with shape (batch-size, u.num, u.dim).
 
-        # TODO: check for consitency, add assert 
+        Return:
+            u: with input function (batch-size, (u.num)**(1/u.dim), (u.num)**(1/u.dim), ..., u.dim)
+        """
 
-        shape = [batch_size] + [points_per_dim for _ in range(self.shapes.x.dim)] + [self.shapes.u.dim]
-        u = u.reshape(shape)
-        return u
+        # shapes that can change for different forward passes
+        batch_size, u_num = u.shape[0], u.shape[1]
 
+        points_per_dim = (u_num) ** (1.0 / self.shapes.x.dim)
+        assert (
+            points_per_dim.is_integer()
+        ), "Input function 'u' can't be reshaped. 'u' needs to be evaluated on a grid."
 
-class FNO1d_model(Operator):
-
-    def __init__(self, shapes: DatasetShapes, num_layers: int = 5):
-
-        super().__init__()
-
-        self.lifting = lambda x: x
-        self.projection = lambda x: x
-
-        self.num_layers = num_layers
-        self.act = nn.ReLU()
-
-        self.layers = torch.nn.ModuleList([FNO1d(shapes) for _ in range(num_layers)])
-
-    def forward(self, x, u, y):
-
-        u = self.lifting(u)
-
-        for layer in self.layers[:-1]:
-            u = layer(x, u, y)
-            u = self.act(u)
-        
-        u = self.layers[-1](x, u, y) # apply last layer without activation
-        u = self.projection(u)
-
-        return u
-
-
-# %%
+        shape = [batch_size]
+        shape += [int(points_per_dim) for _ in range(self.shapes.x.dim)]
+        shape += [self.shapes.u.dim]
+        return u.reshape(shape)
