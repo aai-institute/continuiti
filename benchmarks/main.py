@@ -1,6 +1,6 @@
-import os
 import hydra
 import json
+from pathlib import Path
 from omegaconf import DictConfig
 from continuity.data.utility import dataset_loss
 
@@ -43,9 +43,9 @@ def run(cfg: DictConfig) -> None:
     test_loss = dataset_loss(benchmark.test_dataset, operator, benchmark.metric())
 
     # Load results from benchmark directory
-    benchmark_dir = os.path.dirname(os.path.realpath(__file__))
-    json_file = os.path.join(benchmark_dir, "results.json")
-    if os.path.exists(json_file):
+    benchmark_dir = Path(__file__).resolve().parent
+    json_file = benchmark_dir.joinpath("results.json")
+    if json_file.exists():
         results = json.load(open(json_file, "r"))
     else:
         results = {}
