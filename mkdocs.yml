@@ -175,9 +175,9 @@ nav:
       - First Steps: getting-started/first-steps.md
   - Learning Operators:
       - Introduction: operators/index.md
+      - Basics: examples/basics.ipynb
       - Architectures: operators/architectures.md
   - Examples:
-      - Basics: examples/basics.ipynb
       - Physics-informed: examples/physicsinformed.ipynb
       - Super-resolution: examples/superresolution.ipynb
       - Meshes: examples/meshes.ipynb
