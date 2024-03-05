@@ -1,8 +1,11 @@
 import hydra
 import json
 import datetime
+import random
+import numpy as np
+import torch
 from pathlib import Path
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from continuity.data.utility import dataset_loss
 
 
@@ -18,14 +21,9 @@ def run(cfg: DictConfig) -> None:
     Args:
         cfg: Configuration.
     """
-    if cfg.get("seed"):
-        import random
-        import numpy as np
-        import torch
-
-        random.seed(cfg.seed)
-        np.random.seed(cfg.seed)
-        torch.manual_seed(cfg.seed)
+    random.seed(cfg.seed)
+    np.random.seed(cfg.seed)
+    torch.manual_seed(cfg.seed)
 
     benchmark = hydra.utils.instantiate(cfg.benchmark)
     operator = hydra.utils.instantiate(cfg.operator, shapes=benchmark.dataset.shapes)
@@ -37,38 +35,29 @@ def run(cfg: DictConfig) -> None:
     )
 
     # Train
-    trainer.fit(benchmark.train_dataset)
+    stats = trainer.fit(benchmark.train_dataset, tol=cfg.tol)
 
     # Evaluate on train/test set
     train_loss = dataset_loss(benchmark.train_dataset, operator, benchmark.metric())
     test_loss = dataset_loss(benchmark.test_dataset, operator, benchmark.metric())
 
+    # Results dictionary
+    res = OmegaConf.to_container(cfg)
+    res["loss/train"] = train_loss.item()
+    res["loss/test"] = test_loss.item()
+    res["epoch"] = stats["epoch"]
+
     # Load results from benchmark directory
     benchmark_dir = Path(__file__).resolve().parent
     json_file = benchmark_dir.joinpath("results.json")
-    if json_file.exists():
+    try:
         results = json.load(open(json_file, "r"))
-    else:
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
         results = {}
 
-    # Results dictionary
-    benchmark_name = benchmark.__class__.__name__
-    operator_name = str(operator)
-    seed = str(cfg.seed)
-
-    if benchmark_name not in results:
-        results[benchmark_name] = {}
-    if operator_name not in results[benchmark_name]:
-        results[benchmark_name][operator_name] = {}
-    if seed not in results[benchmark_name][operator_name]:
-        results[benchmark_name][operator_name][seed] = {}
-
-    # Values to save
-    results[benchmark_name][operator_name]["timestamp"] = datetime.datetime.now()
-    results[benchmark_name][operator_name][seed]["loss/train"] = train_loss.item()
-    results[benchmark_name][operator_name][seed]["loss/test"] = test_loss.item()
-
-    # Save results
+    # Save new results
+    timestamp = str(datetime.datetime.now())
+    results[timestamp] = res
     json.dump(results, open(json_file, "w"), sort_keys=True, indent=4)
 
 

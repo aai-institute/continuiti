@@ -2,6 +2,8 @@ defaults:
   - _self_
   - trainer: default
 
+tol: 1e-2
+
 hydra:
   mode: "MULTIRUN"
 
@@ -9,3 +11,4 @@ hydra:
     params:
       +seed: range(0, 2)
       +benchmark: sine
+      trainer.optimizer.lr: 1e-3, 3e-5

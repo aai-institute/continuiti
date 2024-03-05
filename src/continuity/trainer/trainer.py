@@ -184,3 +184,6 @@ class Trainer:
 
         # Move operator back to CPU
         self.operator.to("cpu")
+
+        # Return statistics
+        return {"loss/train": loss_train, "epoch": epoch + 1}

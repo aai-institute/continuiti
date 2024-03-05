@@ -1,34 +1,102 @@
 {
-    "SineBenchmark": {
-        "BelNet(K=4, P=(32, 1), Q=(32, 1))": {
-            "loss/test": 0.8246064186096191,
-            "loss/train": 8.111383438110352
+    "2024-03-05 09:47:20.252707": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
         },
-        "DeepONet(branch=(1024, 32), trunk=(1024, 32), basis=128)": {
-            "0": {
-                "loss/test": 5.8343024253845215,
-                "loss/train": 103.99913024902344
-            },
-            "1": {
-                "loss/test": 24639.38671875,
-                "loss/train": 194.709228515625
-            },
-            "timestamp": 1709625433.42799
+        "epoch": 178,
+        "loss/test": 0.0852421224117279,
+        "loss/train": 0.8885887265205383,
+        "operator": {
+            "_target_": "continuity.operators.deeponet.DeepONet",
+            "basis_functions": 8,
+            "branch_depth": 3,
+            "branch_width": 32,
+            "trunk_depth": 3,
+            "trunk_width": 32
         },
-        "DeepONet(branch=(32, 3), trunk=(32, 3), basis=8)": {
-            "0": {
-                "loss/test": 0.16365987062454224,
-                "loss/train": 1.6786936521530151
-            },
-            "1": {
-                "loss/test": 0.19520947337150574,
-                "loss/train": 1.7996667623519897
-            },
-            "timestamp": 1709625324.516248
+        "seed": 0,
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 0.001
+            }
+        }
+    },
+    "2024-03-05 09:47:52.279713": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
         },
-        "NeuralOperator(depth=3, kernel=(32, 3))": {
-            "loss/test": 0.13846467435359955,
-            "loss/train": 1.668128252029419
+        "epoch": 1000,
+        "loss/test": 0.4960143566131592,
+        "loss/train": 5.311173439025879,
+        "operator": {
+            "_target_": "continuity.operators.deeponet.DeepONet",
+            "basis_functions": 8,
+            "branch_depth": 3,
+            "branch_width": 32,
+            "trunk_depth": 3,
+            "trunk_width": 32
+        },
+        "seed": 0,
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 3e-05
+            }
+        }
+    },
+    "2024-03-05 09:48:00.636784": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
+        },
+        "epoch": 260,
+        "loss/test": 0.08609889447689056,
+        "loss/train": 0.8704065680503845,
+        "operator": {
+            "_target_": "continuity.operators.deeponet.DeepONet",
+            "basis_functions": 8,
+            "branch_depth": 3,
+            "branch_width": 32,
+            "trunk_depth": 3,
+            "trunk_width": 32
+        },
+        "seed": 1,
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 0.001
+            }
+        }
+    },
+    "2024-03-05 09:48:33.414465": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
+        },
+        "epoch": 1000,
+        "loss/test": 0.37630584836006165,
+        "loss/train": 4.291797161102295,
+        "operator": {
+            "_target_": "continuity.operators.deeponet.DeepONet",
+            "basis_functions": 8,
+            "branch_depth": 3,
+            "branch_width": 32,
+            "trunk_depth": 3,
+            "trunk_width": 32
+        },
+        "seed": 1,
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 3e-05
+            }
         }
     }
 }
