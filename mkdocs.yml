@@ -179,6 +179,7 @@ nav:
   - Examples:
       - Basics: examples/basics.ipynb
       - Time Series: examples/timeseries.ipynb
+      - Functions: examples/functions.ipynb
       - Super-resolution: examples/superresolution.ipynb
       - Physics-informed: examples/physicsinformed.ipynb
       - Meshes: examples/meshes.ipynb
