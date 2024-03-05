@@ -1,5 +1,6 @@
 import hydra
 import json
+import datetime
 from pathlib import Path
 from omegaconf import DictConfig
 from continuity.data.utility import dataset_loss
@@ -53,15 +54,19 @@ def run(cfg: DictConfig) -> None:
     # Results dictionary
     benchmark_name = benchmark.__class__.__name__
     operator_name = str(operator)
+    seed = str(cfg.seed)
 
     if benchmark_name not in results:
         results[benchmark_name] = {}
     if operator_name not in results[benchmark_name]:
         results[benchmark_name][operator_name] = {}
+    if seed not in results[benchmark_name][operator_name]:
+        results[benchmark_name][operator_name][seed] = {}
 
     # Values to save
-    results[benchmark_name][operator_name]["loss/train"] = train_loss.item()
-    results[benchmark_name][operator_name]["loss/test"] = test_loss.item()
+    results[benchmark_name][operator_name]["timestamp"] = datetime.datetime.now()
+    results[benchmark_name][operator_name][seed]["loss/train"] = train_loss.item()
+    results[benchmark_name][operator_name][seed]["loss/test"] = test_loss.item()
 
     # Save results
     json.dump(results, open(json_file, "w"), sort_keys=True, indent=4)
