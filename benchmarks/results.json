@@ -51,6 +51,32 @@
             }
         }
     },
+    "56d575659ac205a52c1f10f7a4654e55": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
+        },
+        "epoch": 793,
+        "loss/test": 0.010894756764173508,
+        "loss/train": 0.010274062864482403,
+        "operator": {
+            "D_1": 1,
+            "D_2": 1,
+            "K": 4,
+            "N_1": 32,
+            "N_2": 32,
+            "_target_": "continuity.operators.belnet.BelNet"
+        },
+        "seed": 1,
+        "timestamp": "2024-03-05 13:53:53.056689",
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 0.001
+            }
+        }
+    },
     "7de72b31bff1ee6f0495f1e2c40f0828": {
         "benchmark": {
             "_target_": "continuity.benchmarks.sine.SineBenchmark"
@@ -68,6 +94,32 @@
         },
         "seed": 0,
         "timestamp": "2024-03-05 13:42:53.775408",
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 0.001
+            }
+        }
+    },
+    "9c2108dad8cb57de0fa9df63a1b2a5cb": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
+        },
+        "epoch": 761,
+        "loss/test": 0.010274844244122505,
+        "loss/train": 0.009898429736495018,
+        "operator": {
+            "D_1": 1,
+            "D_2": 1,
+            "K": 4,
+            "N_1": 32,
+            "N_2": 32,
+            "_target_": "continuity.operators.belnet.BelNet"
+        },
+        "seed": 0,
+        "timestamp": "2024-03-05 13:53:23.847010",
         "tol": 0.01,
         "trainer": {
             "_target_": "continuity.trainer.trainer.Trainer",
