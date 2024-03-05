@@ -4,6 +4,7 @@ import datetime
 import random
 import numpy as np
 import torch
+from hashlib import md5
 from pathlib import Path
 from omegaconf import DictConfig, OmegaConf
 from continuity.data.utility import dataset_loss
@@ -46,6 +47,7 @@ def run(cfg: DictConfig) -> None:
     res["loss/train"] = train_loss.item()
     res["loss/test"] = test_loss.item()
     res["epoch"] = stats["epoch"]
+    res["timestamp"] = str(datetime.datetime.now())
 
     # Load results from benchmark directory
     benchmark_dir = Path(__file__).resolve().parent
@@ -56,8 +58,8 @@ def run(cfg: DictConfig) -> None:
         results = {}
 
     # Save new results
-    timestamp = str(datetime.datetime.now())
-    results[timestamp] = res
+    hsh = md5(OmegaConf.to_yaml(cfg).encode()).hexdigest()
+    results[hsh] = res
     json.dump(results, open(json_file, "w"), sort_keys=True, indent=4)
 
 

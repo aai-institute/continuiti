@@ -1,20 +1,21 @@
 {
-    "2024-03-05 09:47:20.252707": {
+    "1719d23b1235d6f2a1869cb1c2f5f405": {
         "benchmark": {
             "_target_": "continuity.benchmarks.sine.SineBenchmark"
         },
-        "epoch": 178,
-        "loss/test": 0.0852421224117279,
-        "loss/train": 0.8885887265205383,
+        "epoch": 207,
+        "loss/test": 0.012350823730230331,
+        "loss/train": 0.009236093610525131,
         "operator": {
             "_target_": "continuity.operators.deeponet.DeepONet",
-            "basis_functions": 8,
-            "branch_depth": 3,
-            "branch_width": 32,
-            "trunk_depth": 3,
-            "trunk_width": 32
+            "basis_functions": 32,
+            "branch_depth": 32,
+            "branch_width": 128,
+            "trunk_depth": 32,
+            "trunk_width": 128
         },
-        "seed": 0,
+        "seed": 1,
+        "timestamp": "2024-03-05 13:46:30.927863",
         "tol": 0.01,
         "trainer": {
             "_target_": "continuity.trainer.trainer.Trainer",
@@ -24,38 +25,13 @@
             }
         }
     },
-    "2024-03-05 09:47:52.279713": {
-        "benchmark": {
-            "_target_": "continuity.benchmarks.sine.SineBenchmark"
-        },
-        "epoch": 1000,
-        "loss/test": 0.4960143566131592,
-        "loss/train": 5.311173439025879,
-        "operator": {
-            "_target_": "continuity.operators.deeponet.DeepONet",
-            "basis_functions": 8,
-            "branch_depth": 3,
-            "branch_width": 32,
-            "trunk_depth": 3,
-            "trunk_width": 32
-        },
-        "seed": 0,
-        "tol": 0.01,
-        "trainer": {
-            "_target_": "continuity.trainer.trainer.Trainer",
-            "optimizer": {
-                "_target_": "torch.optim.Adam",
-                "lr": 3e-05
-            }
-        }
-    },
-    "2024-03-05 09:48:00.636784": {
+    "297a6b9d955cea07ef506331f6716708": {
         "benchmark": {
             "_target_": "continuity.benchmarks.sine.SineBenchmark"
         },
         "epoch": 260,
-        "loss/test": 0.08609889447689056,
-        "loss/train": 0.8704065680503845,
+        "loss/test": 0.009566543623805046,
+        "loss/train": 0.009564907290041447,
         "operator": {
             "_target_": "continuity.operators.deeponet.DeepONet",
             "basis_functions": 8,
@@ -65,6 +41,7 @@
             "trunk_width": 32
         },
         "seed": 1,
+        "timestamp": "2024-03-05 13:43:02.442856",
         "tol": 0.01,
         "trainer": {
             "_target_": "continuity.trainer.trainer.Trainer",
@@ -74,13 +51,13 @@
             }
         }
     },
-    "2024-03-05 09:48:33.414465": {
+    "7de72b31bff1ee6f0495f1e2c40f0828": {
         "benchmark": {
             "_target_": "continuity.benchmarks.sine.SineBenchmark"
         },
-        "epoch": 1000,
-        "loss/test": 0.37630584836006165,
-        "loss/train": 4.291797161102295,
+        "epoch": 178,
+        "loss/test": 0.009471346624195576,
+        "loss/train": 0.009764711372554302,
         "operator": {
             "_target_": "continuity.operators.deeponet.DeepONet",
             "basis_functions": 8,
@@ -89,13 +66,40 @@
             "trunk_depth": 3,
             "trunk_width": 32
         },
-        "seed": 1,
+        "seed": 0,
+        "timestamp": "2024-03-05 13:42:53.775408",
         "tol": 0.01,
         "trainer": {
             "_target_": "continuity.trainer.trainer.Trainer",
             "optimizer": {
                 "_target_": "torch.optim.Adam",
-                "lr": 3e-05
+                "lr": 0.001
+            }
+        }
+    },
+    "b85344dc6b4949a7e02b6ac9a4784723": {
+        "benchmark": {
+            "_target_": "continuity.benchmarks.sine.SineBenchmark"
+        },
+        "epoch": 209,
+        "loss/test": 0.052777279168367386,
+        "loss/train": 0.009989244863390923,
+        "operator": {
+            "_target_": "continuity.operators.deeponet.DeepONet",
+            "basis_functions": 32,
+            "branch_depth": 32,
+            "branch_width": 128,
+            "trunk_depth": 32,
+            "trunk_width": 128
+        },
+        "seed": 0,
+        "timestamp": "2024-03-05 13:45:40.691469",
+        "tol": 0.01,
+        "trainer": {
+            "_target_": "continuity.trainer.trainer.Trainer",
+            "optimizer": {
+                "_target_": "torch.optim.Adam",
+                "lr": 0.001
             }
         }
     }

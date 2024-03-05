@@ -11,4 +11,4 @@ hydra:
     params:
       +seed: range(0, 2)
       +benchmark: sine
-      trainer.optimizer.lr: 1e-3, 3e-5
+      trainer.optimizer.lr: 1e-3
