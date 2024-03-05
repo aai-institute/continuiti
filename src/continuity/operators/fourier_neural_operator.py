@@ -1,7 +1,7 @@
 """ Fourier neural operator.
 
 TODO:
-    - Add tests
+    - Assumption: Grid is quadratic -> Should we change this?
     - Generalize kernel to (u-dim, v-dim)
     - x and y are ignored! Should we add options to make kernel dependent?
 """
@@ -138,17 +138,15 @@ class FourierLayer(Operator):
         Args:
             x: Sensor positions of shape (batch_size, num_sensors, x_dim)
             u: Input function values of shape (batch_size, num_sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, num_sensors, y_dim)
+            y: Evaluation coordinates of shape (batch_size, num_evaluations, y_dim)
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, num_sensors, v_dim)
+            Evaluations of the mapped function with shape (batch_size, num_evaluations, v_dim)
         """
 
-        # TODO: check x for grid. However, expensive maybe expensive computation
-        assert x.shape[:-1] == y.shape[:-1]
-        del x, y  # not used
-
-        assert u.shape[-1] == self.shapes.u.dim
+        # shapes which can change for different forward passes
+        batch_size = y.shape[0]
+        num_evaluations = y.shape[1]
 
         # fourier transform input function
         num_fourier_dimensions = self.shapes.x.dim
@@ -156,7 +154,9 @@ class FourierLayer(Operator):
         assert u.dim() == num_fourier_dimensions + 2
 
         # compute n-dimensional fourier transform
-        u_fourier = rfftn(u, dim=list(range(1, num_fourier_dimensions + 1)))
+        u_fourier = rfftn(
+            u, dim=list(range(1, num_fourier_dimensions + 1)), norm="forward"
+        )
 
         assert (
             len(TENSOR_INDICES) > num_fourier_dimensions
@@ -170,7 +170,7 @@ class FourierLayer(Operator):
         )
 
         # for the frequency dimensions: cut away high frequencies
-        slices = [slice(u.shape[0])]
+        slices = [slice(batch_size)]
         slices += [slice(self.num_frequencies)] * num_fourier_dimensions
         slices += [slice(u.shape[-1])]
         u_fourier_sliced = u_fourier[slices]
@@ -178,11 +178,21 @@ class FourierLayer(Operator):
         # perform kernel operation in frequency space
         out_fourier = torch.einsum(contraction_equation, self.kernel, u_fourier_sliced)
 
+        # We should use num_evaluations and not num_sensors for the inverse FFT
+        num_evaluations_per_dim = num_evaluations ** (1.0 / num_fourier_dimensions)
+        assert (
+            num_evaluations_per_dim.is_integer()
+        ), "Input array 'y' needs to be sampled on a grid with equal number of points per dimension."
+        num_evaluations_per_dim = int(num_evaluations_per_dim)
+
         # transform back into real-space
         out = irfftn(
-            out_fourier, dim=list(range(1, num_fourier_dimensions + 1)), s=u.shape[1:-1]
+            out_fourier,
+            dim=list(range(1, num_fourier_dimensions + 1)),
+            s=(num_evaluations_per_dim,) * num_fourier_dimensions,
+            norm="forward",
         )  # TODO: u.shape will change
-        out = out.reshape(u.shape[0], -1, self.shapes.u.dim)
+        out = out.reshape(batch_size, -1, self.shapes.u.dim)
 
         return out
 
