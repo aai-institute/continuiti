@@ -12,6 +12,7 @@ from continuity.data import DatasetShapes
 import torch.nn as nn
 import math
 from torch.fft import rfft, irfft, rfftn, irfftn
+from typing import Optional
 
 
 # TODO: this is not allowed to have 'b', 'd' or 's' in it. How to make this safer?
@@ -28,7 +29,7 @@ class FourierLayer1d(Operator):
     def __init__(
         self,
         shapes: DatasetShapes,
-        num_frequencies: int | None = None,
+        num_frequencies: Optional[int] = None,
     ) -> None:
         super().__init__()
 
@@ -88,7 +89,7 @@ class FourierLayer(Operator):
     def __init__(
         self,
         shapes: DatasetShapes,
-        num_frequencies: int | None = None,
+        num_frequencies: Optional[int] = None,
     ) -> None:
         super().__init__()
 
