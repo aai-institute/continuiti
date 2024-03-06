@@ -23,49 +23,45 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: "true"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - name: Setup Project and Project Dependencies
+        uses: ./.github/actions/setup-venv
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Cache venv
-        uses: actions/cache@v4
-        id: cache-venv
-        with:
-          path: .venv
-          key: ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('pyproject.toml') }}
-
-      - name: Setup venv
-        run: |
-          python -m pip install --upgrade pip
-          python -m venv .venv
-          . ./.venv/bin/activate
-          pip install -e .[testing]
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-
-      - name: Activate venv
-        run: |
-          source .venv/bin/activate
-          echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
-          echo "${VIRTUAL_ENV}/bin" >> $GITHUB_PATH
-
-      - name: List dependencies
-        run: |
-          python -m pip list
-
+          os-name: ${{ matrix.os }}
+          optional-dependencies: "[testing]"
       - name: Run pytest
         run: |
           pytest -v
 
+  run_tests_notebooks:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.9", "3.10", "3.11"]
+
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: "true"
+      - name: Setup Project and Project Dependencies
+        uses: ./.github/actions/setup-venv
+        with:
+          python-version: ${{ matrix.python-version }}
+          os-name: ${{ matrix.os }}
+          optional-dependencies: "[testing]"
       - name: Install missing system dependencies
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt install libglu1
-
       - name: Test notebooks
         run: |
           pytest --nbmake examples/
@@ -76,40 +72,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v2
+        uses: actions/checkout@v4
+        with:
+          lfs: "true"
+      - name: Setup Project
+        uses: ./.github/actions/setup-venv
         with:
           python-version: "3.11"
-
-      - name: Cache venv
-        uses: actions/cache@v4
-        id: cache-venv
-        with:
-          path: .venv
-          key: ${{ runner.os }}-3.11-venv-${{ hashFiles('pyproject.toml') }}
-
-      - name: Setup venv
-        run: |
-          python -m pip install --upgrade pip
-          python -m venv .venv
-          . ./.venv/bin/activate
-          pip install -e .[testing]
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-
-      - name: Activate venv
-        run: |
-          source .venv/bin/activate
-          echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
-          echo "${VIRTUAL_ENV}/bin" >> $GITHUB_PATH
-
-      - name: Install pytest-cov
-        run: |
-          pip install pytest-cov[toml]
-
+          os-name: "ubuntu-latest"
+          optional-dependencies: "[testing]"
       - name: Run tests and collect coverage
         run: pytest --cov src
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

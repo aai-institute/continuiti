@@ -1,0 +1,46 @@
+name: "Setup project dependencies"
+description: "Sets up venv by either installing packages with pip or pulling from cache"
+
+inputs:
+  python-version:
+    description: "Python version."
+    required: true
+  os-name:
+    description: "Operating system."
+    required: true
+  optional-dependencies:
+    description: "List of optional dependencies passed to pip install (e.g. '[testing,docs]')."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Cache venv
+      uses: actions/cache@v4
+      id: cache-venv
+      with:
+        path: .venv
+        key: ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('pyproject.toml') }}-${{ inputs.optional-dependencies }}
+    - name: Setup venv
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m venv .venv
+        . ./.venv/bin/activate
+        pip install -e .${{ inputs.optional-dependencies }}
+      if: steps.cache-venv.outputs.cache-hit != 'true'
+    - name: Activate venv
+      shell: bash
+      run: |
+        source .venv/bin/activate
+        echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
+        echo "${VIRTUAL_ENV}/bin" >> $GITHUB_PATH
+    - name: List dependencies
+      shell: bash
+      run: |
+        python -m pip list
