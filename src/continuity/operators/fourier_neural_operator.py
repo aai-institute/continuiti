@@ -72,13 +72,13 @@ class FourierLayer1d(Operator):
             Evaluations of the mapped function with shape (batch_size, num_sensors, v_dim)
         """
 
-        del x, y  # not used
+        # del x, y  # not used
 
         u_fourier = rfft(u, axis=1)  # real-valued fft -> skip negative frequencies
         out_fourier = torch.einsum(
             "nds,bns->bnd", self.kernel, u_fourier[:, : self.num_frequencies, :]
         )
-        out = irfft(out_fourier, axis=1, n=u.shape[1])
+        out = irfft(out_fourier, axis=1, n=y.shape[1]) * y.shape[1]
 
         return out
 
