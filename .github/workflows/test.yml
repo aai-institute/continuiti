@@ -61,6 +61,11 @@ jobs:
         run: |
           pytest -v
 
+      - name: Install missing system dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt install libglu1
+
       - name: Test notebooks
         run: |
           pytest --nbmake examples/
