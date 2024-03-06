@@ -8,7 +8,6 @@ import numpy as np
 from torch.distributions.multivariate_normal import MultivariateNormal
 
 from continuity.operators.losses import MSELoss
-from continuity.plotting import plot
 from continuity.trainer import Trainer
 from continuity.data import OperatorDataset
 from continuity.operators.fourier_neural_operator import FourierLayer
@@ -239,7 +238,7 @@ def test_fourier_layer_performance():
 
     # plot results
     fig, ax = plt.subplots(1, 1)
-    plot(xi[0], vi[0], ax)
+    ax.plot(xi[0], vi[0])
     ax.plot(xi.reshape(-1), output.reshape(-1))
     fig.savefig(f"test_fourierlayer_performance.png")
 

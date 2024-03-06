@@ -48,14 +48,14 @@ class FourierLayer1d(Operator):
         assert shapes.u.dim == shapes.v.dim
 
         shape = (self.num_frequencies, shapes.u.dim, shapes.u.dim)
-        weigths_real = torch.Tensor(*shape)
-        weigths_img = torch.Tensor(*shape)
+        weights_real = torch.Tensor(*shape)
+        weights_img = torch.Tensor(*shape)
 
         # initialize
-        nn.init.kaiming_uniform_(weigths_real, a=math.sqrt(5))
-        nn.init.kaiming_uniform_(weigths_img, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(weights_real, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(weights_img, a=math.sqrt(5))
 
-        self.weights_complex = torch.complex(weigths_real, weigths_img)
+        self.weights_complex = torch.complex(weights_real, weights_img)
         self.kernel = torch.nn.Parameter(self.weights_complex)
 
     def forward(
@@ -72,13 +72,13 @@ class FourierLayer1d(Operator):
             Evaluations of the mapped function with shape (batch_size, num_sensors, v_dim)
         """
 
-        # del x, y  # not used
+        u_fourier = rfft(u, axis=1, norm="forward")
 
-        u_fourier = rfft(u, axis=1)  # real-valued fft -> skip negative frequencies
         out_fourier = torch.einsum(
             "nds,bns->bnd", self.kernel, u_fourier[:, : self.num_frequencies, :]
         )
-        out = irfft(out_fourier, axis=1, n=y.shape[1]) * y.shape[1]
+
+        out = irfft(out_fourier, axis=1, n=y.shape[1], norm="forward")
 
         return out
 
@@ -122,13 +122,13 @@ class FourierLayer(Operator):
             shapes.u.dim,
             shapes.u.dim,
         )
-        weigths_real = torch.Tensor(*weights_shape)
-        weigths_img = torch.Tensor(*weights_shape)
+        weights_real = torch.Tensor(*weights_shape)
+        weights_img = torch.Tensor(*weights_shape)
 
-        nn.init.kaiming_uniform_(weigths_real, a=math.sqrt(5))
-        nn.init.kaiming_uniform_(weigths_img, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(weights_real, a=math.sqrt(5))
+        nn.init.kaiming_uniform_(weights_img, a=math.sqrt(5))
 
-        self.weights_complex = torch.complex(weigths_real, weigths_img)
+        self.weights_complex = torch.complex(weights_real, weights_img)
         self.kernel = torch.nn.Parameter(self.weights_complex)
 
     def forward(
