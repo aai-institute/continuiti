@@ -49,8 +49,9 @@ jobs:
 
       - name: Activate venv
         run: |
-          . .venv/bin/activate
-          echo PATH=$PATH >> $GITHUB_ENV
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
+          echo "${VIRTUAL_ENV}/bin" >> $GITHUB_PATH
 
       - name: List dependencies
         run: |
@@ -94,8 +95,9 @@ jobs:
 
       - name: Activate venv
         run: |
-          . .venv/bin/activate
-          echo PATH=$PATH >> $GITHUB_ENV
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
+          echo "${VIRTUAL_ENV}/bin" >> $GITHUB_PATH
 
       - name: Install pytest-cov
         run: |
