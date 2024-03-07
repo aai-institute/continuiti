@@ -12,14 +12,8 @@ pip install -e ".[benchmarks]"
 
 In the `benchmarks` directory, you can find a `main.py` script that runs the benchmarks.
 
-You can run all benchmarks with:
+You can run a specific configuration (e.g., fixing the operator to a small `DeepONet`) with:
 
 ```bash
-python main.py
-```
-
-Alternatively, you can run a specific benchmark (e.g., fixing the operator to `BelNet`) with:
-
-```bash
-python main.py -m operator=belnet
+python main.py -m +operator=deeponet_small
 ```

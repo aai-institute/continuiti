@@ -81,6 +81,7 @@ docs = [
 
 benchmarks = [
     "hydra-core",
+    "mlflow",
 ]
 
 [tool.setuptools.dynamic]

@@ -9,6 +9,6 @@ hydra:
 
   sweeper:
     params:
-      +seed: range(0, 2)
+      +seed: range(0, 10)
       +benchmark: sine
-      trainer.optimizer.lr: 1e-3
+      +operator: deeponet_small, deeponet_large, belnet_small, neuraloperator

@@ -154,6 +154,7 @@ class MLFlowLogger(Callback):
     def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
+
         Args:
             logs: Training logs.
         """

@@ -1,13 +1,11 @@
 import hydra
-import json
-import datetime
 import random
 import numpy as np
 import torch
-from hashlib import md5
-from pathlib import Path
-from omegaconf import DictConfig, OmegaConf
+import mlflow
+from omegaconf import DictConfig
 from continuity.data.utility import dataset_loss
+from continuity.trainer.callbacks import PrintTrainingLoss, MLFlowLogger
 
 
 @hydra.main(version_base="1.3", config_path="configs", config_name="config.yaml")
@@ -22,9 +20,27 @@ def run(cfg: DictConfig) -> None:
     Args:
         cfg: Configuration.
     """
+    mlflow.start_run()
+
     random.seed(cfg.seed)
     np.random.seed(cfg.seed)
     torch.manual_seed(cfg.seed)
+    mlflow.log_param("seed", cfg.seed)
+
+    # Log benchmark parameters
+    cfg_benchmark = dict(cfg.benchmark)
+    cfg_benchmark["benchmark"] = cfg_benchmark.pop("_target_")
+    mlflow.log_params(cfg_benchmark)
+
+    # Log operator parameters
+    cfg_op = dict(cfg.operator)
+    cfg_op["operator"] = cfg_op.pop("_target_")
+    mlflow.log_params(cfg_op)
+
+    # Log trainer parameters
+    cfg_trainer = dict(cfg.trainer)
+    cfg_trainer["trainer"] = cfg_trainer.pop("_target_")
+    mlflow.log_params(cfg_trainer)
 
     benchmark = hydra.utils.instantiate(cfg.benchmark)
     operator = hydra.utils.instantiate(cfg.operator, shapes=benchmark.dataset.shapes)
@@ -36,31 +52,19 @@ def run(cfg: DictConfig) -> None:
     )
 
     # Train
-    stats = trainer.fit(benchmark.train_dataset, tol=cfg.tol)
+    callbacks = [PrintTrainingLoss(), MLFlowLogger()]
+    stats = trainer.fit(benchmark.train_dataset, tol=cfg.tol, callbacks=callbacks)
 
-    # Evaluate on train/test set
-    train_loss = dataset_loss(benchmark.train_dataset, operator, benchmark.metric())
+    # Save model
+    torch.save(operator.state_dict(), "model.pth")
+    mlflow.log_artifact("model.pth")
+
+    # Evaluate on test set
     test_loss = dataset_loss(benchmark.test_dataset, operator, benchmark.metric())
+    mlflow.log_metric("loss/test", test_loss.item())
 
-    # Results dictionary
-    res = OmegaConf.to_container(cfg)
-    res["loss/train"] = train_loss.item()
-    res["loss/test"] = test_loss.item()
-    res["epoch"] = stats["epoch"]
-    res["timestamp"] = str(datetime.datetime.now())
-
-    # Load results from benchmark directory
-    benchmark_dir = Path(__file__).resolve().parent
-    json_file = benchmark_dir.joinpath("results.json")
-    try:
-        results = json.load(open(json_file, "r"))
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        results = {}
-
-    # Save new results
-    hsh = md5(OmegaConf.to_yaml(cfg).encode()).hexdigest()
-    results[hsh] = res
-    json.dump(results, open(json_file, "w"), sort_keys=True, indent=4)
+    mlflow.log_metric("epoch", stats["epoch"])
+    mlflow.end_run()
 
 
 if __name__ == "__main__":
