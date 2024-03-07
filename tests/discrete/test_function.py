@@ -39,7 +39,7 @@ def test_call_correct(f_x, f_x_squared, f_sin, f_many):
 
     assert torch.allclose(f_x(x), x)
     assert torch.allclose(f_x_squared(x), x**2)
-    assert torch.allclose(f_sin(x), torch.sin(x.shape))
+    assert torch.allclose(f_sin(x), torch.sin(x))
     assert torch.allclose(f_many(1.0, 1.0, 1.0, x), 2.0 * x)
 
 
