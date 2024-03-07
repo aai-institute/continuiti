@@ -1,5 +1,5 @@
 """
-`continuity.discrete.function`
+`continuity.data.function_dataset.function`
 
 Function.
 """

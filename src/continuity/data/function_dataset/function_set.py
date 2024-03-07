@@ -1,3 +1,9 @@
+"""
+`continuity.data.function_dataset.function_set`
+
+Function set.
+"""
+
 import inspect
 import torch
 from typing import Callable, Any

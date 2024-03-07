@@ -1,6 +1,6 @@
 import pytest
 import torch
-from continuity.discrete.function_set import FunctionSet
+from continuity.data.function_dataset.function_set import FunctionSet
 
 
 @pytest.fixture(scope="module")
