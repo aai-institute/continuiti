@@ -1,16 +1,130 @@
 {
     "SineBenchmark": {
         "BelNet(K=4, P=(32, 1), Q=(32, 1))": {
-            "loss/test": 0.7507284879684448,
-            "loss/train": 7.466615676879883
+            "L1_error": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 0.09202146530151367
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 0.010475439495510525
+                }
+            },
+            "MS_error": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 0.14031699895858765
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 0.01623407867219713
+                }
+            },
+            "Number_of_parameters": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 13924
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 13924
+                }
+            },
+            "Speed_of_evaluation": {
+                "test": {
+                    "Unit": "[ms]",
+                    "Value": 0.0833967
+                },
+                "train": {
+                    "Unit": "[ms]",
+                    "Value": 0.016154333333333333
+                }
+            }
         },
         "DeepONet(branch=(32, 3), trunk=(32, 3), basis=8)": {
-            "loss/test": 0.2013445347547531,
-            "loss/train": 1.8961658477783203
+            "L1_error": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 0.09545202255249023
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 0.010839277505874633
+                }
+            },
+            "MS_error": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 0.12962578535079955
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 0.014921518166859944
+                }
+            },
+            "Number_of_parameters": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 7984
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 7984
+                }
+            },
+            "Speed_of_evaluation": {
+                "test": {
+                    "Unit": "[ms]",
+                    "Value": 0.15194139999999998
+                },
+                "train": {
+                    "Unit": "[ms]",
+                    "Value": 0.03148544444444444
+                }
+            }
         },
         "NeuralOperator(depth=3, kernel=(32, 3))": {
-            "loss/test": 0.1441805511713028,
-            "loss/train": 1.4120795726776123
+            "L1_error": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 0.09713016748428345
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 0.010933109786775377
+                }
+            },
+            "MS_error": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 0.13305175304412842
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 0.015108006530337864
+                }
+            },
+            "Number_of_parameters": {
+                "test": {
+                    "Unit": "[1]",
+                    "Value": 16325
+                },
+                "train": {
+                    "Unit": "[1]",
+                    "Value": 16325
+                }
+            },
+            "Speed_of_evaluation": {
+                "test": {
+                    "Unit": "[ms]",
+                    "Value": 1.397402
+                },
+                "train": {
+                    "Unit": "[ms]",
+                    "Value": 2.198583633333333
+                }
+            }
         }
     }
 }

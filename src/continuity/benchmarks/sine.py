@@ -5,9 +5,13 @@ Sine benchmark.
 """
 
 from continuity.benchmarks import Benchmark
-from continuity.data import split
 from continuity.data.sine import Sine
-from continuity.benchmarks.metrics import MSEMetric
+from continuity.benchmarks.metrics import (
+    MSEMetric,
+    L1Metric,
+    SpeedOfEvaluationMetric,
+    NumberOfParametersMetric,
+)
 
 
 class SineBenchmark(Benchmark):
@@ -18,13 +22,16 @@ class SineBenchmark(Benchmark):
     """
 
     def __init__(self):
-        self.num_sensors = 32
-        self.size = 100
+        train_dataset = Sine(num_sensors=32, size=90)
+        test_dataset = Sine(num_sensors=32, size=10)
 
-        self.dataset = Sine(
-            num_sensors=32,
-            size=100,
+        super().__init__(
+            train_dataset=train_dataset,
+            test_dataset=test_dataset,
+            metrics=[
+                MSEMetric(),
+                L1Metric(),
+                NumberOfParametersMetric(),
+                SpeedOfEvaluationMetric(),
+            ],
         )
-
-        train_dataset, test_dataset = split(self.dataset, 0.9)
-        super().__init__(train_dataset, test_dataset, [MSEMetric()])
