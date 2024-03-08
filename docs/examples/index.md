@@ -11,6 +11,11 @@ Continuity.
   content: Learning function operators with Continuity
   url: basics
 
+- title: Time Series
+  content: >
+    Operator learning for non-uniform time series
+  url: timeseries
+
 - title: Super-resolution
   content: Neural operators for super-resolution
   url: superresolution
@@ -24,5 +29,9 @@ Continuity.
   content: >
     Reading meshes for operator learning
   url: meshes
+
+- title: Self-supervised
+  content: Training self-supervised neural operators
+  url: selfsupervised
 
 ::/cards::

@@ -14,8 +14,9 @@ key concepts.
 
 ## Running the Examples
 
-If you are familiar with the idea of operator learning, you can start
-by browsing our examples illustrating **Continuity**'s capabilities, either:
+If you are familiar with the idea of operator learning (or just want to dive
+right into code), you can start by browsing our examples illustrating
+Continuity's capabilities, either:
 
-- In the examples under [[operators]]
-- Locally, by starting a jupyter server at the root of the project.
+- On the documentation page under <a href="../../examples">Examples</a>.
+- Locally, by starting a jupyter server and navigating to the `examples` directory.
