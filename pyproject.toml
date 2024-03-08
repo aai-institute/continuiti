@@ -79,11 +79,6 @@ docs = [
     "pygments",
 ]
 
-benchmarks = [
-    "hydra-core",
-    "mlflow",
-]
-
 [tool.setuptools.dynamic]
 version = {attr = "continuity.__version__"}
 

@@ -62,3 +62,6 @@ class SineBenchmark(Benchmark):
         test_dataset = get_dataset(n_test)
 
         super().__init__(train_dataset, test_dataset, [MSELoss()])
+
+    def __str__(self) -> str:
+        return "Sine"
