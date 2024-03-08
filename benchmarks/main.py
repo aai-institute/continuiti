@@ -1,8 +1,8 @@
-import os
+import pathlib
 import hydra
 import json
 from omegaconf import DictConfig
-from continuity.data.utility import dataset_loss
+from collections import defaultdict
 
 
 @hydra.main(version_base="1.3", config_path="configs", config_name="config.yaml")
@@ -27,45 +27,42 @@ def run(cfg: DictConfig) -> None:
         torch.manual_seed(cfg.seed)
 
     benchmark = hydra.utils.instantiate(cfg.benchmark)
-    operator = hydra.utils.instantiate(cfg.operator, shapes=benchmark.dataset.shapes)
+    operator = hydra.utils.instantiate(
+        cfg.operator, shapes=benchmark.train_dataset.shapes
+    )
     optimizer = hydra.utils.instantiate(
         cfg.trainer.optimizer, params=operator.parameters()
     )
     trainer = hydra.utils.instantiate(
-        cfg.trainer, operator=operator, optimizer=optimizer, loss_fn=benchmark.metric()
+        cfg.trainer, operator=operator, optimizer=optimizer
     )
 
     # Train
     trainer.fit(benchmark.train_dataset)
 
-    # Evaluate on train/test set
-    train_loss = dataset_loss(benchmark.train_dataset, operator, benchmark.metric())
-    test_loss = dataset_loss(benchmark.test_dataset, operator, benchmark.metric())
-
-    # Load results from benchmark directory
-    benchmark_dir = os.path.dirname(os.path.realpath(__file__))
-    json_file = os.path.join(benchmark_dir, "results.json")
-    if os.path.exists(json_file):
-        results = json.load(open(json_file, "r"))
-    else:
-        results = {}
-
+    # ----- RESULTS -----
     # Results dictionary
     benchmark_name = benchmark.__class__.__name__
     operator_name = str(operator)
+    benchmark_dir = pathlib.Path(__file__).parent
+    json_file = benchmark_dir.joinpath("results.json")
 
-    if benchmark_name not in results:
-        results[benchmark_name] = {}
-    if operator_name not in results[benchmark_name]:
-        results[benchmark_name][operator_name] = {}
+    # Load results from benchmark directory
+    results = defaultdict(lambda: defaultdict(dict))
+    if json_file.is_file():
+        old_results = json.load(open(json_file, "r"))
+        results.update(old_results)
 
-    # Values to save
-    results[benchmark_name][operator_name]["loss/train"] = train_loss.item()
-    results[benchmark_name][operator_name]["loss/test"] = test_loss.item()
+    # Evaluate on train/test set
+    for mt in benchmark.metrics:
+        train_result = mt.calculate(operator, benchmark.train_dataset)
+        test_result = mt.calculate(operator, benchmark.test_dataset)
+        result = {"train": train_result, "test": test_result}
+        results[benchmark_name][operator_name][str(mt)] = result
 
     # Save results
     json.dump(results, open(json_file, "w"), sort_keys=True, indent=4)
 
 
 if __name__ == "__main__":
-    metric = run()
+    run()
