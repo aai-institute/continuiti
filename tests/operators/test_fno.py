@@ -10,7 +10,9 @@ torch.manual_seed(0)
 
 
 # @pytest.fixture(scope="module")
-def dataset() -> OperatorDataset:
+def get_dataset() -> OperatorDataset:
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     # Input function
     u = lambda x: torch.sin(x)
 
@@ -23,8 +25,8 @@ def dataset() -> OperatorDataset:
 
     # Domain parameters
     half_linspace = lambda N: 2 * torch.pi * torch.arange(N) / N
-    x = half_linspace(num_sensors)
-    y = half_linspace(num_evaluations)
+    x = half_linspace(num_sensors).to(device)
+    y = half_linspace(num_evaluations).to(device)
 
     # This dataset contains only a single sample (first dimension of all tensors)
     n_observations = 1
@@ -39,23 +41,26 @@ def dataset() -> OperatorDataset:
 
 
 @pytest.mark.slow
-def test_fourier1d(dataset):
+def test_fourier1d():
+    dataset = get_dataset()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer1d(dataset.shapes)
-    Trainer(operator).fit(dataset, tol=1e-12, epochs=10_000)
+    Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
 
     x, u, y, v = dataset[:1]
     assert MSELoss()(operator, x, u, y, v) < 1e-12
 
 
 @pytest.mark.slow
-def test_fno(dataset):
+def test_fno():
+    dataset = get_dataset()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer(dataset.shapes)
-    Trainer(operator).fit(dataset, tol=1e-12, epochs=10_000)
+    Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
 
     x, u, y, v = dataset[:1]
     assert MSELoss()(operator, x, u, y, v) < 1e-12
 
 
 if __name__ == "__main__":
-    dataset = dataset()
-    test_fourier1d(dataset)
+    test_fourier1d()
