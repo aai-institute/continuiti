@@ -20,14 +20,14 @@ operators = [
     lambda shapes: DeepONet(
         shapes, trunk_depth=32, branch_depth=32, basis_functions=32
     ),
-    lambda shapes: BelNet(shapes),
+    lambda shapes: BelNet(shapes, D_1=16, D_2=16),
     lambda shapes: NaiveIntegralKernel(
         kernel=NeuralNetworkKernel(shapes, kernel_width=128, kernel_depth=8)
     ),
 ]
 
 # Seeds
-num_seeds = 10
+num_seeds = 1
 
 
 # === RUN ===
@@ -38,8 +38,9 @@ def run_single(seed, benchmark, operator):
     np.random.seed(seed)
     torch.manual_seed(seed)
 
-    trainer = Trainer(operator, loss_fn=benchmark.metric())
-    stats = trainer.fit(benchmark.train_dataset, tol=1e-3)
+    optimizer = torch.optim.Adam(operator.parameters(), lr=3e-5)
+    trainer = Trainer(operator, optimizer, loss_fn=benchmark.metric())
+    stats = trainer.fit(benchmark.train_dataset, tol=1e-4, epochs=10000)
 
     loss_test = dataset_loss(benchmark.test_dataset, operator, benchmark.metric())
     stats["loss/test"] = loss_test.item()
