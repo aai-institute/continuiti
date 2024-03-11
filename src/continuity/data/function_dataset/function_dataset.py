@@ -107,7 +107,16 @@ class FunctionOperatorDataset(OperatorDataset):
         y = torch.stack([y_sampler(n_evaluations) for _ in range(n_observations)])
 
         # create ground truth data
-        u = self.input_function_set(parameters=p_samples, locations=x)
-        v = self.solution_function_set(parameters=p_samples, locations=y)
+        u_funcs = self.input_function_set(parameters=p_samples)
+        u = []
+        for xi, func in zip(x, u_funcs):
+            u.append(func(xi))
+        u = torch.stack(u)
+
+        v_funcs = self.solution_function_set(parameters=p_samples)
+        v = []
+        for yi, func in zip(y, v_funcs):
+            v.append(func(yi))
+        v = torch.stack(v)
 
         return x, u, y, v

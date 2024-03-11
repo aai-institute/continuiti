@@ -5,9 +5,7 @@ from continuity.data.function_dataset.function_set import FunctionSet
 
 @pytest.fixture(scope="module")
 def sin_set():
-    return FunctionSet(
-        lambda a, xi: a[:, 0, None] * torch.sin(a[:, 1, None] * xi + a[:, 2, None])
-    )
+    return FunctionSet(lambda a: lambda xi: a[0] * torch.sin(a[1] * xi + a[2]))
 
 
 def test_can_initialize(sin_set):
@@ -24,8 +22,11 @@ def test_eval_correct(sin_set):
         ),
         torch.tensor([-2.0, torch.pi, 1.0]),
     )
+    functions = sin_set(param)
+
+    f = torch.stack([function(x) for function in functions])
 
     assert torch.allclose(
-        sin_set(param, x),
+        f,
         param[:, 0, None] * torch.sin(param[:, 1, None] * x + param[:, 2, None]),
     )

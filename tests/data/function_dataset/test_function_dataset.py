@@ -6,8 +6,8 @@ from continuity.discrete import RegularGridSampler
 
 @pytest.fixture(scope="module")
 def x2_set() -> FunctionOperatorDataset:
-    x2 = FunctionSet(lambda a, xi: a[:, None] * xi**2)
-    dx2_x = FunctionSet(lambda a, xi: 2 * a[:, None] * xi)
+    x2 = FunctionSet(lambda a: lambda xi: a * xi**2)
+    dx2_x = FunctionSet(lambda a: lambda xi: 2 * a * xi)
 
     domain_sampler = RegularGridSampler(torch.tensor([-1.0]), torch.tensor([1.0]))
     parameter_sampler = RegularGridSampler(torch.tensor([-1.0]), torch.tensor([1.0]))

@@ -4,9 +4,8 @@
 Function set.
 """
 
-import inspect
 import torch
-from typing import Callable, Any
+from typing import Callable, List
 from .function import Function
 
 
@@ -20,27 +19,35 @@ class FunctionSet(Function):
     functions) we call this class FunctionSet.
 
     Args:
-        mapping: A callable that takes exactly two parameters (parameters and location) with parameters first and
-            location second.
+        mapping: A two level nested callable that takes a single parameter in the outer callable as argument and vectors
+            x as inputs to the second callable.
+
+    Example:
+        ```python
+        sine = FunctionSet(lambda a: lambda x: a * torch.sin(x))
+        param = torch.arange(5)
+        print(len(sine(param)))
+        ```
+        Out:
+        ```shell
+        5
+        ```
 
     """
 
     def __init__(self, mapping: Callable):
-        sig = inspect.signature(mapping)
-        assert (
-            len(sig.parameters) == 2
-        ), "Mapping must have exactly two parameters (parameters and location)."
-
         super().__init__(mapping)
 
-    def __call__(self, parameters: Any, locations: Any) -> torch.Tensor:
+    def __call__(self, parameters: torch.Tensor) -> List[Function]:
         """Evaluates the function set for a specific discrete instance of parameters and locations.
 
         Args:
             parameters: The parameters in which the function will be evaluated.
-            locations: The location in which the function will be evaluated.
 
         Returns:
             function values for the given parameters and locations of this function set instance.
         """
-        return super().__call__(parameters, locations)
+        funcs = []
+        for param in parameters:
+            funcs.append(self.mapping(param))
+        return funcs
