@@ -12,7 +12,7 @@ from continuity.data import DatasetShapes
 import torch.nn as nn
 import math
 from torch.fft import rfft, irfft, rfftn, irfftn
-from typing import Optional
+from typing import Optional, Tuple
 
 
 # TODO: this is not allowed to have 'b', 'd' or 's' in it. How to make this safer?
@@ -94,34 +94,35 @@ class FourierLayer(Operator):
         super().__init__()
 
         # TODO: u.dim == v.dim so far -> generalize
-
         self.shapes = shapes
 
-        points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
+        self.points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
         assert (
-            points_per_dimension.is_integer()
+            self.points_per_dimension.is_integer()
         ), "If shapes.x.num ** (1 / shapes.x.dim) is not an integer, the sensor points were not chosen to be on a grid."
 
         # Evaluate the number of frequencies if not specified. By using the rfft method we only need half
-        # of the function evaluations because of redundancies for the negative frequencies. This assumes
+        # of the function evaluations for the last dimension because of redundancies for the negative frequencies. This assumes
         # real-valued input functions.
         self.num_frequencies = (
-            int(points_per_dimension) // 2 + 1
+            int(self.points_per_dimension) // 2 + 1
             if num_frequencies is None
             else num_frequencies
         )
-        assert self.num_frequencies <= int(points_per_dimension) // 2 + 1, (
+
+        assert self.num_frequencies <= int(self.points_per_dimension) // 2 + 1, (
             "num_frequencies is too large. The fft of a real valued function has only (shapes.x.num // 2 + 1) unique values."
-            f" Given {self.num_frequencies} Max={int(points_per_dimension) // 2}"
+            f" Given {self.num_frequencies} Max={int(self.points_per_dimension) // 2}"
         )
 
         assert shapes.u.dim == shapes.v.dim  # TODO
 
         # create and initialize weights and kernel
-        weights_shape = (self.num_frequencies,) * self.shapes.x.dim + (
-            shapes.u.dim,
-            shapes.u.dim,
-        )
+        weights_shape = ()
+        if self.shapes.x.dim > 1:
+            weights_shape += (int(self.points_per_dimension),) * (self.shapes.x.dim - 1)
+        weights_shape += (self.num_frequencies, shapes.u.dim, shapes.v.dim)
+
         weights_real = torch.Tensor(*weights_shape)
         weights_img = torch.Tensor(*weights_shape)
 
@@ -147,17 +148,17 @@ class FourierLayer(Operator):
 
         # shapes which can change for different forward passes
         batch_size = y.shape[0]
-        num_evaluations = y.shape[1]
+        num_evaluations, num_sensors = y.shape[1], u.shape[1]
 
         # fourier transform input function
         num_fourier_dimensions = self.shapes.x.dim
         u = self._reshape(u)
         assert u.dim() == num_fourier_dimensions + 2
 
+        frequency_dimensions = list(range(1, num_fourier_dimensions + 1))
+
         # compute n-dimensional fourier transform
-        u_fourier = rfftn(
-            u, dim=list(range(1, num_fourier_dimensions + 1)), norm="forward"
-        )
+        u_fourier = rfftn(u, dim=frequency_dimensions, norm="forward")
 
         assert (
             len(TENSOR_INDICES) > num_fourier_dimensions
@@ -170,9 +171,28 @@ class FourierLayer(Operator):
             frequency_indices, frequency_indices, frequency_indices
         )
 
-        # for the frequency dimensions: cut away high frequencies
+        if num_fourier_dimensions > 1:
+            u_fourier = self.get_ascending_order(u_fourier, dim=frequency_dimensions)
+
+        # u_fourier_sliced = u_fourier
+
         slices = [slice(batch_size)]
-        slices += [slice(self.num_frequencies)] * num_fourier_dimensions
+        if num_fourier_dimensions > 1:
+            points_per_dimension = u_fourier.shape[1]
+            num_frequencies = points_per_dimension // 2 + 1
+
+            if num_frequencies <= self.num_frequencies:
+                slices += [slice(None)]
+            else:
+                upper = points_per_dimension // 2
+                upper += int(math.ceil(self.points_per_dimension / 2))
+                slices += [
+                    slice(
+                        points_per_dimension // 2 - self.points_per_dimension // 2,
+                        upper,
+                    )
+                ]
+        slices += [slice(self.num_frequencies)]
         slices += [slice(u.shape[-1])]
         u_fourier_sliced = u_fourier[slices]
 
@@ -185,6 +205,17 @@ class FourierLayer(Operator):
             num_evaluations_per_dim.is_integer()
         ), "Input array 'y' needs to be sampled on a grid with equal number of points per dimension."
         num_evaluations_per_dim = int(num_evaluations_per_dim)
+
+        if num_evaluations_per_dim > out_fourier.shape[1]:
+            out_fourier = self.zero_padding(
+                out_fourier,
+                out_fourier.shape[1],
+                num_evaluations_per_dim - out_fourier.shape[1],
+                dim=list(range(1, num_fourier_dimensions + 1)),
+            )
+
+        if num_fourier_dimensions > 1:
+            out_fourier = self.get_normal_order(out_fourier, dim=frequency_dimensions)
 
         # transform back into real-space
         out = irfftn(
@@ -220,3 +251,63 @@ class FourierLayer(Operator):
         shape += [int(points_per_dim) for _ in range(self.shapes.x.dim)]
         shape += [self.shapes.u.dim]
         return u.reshape(shape)
+
+    def get_ascending_order(self, fourier_values, dim):
+        # reorder frequencies to have largest negativ frequency on the left side and
+        # largest positive frequency on the right side. E.g.: (0, -1, -2, 2, 1) -> (-2, -1, 0, -1, -2)
+        # skip last dimension because last dimension is rfft related
+        fourier_values_reordered = torch.fft.fftshift(fourier_values, dim=dim[:-1])
+        return fourier_values_reordered
+
+    def get_normal_order(self, fourier_values, dim):
+        fourier_values_reordered = torch.fft.ifftshift(fourier_values, dim=dim[:-1])
+        return fourier_values_reordered
+
+    def zero_padding(
+        self, fourier_values: torch.Tensor, N: int, zeros_to_add: int, dim: Tuple[int]
+    ) -> torch.Tensor:
+        assert zeros_to_add >= 0
+
+        n_dim = fourier_values.dim()
+        dims_to_reorder = dim[:-1]
+
+        # Special case -> just zero pad last dimension
+        # if len(dim) == 1 and rfft_mode:
+
+        #    return torch.nn.functional.pad(fourier_values, (0, zeros_to_add//2+1), mode='constant', value=0)
+
+        # reorder frequencies to have largest negativ frequency on the left side and
+        # largest positive frequency on the right side. E.g.: (0, -1, -2, 2, 1) -> (-2, -1, 0, -1, -2)
+        # fourier_values_reordered = torch.fft.fftshift(fourier_values, dim=dims_to_reorder)
+
+        # if odd number, one side has to be padded with more zeros
+        padding_zeros = (zeros_to_add // 2, zeros_to_add // 2 + zeros_to_add % 2)
+
+        padding = []
+        for dim_i in range(n_dim)[::-1]:
+            if dim_i in dim[:-1]:  # exclude last dimension
+                if N % 2 == 0:
+                    padding.extend(padding_zeros)
+                else:
+                    padding.extend(
+                        padding_zeros[::-1]
+                    )  # if odd, padd more zeros to the left
+            else:
+                if dim_i == dim[-1]:  # check for last dimension
+                    padding.extend((0, zeros_to_add // 2 + 1))
+                else:
+                    padding.extend((0, 0))
+
+        # print("padding", padding)
+        fourier_values_zero_padded = torch.nn.functional.pad(
+            fourier_values, padding, mode="constant", value=0
+        )
+
+        # convert back to 'normal order'
+        # fourier_values_zero_padded = torch.fft.ifftshift(fourier_values_zero_padded, dim=dims_to_reorder)
+
+        # zero pad last dimension
+        # if rfft_mode:
+        #    fourier_values_zero_padded = torch.nn.functional.pad(fourier_values_zero_padded, (0, zeros_to_add//2+1), mode='constant', value=0)
+
+        return fourier_values_zero_padded
