@@ -1,11 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
 from continuity.data.selfsupervised import SelfSupervisedOperatorDataset
-from continuity.plotting import plot
-
-# Set random seed
-torch.manual_seed(0)
 
 
 def test_dataset():
@@ -17,11 +12,6 @@ def test_dataset():
 
     x = torch.Tensor(range(num_sensors)).reshape(-1, 1)
     u = f(x)
-
-    # Test plotting
-    fig, ax = plt.subplots(1, 1)
-    plot(x, u, ax=ax)
-    fig.savefig(f"test_dataset.png")
 
     # Dataset
     dataset = SelfSupervisedOperatorDataset(x.unsqueeze(0), u.unsqueeze(0))

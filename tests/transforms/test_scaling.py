@@ -3,9 +3,6 @@ import torch
 
 from continuity.transforms import Normalize
 
-# Set random seed for reproducibility
-torch.manual_seed(0)
-
 
 @pytest.fixture(scope="module")
 def random_normalization_set():

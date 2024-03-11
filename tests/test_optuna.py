@@ -1,23 +1,18 @@
 import pytest
 import torch
-from torch.utils.data import DataLoader
 from continuity.benchmarks.sine import SineBenchmark
 from continuity.trainer import Trainer
-from continuity.trainer.callbacks import OptunaCallback
+from continuity.trainer.callbacks import OptunaCallback, PrintTrainingLoss
 from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
 import optuna
-
-# Set random seed
-torch.manual_seed(0)
 
 
 @pytest.mark.slow
 def test_optuna():
     def objective(trial):
-        trunk_width = trial.suggest_int("trunk_width", 4, 16)
-        trunk_depth = trial.suggest_int("trunk_depth", 4, 16)
-        num_epochs = trial.suggest_int("num_epochs", 1, 10)
+        trunk_width = trial.suggest_int("trunk_width", 32, 64)
+        trunk_depth = trial.suggest_int("trunk_depth", 4, 8)
         lr = trial.suggest_float("lr", 1e-4, 1e-3)
 
         # Data set
@@ -25,7 +20,6 @@ def test_optuna():
 
         # Train/val split
         train_dataset, val_dataset = split(benchmark.train_dataset, 0.9)
-        train_loader = DataLoader(train_dataset)
 
         # Operator
         operator = DeepONet(
@@ -37,8 +31,12 @@ def test_optuna():
         # Optimizer
         optimizer = torch.optim.Adam(operator.parameters(), lr=lr)
 
-        trainer = Trainer(operator, optimizer, verbose=False)
-        trainer.fit(train_loader, epochs=num_epochs, callbacks=[OptunaCallback(trial)])
+        trainer = Trainer(operator, optimizer)
+        trainer.fit(
+            train_dataset,
+            tol=1e-2,
+            callbacks=[PrintTrainingLoss(), OptunaCallback(trial)],
+        )
 
         loss_val = dataset_loss(val_dataset, operator, benchmark.metric())
         print(f"loss/val: {loss_val:.4e}")
@@ -50,7 +48,6 @@ def test_optuna():
     study = optuna.create_study(
         direction="minimize",
         study_name=name,
-        storage=f"sqlite:///{name}.db",
         load_if_exists=True,
     )
     study.optimize(objective, n_trials=3)

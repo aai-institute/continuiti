@@ -1,15 +1,9 @@
 import pytest
 import torch
-import matplotlib.pyplot as plt
 from continuity.data.sine import Sine
 from continuity.operators import NeuralOperator
-from continuity.plotting import plot, plot_evaluation
-from torch.utils.data import DataLoader
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
-
-# Set random seed
-torch.manual_seed(0)
 
 
 @pytest.mark.slow
@@ -19,7 +13,6 @@ def test_neuraloperator():
 
     # Data set
     dataset = Sine(num_sensors, size=1)
-    data_loader = DataLoader(dataset, batch_size=32)
 
     # Operator
     operator = NeuralOperator(
@@ -29,21 +22,12 @@ def test_neuraloperator():
         kernel_depth=3,
     )
 
-    # Train self-supervised
+    # Train
     optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
-    trainer = Trainer(operator, optimizer)
-    trainer.fit(data_loader, epochs=400)
-
-    # Plotting
-    fig, ax = plt.subplots(1, 1)
-    x, u, _, _ = dataset[0]
-    plot(x, u, ax=ax)
-    plot_evaluation(operator, x, u, ax=ax)
-    fig.savefig(f"test_neuraloperator.png")
+    Trainer(operator, optimizer).fit(dataset, tol=1e-3)
 
     # Check solution
-    x = x.unsqueeze(0)
-    u = u.unsqueeze(0)
+    x, u = dataset.x, dataset.u
     assert MSELoss()(operator, x, u, x, u) < 1e-3
 
 

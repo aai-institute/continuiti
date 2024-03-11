@@ -1,27 +1,26 @@
-import torch
-from torch.utils.data import DataLoader
+import pytest
 from continuity.operators import DeepONet
 from continuity.data.sine import Sine
 from continuity.trainer import Trainer
 
-torch.manual_seed(0)
 
+def train():
+    dataset = Sine(num_sensors=32, size=256)
+    operator = DeepONet(dataset.shapes, trunk_depth=16)
 
-def test_trainer():
-    dataset = Sine(num_sensors=32, size=16)
-    data_loader = DataLoader(dataset)
-    operator = DeepONet(dataset.shapes)
-
-    trainer = Trainer(operator)
-    print(f"Using device: {trainer.device}")
-    trainer.fit(data_loader, epochs=2)
+    Trainer(operator).fit(dataset, tol=1e-3)
 
     # Make sure we can use operator output on cpu again
-    x, u, y, v = next(iter(data_loader))
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
     v_pred = operator(x, u, y)
-    mse = ((v_pred - v.to("cpu")) ** 2).mean()
-    print(f"mse = {mse.item():.3g}")
+    assert ((v_pred - v.to("cpu")) ** 2).mean() < 1e-3
 
 
+@pytest.mark.slow
+def test_trainer():
+    train()
+
+
+# Use ./run_parallel.sh to run test with CUDA
 if __name__ == "__main__":
-    test_trainer()
+    train()
