@@ -1,11 +1,12 @@
-""" Fourier neural operator.
+""" Fourier Neural Operator.
 
 TODO:
+    - Test what happens if num_modes is not the same for every dimension
     - Assumption: Grid is quadratic -> Should we change this?
     - Generalize kernel to (u-dim, v-dim)
     - x and y are ignored! Should we add options to make kernel dependent?
 """
-# %%
+
 from continuity.operators import Operator
 import torch
 from continuity.data import DatasetShapes
@@ -89,7 +90,6 @@ class FourierLayer(Operator):
     def __init__(
         self,
         shapes: DatasetShapes,
-        num_frequencies: Optional[int] = None,
         num_modes: Optional[Tuple[int]] = None,
     ) -> None:
         super().__init__()
@@ -101,22 +101,22 @@ class FourierLayer(Operator):
             self.shapes.y.dim == self.shapes.x.dim
         ), f"The dimensions of x and y need to be the same. Given y.dim={self.shapes.y.dim} x.dim={self.shapes.x.dim}"
 
-        self.points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
+        points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
         assert (
-            self.points_per_dimension.is_integer()
+            points_per_dimension.is_integer()
         ), "If shapes.x.num ** (1 / shapes.x.dim) is not an integer, the sensor points were not chosen to be on a grid."
-        self.points_per_dimension = int(self.points_per_dimension)
+        points_per_dimension = int(points_per_dimension)
 
         if num_modes is None:
-            self.num_modes = [self.points_per_dimension] * self.shapes.x.dim
+            self.num_modes = [points_per_dimension] * self.shapes.x.dim
 
         # The last dimension is smaller because we use the `torch.fft.rfftn` method.
         # This is due to the negative frequency modes being redundant.
         self.num_modes[-1] = self.num_modes[-1] // 2 + 1
 
-        assert all(mode <= self.points_per_dimension for mode in self.num_modes[:-1]), (
+        assert all(mode <= points_per_dimension for mode in self.num_modes[:-1]), (
             "The given number of Fourier modes exceeds the number of sensor points given by dataset.shapes."
-            f" Given {self.num_modes[:-1]} Max={self.points_per_dimension}"
+            f" Given {self.num_modes[:-1]} Max={points_per_dimension}"
         )
 
         assert shapes.u.dim == shapes.v.dim  # TODO
@@ -135,7 +135,7 @@ class FourierLayer(Operator):
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
-        """Forward pass.
+        """Forward pass. Performs a kernel integral operation in Fourier space.
 
         Args:
             x: Sensor positions of shape (batch_size, num_sensors, x_dim)
@@ -158,7 +158,7 @@ class FourierLayer(Operator):
         u = self._reshape(u)
         assert u.dim() == num_fft_dimensions + 2
 
-        # compute n-dimensional real-values fourier transform
+        # compute n-dimensional real-valued fourier transform
         u_fft = rfftn(u, dim=fft_dimensions, norm="forward")
 
         assert (
@@ -180,17 +180,17 @@ class FourierLayer(Operator):
             u_fft, target_shape=self.num_modes, dim=fft_dimensions
         )
 
-        # Perform kernel operation in Fourier space
+        # perform kernel operation in Fourier space
         out_fft = torch.einsum(contraction_equation, self.kernel, u_fft)
 
-        # We should use num_evaluations and not num_sensors for the inverse FFT
+        # we should use num_evaluations and not num_sensors for the inverse FFT
         num_evaluations_per_dim = num_evaluations ** (1.0 / num_fft_dimensions)
         assert (
             num_evaluations_per_dim.is_integer()
         ), "Input array 'y' needs to be sampled on a grid with equal number of points per dimension."
         num_evaluations_per_dim = int(num_evaluations_per_dim)
 
-        # Target shape for output
+        # target shape for output
         target_shape = (num_evaluations_per_dim,) * (num_fft_dimensions - 1)
         target_shape += (num_evaluations_per_dim // 2 + 1,)
 
@@ -200,7 +200,7 @@ class FourierLayer(Operator):
         )
 
         # transform Fourier modes from 'ascending order' to 'normal order'
-        out_fft = self.get_normal_order(out_fft, dim=fft_dimensions)
+        out_fft = self.get_standard_order(out_fft, dim=fft_dimensions)
 
         # transform back into real-space
         out = irfftn(
@@ -244,89 +244,167 @@ class FourierLayer(Operator):
         return u.reshape(shape)
 
     def remove_large_frequencies(
-        self, u_fourier: torch.Tensor, dim: Tuple[int], num_modes: List[int]
+        self, fft_values: torch.Tensor, dim: Tuple[int], target_shape: List[int]
     ) -> torch.Tensor:
-        slices = [slice(None)]  # batch dimension
+        """Remove large positive or negative frequencies.
 
-        # add fft dimensions except last dimension
+        This method assumes that the input tensor is in 'ascending order'.
+        See `get_ascending_order` for more details.
+
+        Example:
+            fft_values.shape -> (10, 32, 17, 2)
+            out = remove_large_frequencies(fft_values, dim=(1, 2), target_shape=(20, 11))
+            out.shape -> (10, 20, 11, 2)
+
+        Args:
+            fft_values: Tensor with fft values.
+            dim: List of fft dimensions.
+            target_shape:  Determins output shape of fft-dimensions. Should
+                be same length as `dim`.
+
+        Returns:
+            Tensor with reduced number of fft dimensions.
+        """
+
+        assert len(dim) == len(target_shape)
+
+        slices = [slice(None)]  # batch dimension, equivalent to '[:]'
+
+        # loop over fft dimensions except last dimension
         for idx, dimension in enumerate(dim[:-1]):
-            num_modes_input = u_fourier.shape[dimension]
+            num_modes_input = fft_values.shape[dimension]
 
-            if num_modes_input <= num_modes[idx]:
+            # if input is already smaller, don't do anything
+            if num_modes_input <= target_shape[idx]:
                 slices += [slice(None)]
-            else:
-                center = num_modes_input // 2
-                upper = center + int(math.ceil(num_modes[idx] / 2))
-                lower = center - num_modes[idx] // 2
-                slices += [
-                    slice(
-                        lower,
-                        upper,
-                    )
-                ]
+                continue
 
-        slices += [slice(num_modes[-1])]  # last fft dimension
+            center = num_modes_input // 2
+            upper = center + target_shape[idx] // 2 + target_shape[idx] % 2
+            # upper = center + int(math.ceil(target_shape[idx] / 2))
+            lower = center - target_shape[idx] // 2
+            slices += [
+                slice(
+                    lower,
+                    upper,
+                )
+            ]
+
+        # one sided slicing for last dimension
+        slices += [slice(target_shape[-1])]
         slices += [slice(None)]  # u-dim dimension
-        u_fourier_sliced = u_fourier[slices]
+        u_fourier_sliced = fft_values[slices]
 
         return u_fourier_sliced
 
-    def get_ascending_order(self, fourier_values, dim) -> torch.Tensor:
-        # reorder frequencies to have largest negativ frequency on the left side and
-        # largest positive frequency on the right side. E.g.: (0, -1, -2, 2, 1) -> (-2, -1, 0, -1, -2)
-        # skip last dimension because last dimension is rfft related
+    def get_ascending_order(
+        self, fft_values: torch.Tensor, dim: Tuple[int]
+    ) -> torch.Tensor:
+        """Reorder fft values from 'standard order' to 'ascending order'.
+
+        E.g.:
+            Standard order (0, -1, -2, 2, 1) -> Ascending order (-2, -1, 0, 1, 2)
+
+        Note: Last dimension is skipped because when using the real-valued fft
+        `torch.fft.rfftn` the last dimension only contains positive frequency
+        modes and, therefore, has to be treated separately.
+
+        Args:
+            fft_values: tensor with fft values
+            dim: List of fft dimensions
+        Returns:
+            Reordered tensor with ascending order.
+        """
 
         # Last dimension of torch.fft.rfft does not need to be reordered.
         if len(dim) == 1:
-            return fourier_values
+            return fft_values
 
-        fourier_values_reordered = torch.fft.fftshift(fourier_values, dim=dim[:-1])
-        return fourier_values_reordered
+        fft_values_reordered = torch.fft.fftshift(fft_values, dim=dim[:-1])
+        return fft_values_reordered
 
-    def get_normal_order(self, fourier_values, dim):
+    def get_standard_order(
+        self, fft_values: torch.Tensor, dim: Tuple[int]
+    ) -> torch.Tensor:
+        """Reorder fft values from 'ascending order' to 'standard order'.
+
+        E.g.:
+            Ascending order (-2, -1, 0, 1, 2) -> Standard order (0, -1, -2, 2, 1)
+
+        Note: Last dimension is skipped because when using the real-valued fft
+        `torch.fft.rfftn` the last dimension only contains positive frequency
+        modes and, therefore, has to be treated separately.
+
+        Args:
+            fft_values: tensor with fft values
+            dim: fft dimensions
+        Returns:
+            Reordered tensor with standard order.
+        """
+
         if len(dim) == 1:
-            return fourier_values
+            return fft_values
 
-        fourier_values_reordered = torch.fft.ifftshift(fourier_values, dim=dim[:-1])
-        return fourier_values_reordered
+        fft_values_reordered = torch.fft.ifftshift(fft_values, dim=dim[:-1])
+        return fft_values_reordered
 
     def zero_padding(
         self, fft_values: torch.Tensor, target_shape: Tuple[int], dim: Tuple[int]
     ) -> torch.Tensor:
+        """Add zeros for large positive and negative frequencies.
+
+        This method assumes that the input tensor is in 'ascending order'.
+        See `get_ascending_order` for more details.
+
+        Example:
+            fft_values.shape -> (10, 32, 17, 2)
+            out = zero_padding(fft_values, dim=(1, 2), target_shape=(30, 16))
+            out.shape -> (10, 30, 16, 2)
+
+        Args:
+            fft_values: tensor with fft values.
+            dim: List of fft dimensions.
+            target_shape: Determins output shape of fft-dimensions. Should
+                be same length as `dim`.
+
+        Returns:
+            Tensor with increased number of fft dimensions.
+        """
+
         assert len(target_shape) == len(dim)
 
         n_dim = fft_values.dim()
 
-        # reorder frequencies to have largest negativ frequency on the left side and
-        # largest positive frequency on the right side. E.g.: (0, -1, -2, 2, 1) -> (-2, -1, 0, -1, -2)
-        # fourier_values_reordered = torch.fft.fftshift(fourier_values, dim=dims_to_reorder)
-
-        # new implementation
+        # by default don't add zeros, (left-padding, right-padding)
         padding = [(0, 0)] * n_dim
 
+        # loop over all fft dimensions except last dimension
         for idx, dim_i in enumerate(dim[:-1]):
-            zeros_to_add = target_shape[idx] - fft_values.shape[dim_i]
-            padding_zeros = (zeros_to_add // 2, zeros_to_add // 2 + zeros_to_add % 2)
-            N = fft_values.shape[dim_i]
+            # evaluate number of zeros to add
+            num_points = fft_values.shape[dim_i]
+            zeros_to_add = target_shape[idx] - num_points
+            padding_i = (zeros_to_add // 2, zeros_to_add // 2 + zeros_to_add % 2)
 
             if zeros_to_add < 1:
                 continue
 
-            if N % 2 == 0:
-                padding[dim_i] = padding_zeros
+            if num_points % 2 == 0:
+                # pad more zeros to the right
+                padding[dim_i] = padding_i
             else:
-                padding[dim_i] = padding_zeros[
-                    ::-1
-                ]  # if odd, pad more zeros to the left
+                # pad more zeros to the left
+                padding[dim_i] = padding_i[::-1]
 
-        # treat last dimension special
+        # treat last dimension separately
         zeros_to_add = target_shape[-1] - fft_values.shape[dim[-1]]
         if zeros_to_add > 0:
             padding[dim[-1]] = (0, zeros_to_add)
 
+        # `pad`` parameter of `nn.functional.pad` starts with the last dimension -> Reverse order
         padding = padding[::-1]
         padding_flattened = [item for sublist in padding for item in sublist]
 
+        # zero pad input
         fourier_values_zero_padded = torch.nn.functional.pad(
             fft_values, padding_flattened, mode="constant", value=0
         )
@@ -336,9 +414,27 @@ class FourierLayer(Operator):
     def add_or_remove_frequencies(
         self, fft_values: torch.Tensor, target_shape: Tuple[int], dim: Tuple[int]
     ) -> torch.Tensor:
+        """Add or remove frequencies depending on target_shape.
+
+        If the dimensions in `target_shape` are larger than the fft dimensions,
+            zeros are added as large positive and negative frequencies.
+        If the dimensions in `target_shape` are smaller than the fft dimensions,
+            large positive and negative frequencies are removed.
+
+        Args:
+            fft_values: Tensor with fft values.
+            target_shape: Target shape of fft dimensions.
+                len(target_shape) == len(dim)
+            dim: fft dimensions.
+        Returns:
+            Tensor with shape:
+                (..., target_shape[0], target_shape[1], ..., target_shape[-1], ...)
+
+        """
+
         # remove large positive and negative frequencies if num_sensors_per_dimension > self.num_modes
         fft_values = self.remove_large_frequencies(
-            fft_values, num_modes=target_shape, dim=dim
+            fft_values, target_shape=target_shape, dim=dim
         )
 
         # add zero-frequencies if num_sensors_per_dimension < self.num_modes
