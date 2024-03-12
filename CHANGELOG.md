@@ -11,6 +11,8 @@
 - A `Criterion` now enables stopping the training loop.
 - The `plotting` module has been removed.
 - Add `timeseries.ipynb` example.
+- Add `Function`, `FunctionSet`, and `FunctionOperatorDataset` classes.
+- Add `function.ipynb` example.
 
 ## 0.0.0 (2024-02-22)
 

@@ -96,12 +96,25 @@ class OperatorDataset(td.Dataset):
         Returns:
             A tuple containing the three input tensors and the output tensor for the given index.
         """
-        sample = {
-            "x": self.x[idx],
-            "u": self.u[idx],
-            "y": self.y[idx],
-            "v": self.v[idx],
-        }
+        return self._apply_transformations(
+            self.x[idx], self.u[idx], self.y[idx], self.v[idx]
+        )
+
+    def _apply_transformations(
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor, v: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Applies class transformations to four tensors.
+
+        Args:
+            x: Tensor of shape (#samples, #sensors, x-dim) with sensor positions.
+            u: Tensor of shape (#samples, #sensors, u-dim) with evaluations of the input functions at sensor positions.
+            y: Tensor of shape (#samples, #evaluations, y-dim) with evaluation positions.
+            v: Tensor of shape (#samples, #evaluations, v-dim) with ground truth operator mappings.
+
+        Returns:
+            Input samples with class transformations applied.
+        """
+        sample = {"x": x, "u": u, "y": y, "v": v}
 
         # transform
         for dim, val in sample.items():

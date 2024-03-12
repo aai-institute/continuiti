@@ -175,6 +175,7 @@ nav:
       - First Steps: getting-started/first-steps.md
   - Learning Operators:
       - Introduction: operators/index.md
+      - Functions: examples/functions.ipynb
       - Architectures: operators/architectures.md
   - Examples:
       - Basics: examples/basics.ipynb
