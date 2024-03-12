@@ -15,51 +15,61 @@ transfer the concept of function mapping into machine learning.
 ## Operators
 
 In mathematics, _operators_ are function mappings: they map functions to
-functions.
+functions. Let
 
-Let $u: X \subset \mathbb{R}^d \to \mathbb{R}^c$ be a function that maps a
-$d$-dimensional input to $c$ output *channels*.
+$$
+U = \{ u: X \subset \mathbb{R}^d \to \mathbb{R}^c \}
+$$
+
+be a set of functions that map a $d$-dimensional input to an $c$-dimensional
+output, and
+
+$$
+V = \{ v: Y \subset \mathbb{R}^p \to \mathbb{R}^q \}
+$$
+
+be a set of functions that map a $p$-dimensional input to a $q$-dimensional
+output.
+
 
 An **operator**
-$$
-G: u \mapsto v
-$$
-maps $u$ to a function $v: Y \subset \mathbb{R}^{p} \to \mathbb{R}^{q}$.
+
+\begin{align*}
+  G: U &\to V, \\
+     u &\mapsto v,
+\end{align*}
+
+maps functions $u \in U$ to functions $v \in V$.
 
 !!! example annotate
-    The operator $G: u \to \partial_x u$ maps functions $u$ to their
+    The operator $G(u) = \partial_x u$ maps functions $u$ to their
     partial derivative $\partial_x u$.
 
 ## Learning Operators
 
-Operator learning is the task of learning the mapping $G$ from data.
+**Operator learning** is the task of learning the mapping $G$ from data.
 In the context of neural networks, we want to train a neural network $G_\theta$
-with parameters $\theta$ that, given a set of input-output pairs $(u_k, v_k)$,
-maps $u_k$ to $v_k$. We refer to such an architecture as **neural operator**.
+with parameters $\theta$ that, given a set of input-output pairs
+$(u_k, v_k) \in U \times V$, maps $u_k$ to $v_k$.
+We generally refer to such a neural network $G_\theta$ as a *neural operator*.
 
-In **Continuity**, we use the general approach of mapping function
-evaluations to represent both input and output functions $u$ and $v$.
+## Discretization
 
-!!! note annotate
-    As neural networks take vectors as input, we need to vectorize the
-    functions $u$ and $v$ in some sense. We could represent the functions within
-    finite-dimensional function spaces (e.g., the space of $n$-th order
-    polynomials) and map the coefficients. However, a more general approach is
-    to map evaluations of the functions at a finite set of evaluation points.
-    This was proposed in the original DeepONet paper and is also used in other
-    neural operator architectures.
+In Continuity, we use the general approach of mapping function
+evaluations to represent both input and output functions $u$ and $v$ in
+a discretized form.
 
 Let $x_i \in X,\ 1 \leq i \leq n,$ be a finite set of *collocation points*
 (or *sensor positions*) in the input domain $X$ of $u$.
 We represent the function $u$ by its evaluations at these collocation
 points and write $\mathbf{x} = (x_i)_i$ and $\mathbf{u} = (u(x_i))_i$.
 This finite dimensional representation is fed into the neural operator.
-
 The mapped function $v = G(u)$, on the other hand, is also represented by
 function evaluations only. Let $y_j \in Y,\ 1 \leq j \leq m,$ be a finite set of
 *evaluation points* (or *query points*) in the input domain $Y$ of $v$ and
 $\mathbf{y} = (y_j)_j$.
-Then, the output values $\mathbf{v} = (v(y_j))_j$ are approximated by the neural
+
+The output values $\mathbf{v} = (v(y_j))_j$ are approximated by the neural
 operator
 $$
 v(\mathbf{y}) = G(u)(\mathbf{y})
@@ -75,6 +85,7 @@ and `[b, m, q]`, respectively, and a batch size `b`.
 This is to provide the most general case for implementing operators, as
 some neural operators differ in the way they handle input and output values.
 
+## Wrapping
 For convenience, the call can be wrapped to mimic the mathematical syntax.
 For instance, for a fixed set of collocation points `x`, we could define
 ```
@@ -82,8 +93,13 @@ G = lambda y: lambda u: operator(x, u, y)
 v = G(u)(y)
 ```
 
-Neural operators extend the concept of neural networks to function mappings, which
-enables discretization-invariant and mesh-free mappings of data with
+## Applications
+Neural operators extend the concept of neural networks to function mappings,
+which enables discretization-invariant and mesh-free mappings of data with
 applications to physics-informed training, super-resolution, and more.
+See our <a href="../examples">Examples</a> section for more on this.
 
-See our <a href="../examples">Examples</a> for more details and further reading.
+## Further Reading
+Follow our introduction to <a href="../examples/functions">Functions</a> in Continuity
+and proceed with the <a href="../examples/training">Training</a> example to learn
+more about operator learning in Continuity.
