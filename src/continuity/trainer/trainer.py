@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from time import time
 from typing import Optional, List
-from continuity.data import OperatorDataset
+from continuity.data import OperatorDataset, dataset_loss
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.device import get_device
@@ -34,7 +34,8 @@ class Trainer:
 
     Args:
         operator: Operator to be trained.
-        optimizer: Torch-like optimizer. Default is Adam with learning rate 1e-3.
+        lr: Learning rate. Ignored if optimizer is not None. Default is 1e-3.
+        optimizer: Torch-like optimizer. Default is Adam with learning rate `lr`.
         loss_fn: Loss function taking (op, x, u, y, v). Default is MSELoss.
         device: Device to train on. Default is CPU.
         verbose: Print model parameters and use PrintTrainingLoss callback by default. Default is True.
@@ -45,6 +46,7 @@ class Trainer:
     def __init__(
         self,
         operator: Operator,
+        lr: float = 1e-3,
         optimizer: Optional[torch.optim.Optimizer] = None,
         loss_fn: Optional[Loss] = None,
         device: torch.device = device,
@@ -54,11 +56,11 @@ class Trainer:
         self.optimizer = (
             optimizer
             if optimizer is not None
-            else torch.optim.Adam(operator.parameters(), lr=1e-3)
+            else torch.optim.Adam(operator.parameters(), lr=lr)
         )
         self.loss_fn = loss_fn if loss_fn is not None else MSELoss()
         self.device = device
-        self.rank = device.index or 0
+        self.rank = device.index or 0 if device != "cpu" else 0
         self.verbose = verbose if verbose is not None else self.rank == 0
 
     def fit(
@@ -70,6 +72,7 @@ class Trainer:
         criterion: Optional[Criterion] = None,
         batch_size: int = 32,
         shuffle: bool = True,
+        val_dataset: Optional[OperatorDataset] = None,
     ):
         """Fit operator to data set.
 
@@ -81,6 +84,7 @@ class Trainer:
             criterion: Stopping criterion. Defaults to TrainingLossCriteria(tol).
             batch_size: Batch size.
             shuffle: Shuffle data set.
+            val_dataset: Validation data set.
         """
         # Default callback
         if callbacks is None:
@@ -151,10 +155,18 @@ class Trainer:
             seconds_per_epoch = end - start
             loss_train /= len(data_loader)
 
+            # Compute validation loss
+            loss_val = None
+            if val_dataset is not None:
+                loss_val = dataset_loss(
+                    val_dataset, operator, self.loss_fn, self.device
+                )
+
             # Callbacks
             logs = Logs(
                 epoch=epoch + 1,
                 loss_train=loss_train,
+                loss_val=loss_val,
                 seconds_per_epoch=seconds_per_epoch,
             )
 
