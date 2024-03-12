@@ -57,7 +57,7 @@ class FunctionOperatorDataset(OperatorDataset):
         self.y_sampler = y_sampler
         self.p_sampler = parameter_sampler
 
-        x, u, y, v = self.generate_observations(
+        x, u, y, v = self._generate_observations(
             n_sensors=n_sensors,
             n_evaluations=n_evaluations,
             n_observations=n_observations,
@@ -74,15 +74,14 @@ class FunctionOperatorDataset(OperatorDataset):
             v_transform=v_transform,
         )
 
-    def generate_observations(
+    def _generate_observations(
         self,
-        n_sensors: int,
         n_evaluations: int,
-        n_observations: int,
+        n_sensors: int = -1,
+        n_observations: int = -1,
         x_sampler: Sampler = None,
         y_sampler: Sampler = None,
         p_sampler: Sampler = None,
-        do_apply_transformations: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Generates new observations of the domain, input function, codomain, and output function.
 
@@ -93,7 +92,6 @@ class FunctionOperatorDataset(OperatorDataset):
             x_sampler: A sampler for generating discrete representations of the input function in space.
             y_sampler: A sampler for generating discrete representations of the output function in space.
             p_sampler: A sampler for sampling parameters to instantiate functions from the function sets.
-            do_apply_transformations: toggle that governs if transformations are applied to the new observations.
 
         Returns:
             Tuple containing the space samples $x$ of the input space, the evaluated input function $u$, the space
@@ -105,6 +103,10 @@ class FunctionOperatorDataset(OperatorDataset):
             y_sampler = self.y_sampler
         if p_sampler is None:
             p_sampler = self.p_sampler
+        if n_evaluations == -1:
+            n_evaluations = self.shapes.y.num
+        if n_sensors == -1:
+            n_sensors = self.shapes.x.num
 
         # sample the parameter space
         p_samples = p_sampler(n_observations)
@@ -113,20 +115,18 @@ class FunctionOperatorDataset(OperatorDataset):
         x = torch.stack([x_sampler(n_sensors) for _ in range(n_observations)])
         y = torch.stack([y_sampler(n_evaluations) for _ in range(n_observations)])
 
-        # create ground truth data
+        # input set discretization
         u_funcs = self.input_function_set(parameters=p_samples)
         u = []
         for xi, func in zip(x, u_funcs):
             u.append(func(xi))
         u = torch.stack(u)
 
+        # output set discretization
         v_funcs = self.output_function_set(parameters=p_samples)
         v = []
         for yi, func in zip(y, v_funcs):
             v.append(func(yi))
         v = torch.stack(v)
-
-        if do_apply_transformations:
-            return self._apply_transformations(x, u, y, v)
 
         return x, u, y, v
