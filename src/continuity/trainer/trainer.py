@@ -34,8 +34,8 @@ class Trainer:
 
     Args:
         operator: Operator to be trained.
-        lr: Learning rate. Ignored if optimizer is not None. Default is 1e-3.
         optimizer: Torch-like optimizer. Default is Adam with learning rate `lr`.
+        lr: Learning rate. Ignored if optimizer is not None. Default is 1e-3.
         loss_fn: Loss function taking (op, x, u, y, v). Default is MSELoss.
         device: Device to train on. Default is CPU.
         verbose: Print model parameters and use PrintTrainingLoss callback by default. Default is True.
@@ -46,8 +46,8 @@ class Trainer:
     def __init__(
         self,
         operator: Operator,
-        lr: float = 1e-3,
         optimizer: Optional[torch.optim.Optimizer] = None,
+        lr: float = 1e-3,
         loss_fn: Optional[Loss] = None,
         device: torch.device = device,
         verbose: Optional[bool] = None,
