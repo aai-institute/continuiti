@@ -5,6 +5,7 @@ Samplers sampling on a regular grid from n-dimensional boxes.
 """
 
 import torch
+from typing import Union
 
 from .box_sampler import BoxSampler
 
@@ -45,7 +46,10 @@ class RegularGridSampler(BoxSampler):
     """
 
     def __init__(
-        self, x_min: torch.Tensor, x_max: torch.Tensor, prefer_more_samples: bool = True
+        self,
+        x_min: Union[torch.Tensor, list],
+        x_max: Union[torch.Tensor, list],
+        prefer_more_samples: bool = True,
     ):
         super().__init__(x_min, x_max)
         self.prefer_more_samples = prefer_more_samples
