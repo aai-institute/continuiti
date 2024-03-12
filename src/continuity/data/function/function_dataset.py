@@ -31,8 +31,8 @@ class FunctionOperatorDataset(OperatorDataset):
             sampled physical spaces and function evaluations, respectively.
 
     Note:
-        The input_function_set and the output_function_set are evaluated on the same set of parameters. Therefore, does
-        the order of parametrization need to be taken into consideration when defining both function sets.
+        The input_function_set and the output_function_set are evaluated on the same set of parameters.
+        Therefore, the order of parameters need to be taken into consideration when defining both function sets.
 
     """
 

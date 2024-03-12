@@ -102,7 +102,7 @@ class OperatorDataset(td.Dataset):
 
     def _apply_transformations(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor, v: torch.Tensor
-    ) -> (Tuple)[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Applies class transformations to four tensors.
 
         Args:
