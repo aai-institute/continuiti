@@ -1,5 +1,5 @@
 """
-`continuity.data.function_dataset.function`
+`continuity.data.function.function`
 
 Function.
 """
@@ -9,24 +9,16 @@ from typing import Callable
 
 
 class Function:
-    r"""A class for creating and manipulating functions in multiple variables.
+    r"""A class for creating and manipulating functions.
 
-    This class allows for the encapsulation of arbitrary mathematical functions. A function is a mapping between a
-    domain X (supported on a field K) and a codomain Y (supported on a field F) denoted by
+    A function is a mapping between a domain X (supported on a field K) and a codomain Y (supported on a field F)
+    denoted by
     $$
     f: X \rightarrow Y, x \mapsto f(x).
     $$
-    For this class scalar multiplication and addition with other function instances are implemented. This is done to
+    For this class, scalar multiplication and addition with other function instances are implemented. This is done to
     ensure that function instances are able to fulfill properties needed to create a function space (vector space
-    over a function set), namely:
-        - Associativity of vector addition,
-        - Commutativity of vector addition,
-        - Existence of an identity element of vector addition,
-        - Inverse elements of vector addition,
-        - Compatibility of scalar multiplication,
-        - Identity of scalar multiplication,
-        - Distributivity of scalar multiplication with respect to vector addition,
-        - And Distributivity of scalar multiplication with respect to field addition.
+    over a function set).
 
     Args:
         mapping: A callable that accepts exactly one argument, a torch.Tensor, and returns a torch.Tensor. This
@@ -50,7 +42,7 @@ class Function:
         self.mapping = mapping
 
     def __call__(self, *args, **kwargs) -> torch.Tensor:
-        """Evaluates the encapsulated function on a given input or set of inputs.
+        """Evaluates the encapsulated function.
 
         Args:
             *args: list of arguments passed to the mapping class attribute.
@@ -65,7 +57,8 @@ class Function:
         """Creates a new Function representing the addition of this function with another.
 
         Args:
-            other: Another Function instance to add to this one.
+            other: Another Function instance to add to this one. The other function needs to have the same arguments as
+                this one.
 
         Returns:
             A new Function instance representing the addition of the two functions.
@@ -73,13 +66,13 @@ class Function:
         return Function(mapping=lambda args: self.mapping(args) + other.mapping(args))
 
     def __mul__(self, scalar: float) -> Function:
-        """Creates a new Function representing the multiplication of this function with another.
+        """Creates a new Function representing the multiplication of this function with a scalar.
 
         Args:
             scalar: Scalar to multiply this function with.
 
         Returns:
-            A new Function instance representing the multiplication of the two functions.
+            A new Function instance representing the multiplication of this function with the scalar.
         """
         return Function(mapping=lambda args: scalar * self.mapping(args))
 

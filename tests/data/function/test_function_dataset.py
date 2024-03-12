@@ -1,6 +1,6 @@
 import pytest
 import torch
-from continuity.data.function_dataset import FunctionOperatorDataset, FunctionSet
+from continuity.data.function import FunctionOperatorDataset, FunctionSet
 from continuity.discrete import RegularGridSampler
 
 
@@ -16,10 +16,10 @@ def x2_set() -> FunctionOperatorDataset:
         input_function_set=x2,
         x_sampler=domain_sampler,
         n_sensors=42,
-        solution_function_set=dx2_x,
+        output_function_set=dx2_x,
         y_sampler=domain_sampler,
         n_evaluations=13,
-        p_sampler=parameter_sampler,
+        parameter_sampler=parameter_sampler,
         n_observations=7,
     )
 
@@ -73,8 +73,8 @@ def test_generate_in_distribution_observation(x2_set):
     assert torch.less_equal(u_s, 1).all()
     assert torch.greater_equal(v_s, -2).all()
     assert torch.less_equal(v_s, 2).all()
-    assert torch.greater_equal(v_s, 1).any()
-    assert torch.less_equal(v_s, -1).any()
+    assert torch.greater(v_s, 1).any()  # $v_s\in[-2, 2]$ while $u_s\in[-1, 1]$.
+    assert torch.less(v_s, -1).any()
 
 
 def test_generate_out_of_distribution_observation(x2_set):

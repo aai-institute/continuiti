@@ -1,5 +1,5 @@
 """
-`continuity.data.function_dataset`
+`continuity.data.function`
 
 Function data set implementations.
 """
