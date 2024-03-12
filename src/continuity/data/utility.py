@@ -5,6 +5,8 @@ Utility functions for data handling.
 """
 
 import torch
+from typing import Optional
+from continuity.operators.losses import Loss, MSELoss
 
 
 def split(dataset, split=0.5, seed=None):
@@ -20,25 +22,40 @@ def split(dataset, split=0.5, seed=None):
     if seed is not None:
         generator.manual_seed(seed)
 
+    size = len(dataset)
+    split = int(size * split)
+
     return torch.utils.data.random_split(
         dataset,
-        [split, 1 - split],
+        [split, size - split],
         generator=generator,
     )
 
 
-def dataset_loss(dataset, operator, loss_fn):
+def dataset_loss(
+    dataset,
+    operator,
+    loss_fn: Optional[Loss] = None,
+    device: Optional[torch.device] = None,
+):
     """Evaluate operator performance on data set.
 
     Args:
         dataset: Data set.
         operator: Operator.
-        loss_fn: Loss function.
+        loss_fn: Loss function. Default is MSELoss.
+        device: Device to evaluate on. Default is CPU.
     """
+    loss_fn = loss_fn or MSELoss()
+    device = device or torch.device("cpu")
+
     loss = 0.0
 
     for x, u, y, v in dataset:
-        x, u, y, v = x.unsqueeze(0), u.unsqueeze(0), y.unsqueeze(0), v.unsqueeze(0)
+        x = x.unsqueeze(0).to(device)
+        u = u.unsqueeze(0).to(device)
+        y = y.unsqueeze(0).to(device)
+        v = v.unsqueeze(0).to(device)
         loss += loss_fn(operator, x, u, y, v)
 
-    return loss
+    return loss.item() / len(dataset)
