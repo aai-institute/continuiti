@@ -107,8 +107,12 @@ class FourierLayer(Operator):
         ), "If shapes.x.num ** (1 / shapes.x.dim) is not an integer, the sensor points were not chosen to be on a grid."
         points_per_dimension = int(points_per_dimension)
 
-        if num_modes is None:
-            self.num_modes = [points_per_dimension] * self.shapes.x.dim
+        self.num_modes = (
+            [points_per_dimension] * self.shapes.x.dim
+            if num_modes is None
+            else num_modes
+        )
+        self.num_modes = list(self.num_modes)
 
         # The last dimension is smaller because we use the `torch.fft.rfftn` method.
         # This is due to the negative frequency modes being redundant.
