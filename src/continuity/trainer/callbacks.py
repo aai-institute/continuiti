@@ -9,6 +9,11 @@ from typing import Optional, List
 import matplotlib.pyplot as plt
 from .logs import Logs
 
+try:
+    import mlflow
+except ImportError:
+    pass
+
 
 class Callback(ABC):
     """
@@ -36,7 +41,7 @@ class Callback(ABC):
 
 class PrintTrainingLoss(Callback):
     """
-    Callback to print training loss.
+    Callback to print training/validation loss.
     """
 
     def __init__(self):
@@ -50,8 +55,9 @@ class PrintTrainingLoss(Callback):
             logs: Training logs.
         """
         print(
-            f"\rEpoch {logs.epoch}:  "
-            f"loss/train = {logs.loss_train:.4e}  "
+            f"\rEpoch {logs.epoch}:  ",
+            f"loss/train = {logs.loss_train:.4e}  ",
+            f"loss/val = {logs.loss_val:.4e}  " if logs.loss_val is not None else "",
             f"({logs.seconds_per_epoch:.3f} s/epoch)",
             end="",
         )
@@ -74,7 +80,7 @@ class LearningCurve(Callback):
 
     def __init__(self, keys: Optional[List[str]] = None):
         if keys is None:
-            keys = ["loss_train"]
+            keys = ["loss_train", "loss_val"]
 
         self.keys = keys
         self.on_train_begin()
@@ -138,3 +144,27 @@ class OptunaCallback(Callback):
 
     def on_train_end(self):
         """Called at the end of training."""
+
+
+class MLFlowLogger(Callback):
+    """
+    Callback to log metrics to MLFlow.
+    """
+
+    def __call__(self, logs: Logs):
+        """Callback function.
+        Called at the end of each epoch.
+        Args:
+            logs: Training logs.
+        """
+        mlflow.log_metric("loss/train", logs.loss_train, step=logs.epoch)
+        mlflow.log_metric("loss/val", logs.loss_val, step=logs.epoch)
+        mlflow.log_metric("seconds_per_epoch", logs.seconds_per_epoch, step=logs.epoch)
+
+    def on_train_begin(self):
+        """Called at the beginning of training."""
+        mlflow.start_run()
+
+    def on_train_end(self):
+        """Called at the end of training."""
+        mlflow.end_run()
