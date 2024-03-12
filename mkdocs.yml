@@ -176,9 +176,9 @@ nav:
   - Learning Operators:
       - Introduction: operators/index.md
       - Functions: examples/functions.ipynb
+      - Training: examples/training.ipynb
       - Architectures: operators/architectures.md
   - Examples:
-      - Basics: examples/basics.ipynb
       - Time Series: examples/timeseries.ipynb
       - Super-resolution: examples/superresolution.ipynb
       - Physics-informed: examples/physicsinformed.ipynb

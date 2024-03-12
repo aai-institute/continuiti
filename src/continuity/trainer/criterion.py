@@ -14,7 +14,7 @@ class Criterion(ABC):
     """
 
     @abstractmethod
-    def __call__(self, logs: Logs):
+    def __call__(self, logs: Logs) -> bool:
         """Evaluate stopping criterion.
         Called at the end of each epoch.
 
@@ -35,7 +35,7 @@ class TrainingLossCriterion(Criterion):
     def __init__(self, threshold: float):
         self.threshold = threshold
 
-    def __call__(self, logs: Logs):
+    def __call__(self, logs: Logs) -> bool:
         """Callback function.
         Called at the end of each epoch.
 
