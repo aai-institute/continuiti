@@ -5,6 +5,7 @@ Abstract base class for sampling from n-dimensional boxes.
 """
 
 from abc import ABC
+from typing import Union
 
 import torch
 
@@ -30,7 +31,15 @@ class BoxSampler(Sampler, ABC):
         x_max: Maximum corner point of the n-dimensional box.
     """
 
-    def __init__(self, x_min: torch.Tensor, x_max: torch.Tensor):
+    def __init__(
+        self, x_min: Union[torch.Tensor, list], x_max: Union[torch.Tensor, list]
+    ):
+        # Convert lists to tensors
+        if isinstance(x_min, list):
+            x_min = torch.tensor(x_min)
+        if isinstance(x_max, list):
+            x_max = torch.tensor(x_max)
+
         assert x_min.shape == x_max.shape
         assert x_min.ndim == x_max.ndim == 1
         super().__init__(len(x_min))

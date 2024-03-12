@@ -12,7 +12,7 @@ def regular_grid_sampler() -> RegularGridSampler:
 
 @pytest.fixture(scope="module")
 def regular_grid_sampler_negative() -> RegularGridSampler:
-    return RegularGridSampler(x_min=torch.zeros(2), x_max=torch.tensor(([1.0, -1.0])))
+    return RegularGridSampler(x_min=[0, 0], x_max=[1.0, -1.0])  # initiate with lists
 
 
 @pytest.fixture(scope="module")
