@@ -82,6 +82,7 @@ class FunctionOperatorDataset(OperatorDataset):
         x_sampler: Sampler = None,
         y_sampler: Sampler = None,
         p_sampler: Sampler = None,
+        do_apply_transformations: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Generates new observations of the domain, input function, codomain, and output function.
 
@@ -92,6 +93,7 @@ class FunctionOperatorDataset(OperatorDataset):
             x_sampler: A sampler for generating discrete representations of the input function in space.
             y_sampler: A sampler for generating discrete representations of the output function in space.
             p_sampler: A sampler for sampling parameters to instantiate functions from the function sets.
+            do_apply_transformations: toggle that governs if transformations are applied to the new observations.
 
         Returns:
             Tuple containing the space samples $x$ of the input space, the evaluated input function $u$, the space
@@ -123,5 +125,8 @@ class FunctionOperatorDataset(OperatorDataset):
         for yi, func in zip(y, v_funcs):
             v.append(func(yi))
         v = torch.stack(v)
+
+        if do_apply_transformations:
+            return self._apply_transformations(x, u, y, v)
 
         return x, u, y, v
