@@ -43,7 +43,7 @@ def test_correct_shapes(x2_set):
 
 
 def test_generate_in_distribution_observation_repr(x2_set):
-    x_s, u_s, y_s, v_s = x2_set.generate_observations(
+    x_s, u_s, y_s, v_s = x2_set._generate_observations(
         n_sensors=42, n_evaluations=13, n_observations=7
     )
 
@@ -54,7 +54,7 @@ def test_generate_in_distribution_observation_repr(x2_set):
 
 
 def test_generate_in_distribution_observation(x2_set):
-    x_s, u_s, y_s, v_s = x2_set.generate_observations(
+    x_s, u_s, y_s, v_s = x2_set._generate_observations(
         n_sensors=2, n_evaluations=3, n_observations=5
     )
 
@@ -82,7 +82,7 @@ def test_generate_out_of_distribution_observation(x2_set):
     y_sampler = RegularGridSampler(torch.tensor([-10.0]), torch.tensor([-9.0]))
     p_sampler = RegularGridSampler(torch.tensor([42.0]), torch.tensor([42.0]))
 
-    x_s, u_s, y_s, v_s = x2_set.generate_observations(
+    x_s, u_s, y_s, v_s = x2_set._generate_observations(
         n_sensors=2,
         n_evaluations=3,
         n_observations=5,
