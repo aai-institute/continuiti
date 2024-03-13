@@ -13,6 +13,7 @@
 - Add `timeseries.ipynb` example.
 - Add `Function`, `FunctionSet`, and `FunctionOperatorDataset` classes.
 - Add `function.ipynb` example.
+- Implement `FusionOperator`.
 
 ## 0.0.0 (2024-02-22)
 
