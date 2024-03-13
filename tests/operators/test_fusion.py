@@ -48,11 +48,12 @@ def test_can_initialize(fusion_operators):
 
 def test_output_shape_correct(fusion_operators, datasets):
     for operator, dataset in zip(fusion_operators, datasets):
-        x, u, y, v = dataset[:5]  # batched sample
+        x, u, y, v = dataset[:9]  # batched sample
         output = operator(x, u, y)
         assert output.shape == v.shape
 
 
+@pytest.mark.slow
 def test_does_converge():
     # Parameters
     num_sensors = 16
