@@ -30,7 +30,7 @@ class FusionOperator(Operator):
         self.depth = depth
 
         self.net = DeepResidualNetwork(
-            input_size=shapes.y.dim + shapes.u.num * shapes.u.dim,
+            input_size=shapes.y.dim + shapes.u.dim,
             output_size=shapes.v.dim,
             width=width,
             depth=depth,
@@ -57,15 +57,12 @@ class FusionOperator(Operator):
             The output of the operator, of shape (batch_size, #evaluations, v_dim), representing the computed function
                 values at the specified evaluation coordinates.
         """
-        assert u.size(0) == y.size(0)
-        batch_size = u.size(0)
-
-        # Get all combinations
-        u = u.unsqueeze(1).expand(-1, self.shapes.y.num, -1, -1)
-        y = y.unsqueeze(2).expand(-1, -1, self.shapes.u.num, -1)
-        net_input = torch.cat([u, y], dim=-1)
+        u_repeated = torch.tile(u.unsqueeze(1), (1, self.shapes.y.num, 1, 1))
+        y_repeated = torch.tile(y.unsqueeze(2), (1, 1, self.shapes.u.num, 1))
+        net_input = torch.cat([u_repeated, y_repeated], dim=-1)
 
         v = self.net(net_input)
-        v = v.view(batch_size, self.shapes.y.num, self.shapes.v.dim)
+        v = torch.mean(v, dim=2)
+        v = v.view(-1, self.shapes.y.num, self.shapes.v.dim)
 
         return v
