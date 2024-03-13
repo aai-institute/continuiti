@@ -2,7 +2,9 @@
 
 TODO:
     - Test what happens if num_modes is not the same for every dimension
-    - Assumption: Grid is quadratic -> Should we change this?
+    - Assumption: Grid is quadratic. This could be
+    changed in the future by introducing a new modified shape parameter
+    allowing for 'non-quadratic' grids.
     - Generalize kernel to (u-dim, v-dim)
     - x and y are ignored! Should we add options to make kernel dependent?
 """
@@ -85,7 +87,30 @@ class FourierLayer1d(Operator):
 
 
 class FourierLayer(Operator):
-    """Fourier layer."""
+    """Fourier layer. This layer performs a intergal kernel operation in Fourier space.
+
+    The convolution with a kernel becomes a element-wise product in Fourier space,
+    reducing the complexity of the computation from quadratic to linear.
+    For the Fourier transformation pytorch's implementation of the FFT is used.
+
+    Note: This implementation currently assumes that x and y were sampled on
+    a regular grid with equal number of points per dimension.
+
+    Args:
+        shapes: Shape of dataset
+        num_modes: List with number of modes per fft dimension. The number of
+            fft-dimensions is equal to shapes.x.dim. If num_modes is None,
+            the maximum number of modes is assumed which is given by
+            max_num_modes = shapes.x.num ** (1 / shapes.x.dim).
+
+    Example:
+        dataset = OperatorDataset(x, u, y, v)
+        fno = FourierLayer(dataset.shapes)
+
+        xi, ui, yi, vi = dataset[:]
+        vi_pred = fno(xi, ui, yi)
+
+    """
 
     def __init__(
         self,
@@ -113,6 +138,8 @@ class FourierLayer(Operator):
             else num_modes
         )
         self.num_modes = list(self.num_modes)
+
+        assert len(self.num_modes) == self.shapes.x.dim
 
         # The last dimension is smaller because we use the `torch.fft.rfftn` method.
         # This is due to the negative frequency modes being redundant.
@@ -159,7 +186,7 @@ class FourierLayer(Operator):
         fft_dimensions = list(range(1, num_fft_dimensions + 1))
 
         # reshape input to prepare for FFT
-        u = self._reshape(u)
+        u = self.reshape(u)
         assert u.dim() == num_fft_dimensions + 2
 
         # compute n-dimensional real-valued fourier transform
@@ -219,7 +246,7 @@ class FourierLayer(Operator):
 
         return out
 
-    def _reshape(self, u: torch.Tensor) -> torch.Tensor:
+    def reshape(self, u: torch.Tensor) -> torch.Tensor:
         """Reshape input function from flattened respresentation to
         grid representation. The grid representation is required for
         `torch.fft.fftn`.
@@ -355,7 +382,7 @@ class FourierLayer(Operator):
     def zero_padding(
         self, fft_values: torch.Tensor, target_shape: Tuple[int], dim: Tuple[int]
     ) -> torch.Tensor:
-        """Add zeros for large positive and negative frequencies.
+        """Add zeros at large positive and negative frequency positions.
 
         This method assumes that the input tensor is in 'ascending order'.
         See `get_ascending_order` for more details.
