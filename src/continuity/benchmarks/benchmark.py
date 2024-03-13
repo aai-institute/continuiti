@@ -4,23 +4,29 @@
 Benchmark base class.
 """
 
-from abc import ABC, abstractmethod
+from typing import List
+from dataclasses import dataclass, field
+from continuity.data import OperatorDataset
+from continuity.benchmarks.metrics import (
+    Metric,
+    L1Metric,
+    MSEMetric,
+    NumberOfParametersMetric,
+    SpeedOfEvaluationMetric,
+)
 
 
-class Benchmark(ABC):
-    """Benchmark base class."""
+@dataclass
+class Benchmark:
+    """Benchmark class."""
 
-    @abstractmethod
-    def train_dataset(self):
-        """Return training data set."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def test_dataset(self):
-        """Return test data set."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def metric(self):
-        """Return metric, e.g. MSELoss."""
-        raise NotImplementedError
+    train_dataset: OperatorDataset
+    test_dataset: OperatorDataset
+    metrics: List[Metric] = field(
+        default_factory=lambda: [
+            L1Metric(),
+            MSEMetric(),
+            NumberOfParametersMetric(),
+            SpeedOfEvaluationMetric(),
+        ]
+    )
