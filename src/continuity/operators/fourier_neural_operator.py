@@ -1,12 +1,10 @@
 """ Fourier Neural Operator.
 
 TODO:
-    - Test what happens if num_modes is not the same for every dimension
     - Assumption: Grid is quadratic. This could be
     changed in the future by introducing a new modified shape parameter
     allowing for 'non-quadratic' grids.
-    - Generalize kernel to (u-dim, v-dim)
-    - x and y are ignored! Should we add options to make kernel dependent?
+    - Freature that we can change num_modes afterwards?
 """
 
 from continuity.operators import Operator
@@ -87,7 +85,7 @@ class FourierLayer1d(Operator):
 
 
 class FourierLayer(Operator):
-    """Fourier layer. This layer performs a intergal kernel operation in Fourier space.
+    """Fourier layer. This layer performs an intergal kernel operation in Fourier space.
 
     The convolution with a kernel becomes a element-wise product in Fourier space,
     reducing the complexity of the computation from quadratic to linear.
@@ -119,7 +117,6 @@ class FourierLayer(Operator):
     ) -> None:
         super().__init__()
 
-        # TODO: u.dim == v.dim so far -> generalize
         self.shapes = shapes
 
         assert (
@@ -150,9 +147,7 @@ class FourierLayer(Operator):
             f" Given {self.num_modes[:-1]} Max={points_per_dimension}"
         )
 
-        assert shapes.u.dim == shapes.v.dim  # TODO
-
-        weights_shape = self.num_modes + [shapes.u.dim, shapes.v.dim]
+        weights_shape = self.num_modes + [shapes.v.dim, shapes.u.dim]
 
         weights_real = torch.Tensor(*weights_shape)
         weights_img = torch.Tensor(*weights_shape)
@@ -167,6 +162,11 @@ class FourierLayer(Operator):
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
         """Forward pass. Performs a kernel integral operation in Fourier space.
+
+        Note:
+            * x.dim == y.dim is a necessary condition for the Fourier Layer.
+            * x and y have to be sampled on a regular grid with equal number
+              of points per dimension.
 
         Args:
             x: Sensor positions of shape (batch_size, num_sensors, x_dim)
@@ -192,17 +192,6 @@ class FourierLayer(Operator):
         # compute n-dimensional real-valued fourier transform
         u_fft = rfftn(u, dim=fft_dimensions, norm="forward")
 
-        assert (
-            len(TENSOR_INDICES) > num_fft_dimensions
-        ), f"Too many dimensions. The current limit for the number of dimensions is {len(TENSOR_INDICES)}."
-
-        # contraction equation for torch.einsum method
-        # d: v-dim, s: u-dim, b: batch-dim
-        frequency_indices = "".join(TENSOR_INDICES[: int(num_fft_dimensions)])
-        contraction_equation = "{}ds,b{}s->b{}d".format(
-            frequency_indices, frequency_indices, frequency_indices
-        )
-
         # transform Fourier modes from 'normal order' to 'ascending order'
         u_fft = self.get_ascending_order(u_fft, dim=fft_dimensions)
 
@@ -211,8 +200,8 @@ class FourierLayer(Operator):
             u_fft, target_shape=self.num_modes, dim=fft_dimensions
         )
 
-        # perform kernel operation in Fourier space
-        out_fft = torch.einsum(contraction_equation, self.kernel, u_fft)
+        # perform kernel integral operation in Fourier space
+        out_fft = self.contract_with_kernel(u_fft, dim=fft_dimensions)
 
         # we should use num_evaluations and not num_sensors for the inverse FFT
         num_evaluations_per_dim = num_evaluations ** (1.0 / num_fft_dimensions)
@@ -242,9 +231,41 @@ class FourierLayer(Operator):
         )
 
         # TODO: u.shape will change
-        out = out.reshape(batch_size, -1, self.shapes.u.dim)
+        out = out.reshape(batch_size, -1, self.shapes.v.dim)
 
         return out
+
+    def contract_with_kernel(
+        self, fft_values: torch.Tensor, dim: Tuple[int]
+    ) -> torch.Tensor:
+        """Contract kernel with input values.
+
+        Args:
+            fft_values: Tensor with fft values.
+            dim: List of fft dimensions.
+
+        Returns:
+            Output tensor with shape = (batch-size, ..., v.dim)
+
+        """
+
+        num_fft_dimensions = len(dim)
+
+        assert (
+            len(TENSOR_INDICES) > num_fft_dimensions
+        ), f"Too many dimensions. The current limit for the number of dimensions is {len(TENSOR_INDICES)}."
+
+        # contraction equation for torch.einsum method
+        # d: v-dim, s: u-dim, b: batch-dim
+        frequency_indices = "".join(TENSOR_INDICES[: int(num_fft_dimensions)])
+        contraction_equation = "{}ds,b{}s->b{}d".format(
+            frequency_indices, frequency_indices, frequency_indices
+        )
+
+        # perform kernel operation in Fourier space
+        out_fft = torch.einsum(contraction_equation, self.kernel, fft_values)
+
+        return out_fft
 
     def reshape(self, u: torch.Tensor) -> torch.Tensor:
         """Reshape input function from flattened respresentation to
@@ -299,7 +320,8 @@ class FourierLayer(Operator):
 
         assert len(dim) == len(target_shape)
 
-        slices = [slice(None)]  # batch dimension, equivalent to '[:]'
+        # by default: don't slice tensor. `slice(None)` is equivalent to `[:]`
+        slices = [slice(None)] * fft_values.dim()
 
         # loop over fft dimensions except last dimension
         for idx, dimension in enumerate(dim[:-1]):
@@ -307,23 +329,16 @@ class FourierLayer(Operator):
 
             # if input is already smaller, don't do anything
             if num_modes_input <= target_shape[idx]:
-                slices += [slice(None)]
+                slices[dimension] = slice(None)
                 continue
 
             center = num_modes_input // 2
             upper = center + target_shape[idx] // 2 + target_shape[idx] % 2
-            # upper = center + int(math.ceil(target_shape[idx] / 2))
             lower = center - target_shape[idx] // 2
-            slices += [
-                slice(
-                    lower,
-                    upper,
-                )
-            ]
+            slices[dimension] = slice(lower, upper)
 
         # one sided slicing for last dimension
-        slices += [slice(target_shape[-1])]
-        slices += [slice(None)]  # u-dim dimension
+        slices[dim[-1]] = slice(target_shape[-1])
         u_fourier_sliced = fft_values[slices]
 
         return u_fourier_sliced
