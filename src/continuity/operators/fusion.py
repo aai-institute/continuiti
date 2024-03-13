@@ -30,23 +30,27 @@ class FusionOperator(Operator):
         self.depth = depth
 
         self.net = DeepResidualNetwork(
-            input_size=shapes.y.dim + shapes.u.dim * shapes.u.num,
+            input_size=(
+                shapes.y.dim + shapes.u.dim * shapes.u.num + shapes.x.dim * shapes.x.num
+            ),
             output_size=shapes.v.dim,
             width=width,
             depth=depth,
         )
 
     def forward(
-        self, _: torch.Tensor, u: torch.Tensor, y: torch.Tensor
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
         """Forward pass through the operator.
 
-        Performs the forward pass through the operator, processing the input function values `u` to stack all dimensions
-        and values on top of each other. The operator ignores the first argument, utilizes `u` and `y` to create a
-        combined input for the deep residual network.
+        Performs the forward pass through the operator, processing the input function values `u` and input function
+        probe locations `x` by flattening them. They are then expanded to match the dimensions of the evaluation
+        coordinates y. The preprocessed x, preprocessed u, and y are stacked and passed through a deep residual network.
+
 
         Args:
-            _: Ignored. Placeholder for compatibility with other operators.
+            x: Input coordinates of shape (batch_size, #sensors, x_dim), representing the points in space at
+                which the input function values are probed.
             u: Input function values of shape (batch_size, #sensors, u_dim), representing the values of the input
                 functions at different sensor locations.
             y: Evaluation coordinates of shape (batch_size, #evaluations, y_dim), representing the points in space at
@@ -58,6 +62,9 @@ class FusionOperator(Operator):
         """
         # u repeated shape (batch_size, #evaluations, #sensors * u_dim)
         u_repeated = u.flatten(1, 2).unsqueeze(1).expand(-1, y.size(1), -1)
-        net_input = torch.cat([u_repeated, y], dim=-1)
+        # x repeated shape (batch_size, #evaluations, #sensors * x_dim)
+        x_repeated = x.flatten(1, 2).unsqueeze(1).expand(-1, y.size(1), -1)
+
+        net_input = torch.cat([x_repeated, u_repeated, y], dim=-1)
 
         return self.net(net_input)
