@@ -30,7 +30,7 @@ class FusionOperator(Operator):
         self.depth = depth
 
         self.net = DeepResidualNetwork(
-            input_size=shapes.y.dim + shapes.u.dim,
+            input_size=shapes.y.dim + shapes.u.dim * shapes.u.num,
             output_size=shapes.v.dim,
             width=width,
             depth=depth,
@@ -41,10 +41,9 @@ class FusionOperator(Operator):
     ) -> torch.Tensor:
         """Forward pass through the operator.
 
-        Performs the forward pass through the operator, processing the input function values `u` and evaluation
-        coordinates `y` to produce the operator output. The method ignores the first argument, utilizes `u` and `y`
-        to create a combined input for the deep residual network, and reshapes the network's output to match the
-        expected dimensions.
+        Performs the forward pass through the operator, processing the input function values `u` to stack all dimensions
+        and values on top of each other. The operator ignores the first argument, utilizes `u` and `y` to create a
+        combined input for the deep residual network.
 
         Args:
             _: Ignored. Placeholder for compatibility with other operators.
@@ -57,12 +56,8 @@ class FusionOperator(Operator):
             The output of the operator, of shape (batch_size, #evaluations, v_dim), representing the computed function
                 values at the specified evaluation coordinates.
         """
-        u_repeated = torch.tile(u.unsqueeze(1), (1, self.shapes.y.num, 1, 1))
-        y_repeated = torch.tile(y.unsqueeze(2), (1, 1, self.shapes.u.num, 1))
-        net_input = torch.cat([u_repeated, y_repeated], dim=-1)
+        # u repeated shape (batch_size, #evaluations, #sensors * u_dim)
+        u_repeated = u.flatten(1, 2).unsqueeze(1).expand(-1, y.size(1), -1)
+        net_input = torch.cat([u_repeated, y], dim=-1)
 
-        v = self.net(net_input)
-        v = torch.mean(v, dim=2)
-        v = v.view(-1, self.shapes.y.num, self.shapes.v.dim)
-
-        return v
+        return self.net(net_input)
