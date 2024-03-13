@@ -13,17 +13,18 @@ from continuity.operators.losses import MSELoss
 class SineBenchmark(Benchmark):
     r"""Sine benchmark.
 
-    The sine benchmark contains a dataset of trigonometric functions
+    The `SineBenchmark` contains a dataset of trigonometric functions
 
     $$
-        f(x)_k = \sin(kx)$, with $x\in[-1, 1]
+        f_k(x) = \sin(kx), \quad x \in [-1, 1], \quad k \in [\pi, 2\pi],
     $$
 
-    and $k\in[\pi, 2\pi]$.
+    with the following properties:
 
-    The input space is mapped to the output space with the identity operator
-    (input and output set are the same). Both the parameter space, the domain,
-    and the co-domain are sampled on a regular grid.
+    - Input and output function spaces are the same.
+    - The input space is mapped to the output space with the identity operator.
+    - Both the parameter space, the domain, and the co-domain are sampled on a
+      regular grid.
 
     Args:
         n_sensors: number of sensors.
