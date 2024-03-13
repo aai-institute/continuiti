@@ -14,7 +14,7 @@
 - Add `Function`, `FunctionSet`, and `FunctionOperatorDataset` classes.
 - Add `function.ipynb` example.
 - Add `Benchmark` base class.
-- Add `sine_benchmark` Benchmark instance.
+- Add `SineBenchmark`.
 
 ## 0.0.0 (2024-02-22)
 
