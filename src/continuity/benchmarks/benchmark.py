@@ -11,8 +11,8 @@ from continuity.benchmarks.metrics import (
     Metric,
     L1Metric,
     MSEMetric,
-    NumberOfParametersMetric,
-    SpeedOfEvaluationMetric,
+    NumberOfParameters,
+    SpeedOfEvaluation,
 )
 
 
@@ -26,7 +26,7 @@ class Benchmark:
         default_factory=lambda: [
             L1Metric(),
             MSEMetric(),
-            NumberOfParametersMetric(),
-            SpeedOfEvaluationMetric(),
+            NumberOfParameters(),
+            SpeedOfEvaluation(),
         ]
     )

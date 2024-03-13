@@ -13,7 +13,7 @@ from continuity.operators import Operator
 from .metric import Metric
 
 
-class NumberOfParametersMetric(Metric):
+class NumberOfParameters(Metric):
     """Number of parameters in the operator."""
 
     def __init__(self):
@@ -24,7 +24,7 @@ class NumberOfParametersMetric(Metric):
         return {"Value": num_params, "Unit": "[1]"}
 
 
-class SpeedOfEvaluationMetric(Metric):
+class SpeedOfEvaluation(Metric):
     """Speed of a single evaluation in milliseconds."""
 
     def __init__(self):
