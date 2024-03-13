@@ -1,7 +1,0 @@
-_target_: continuity.operators.deeponet.DeepONet
-
-branch_width: 128
-branch_depth: 32
-trunk_width: 128
-trunk_depth: 32
-basis_functions: 32

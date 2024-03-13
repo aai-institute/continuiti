@@ -11,40 +11,60 @@ from continuity.data.utility import dataset_loss
 
 # Benchmarks
 benchmarks = [
-    lambda: SineBenchmark(),
+    lambda: SineBenchmark(32),
+    lambda: SineBenchmark(128),
 ]
 
 # Operators
 operators = [
-    lambda shapes: DeepONet(shapes),
-    lambda shapes: DeepONet(
-        shapes, trunk_depth=32, branch_depth=32, basis_functions=32
-    ),
-    lambda shapes: BelNet(shapes, D_1=16, D_2=16),
-    lambda shapes: NaiveIntegralKernel(
-        kernel=NeuralNetworkKernel(shapes, kernel_width=128, kernel_depth=8)
+    lambda s: DeepONet(s),
+    lambda s: DeepONet(s, trunk_depth=32, branch_depth=32, basis_functions=32),
+    lambda s: BelNet(s, D_1=16, D_2=16),
+    lambda s: NaiveIntegralKernel(
+        kernel=NeuralNetworkKernel(s, kernel_width=32, kernel_depth=3)
     ),
 ]
 
 # Seeds
-num_seeds = 1
+num_seeds = 2
+
+# Training parameters
+lr = 3e-5
+tol = 1e-4
+epochs = 3
 
 
 # === RUN ===
-
-
 def run_single(seed, benchmark, operator):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
 
-    optimizer = torch.optim.Adam(operator.parameters(), lr=3e-5)
-    trainer = Trainer(operator, optimizer, loss_fn=benchmark.metric())
-    stats = trainer.fit(benchmark.train_dataset, tol=1e-4, epochs=10000)
+    trainer = Trainer(operator, lr=lr, loss_fn=benchmark.metric())
 
-    loss_test = dataset_loss(benchmark.test_dataset, operator, benchmark.metric())
-    stats["loss/test"] = loss_test.item()
+    stats = trainer.fit(benchmark.train_dataset, tol=tol, epochs=epochs)
+
+    stats["loss/test"] = dataset_loss(
+        benchmark.test_dataset, operator, benchmark.metric()
+    )
     return stats
+
+
+def write_results(all_results):
+    df = pd.concat(all_results)
+    df.to_csv("results.csv")
+
+    html_string = """
+<html>
+<head><title>Continuity Benchmark</title></head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<body>
+    {table}
+</body>
+</html>
+    """
+    with open("results.html", "w") as f:
+        f.write(html_string.format(table=df.to_html()))
 
 
 def run_all():
@@ -77,9 +97,7 @@ def run_all():
 
         all_results[bm_key] = df
 
-    df = pd.concat(all_results)
-    df.to_csv("results.csv")
-    df.to_html("results.html")
+    write_results(all_results)
 
 
 if __name__ == "__main__":

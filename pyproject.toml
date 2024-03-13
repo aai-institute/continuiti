@@ -30,9 +30,9 @@ dependencies = [
     # --------- loggers --------- #
     # wandb
     # neptune-client
-    # mlflow
+    "mlflow",
     # comet-ml
-    "tensorboard",
+    # tensorboard
 
     # --------- linters --------- #
     "pre-commit",       # hooks for applying linters on commit
