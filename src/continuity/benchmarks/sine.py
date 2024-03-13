@@ -46,10 +46,10 @@ def create_sine_dataset(
 
 
 def create_sine_benchmark(
-    n_observations: int = 100,
-    n_sensors: int = 32,
-    n_evaluations: int = None,
-    n_test_observations: int = None,
+    n_observations: int,
+    n_sensors: int,
+    n_evaluations: int,
+    n_test_observations: int,
 ) -> Benchmark:
     r"""Creates a sine benchmark.
 
@@ -60,16 +60,12 @@ def create_sine_benchmark(
     Args:
         n_observations: number of observations in the train dataset.
         n_sensors: number of sensors.
-        n_evaluations: number of evaluation coordinates, defaults to n_sensors.
-        n_test_observations: number of observations in the test dataset, defaults to int(n_observations / 10).
+        n_evaluations: number of evaluation coordinates.
+        n_test_observations: number of observations in the test dataset.
 
     Returns:
         Sine benchmark.
     """
-    if n_evaluations is None:
-        n_evaluations = n_sensors
-    if n_test_observations is None:
-        n_test_observations = n_observations // 10
 
     benchmark = Benchmark(
         train_dataset=create_sine_dataset(
