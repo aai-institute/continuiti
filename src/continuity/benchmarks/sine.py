@@ -28,8 +28,8 @@ class SineBenchmark(Benchmark):
     Args:
         n_sensors: number of sensors.
         n_evaluations: number of evaluations.
-        n_train_observations: number of observations in the train dataset.
-        n_test_observations: number of observations in the test dataset.
+        n_train: number of observations in the train dataset.
+        n_test: number of observations in the test dataset.
 
     """
 
@@ -37,8 +37,8 @@ class SineBenchmark(Benchmark):
         self,
         n_sensors: int = 32,
         n_evaluations: int = 32,
-        n_train_observations: int = 90,
-        n_test_observations: int = 10,
+        n_train: int = 90,
+        n_test: int = 10,
     ):
         sine_set = FunctionSet(lambda k: Function(lambda x: torch.sin(k * x)))
 
@@ -57,7 +57,7 @@ class SineBenchmark(Benchmark):
                 n_observations=n_obs,
             )
 
-        train_dataset = get_dataset(n_train_observations)
-        test_dataset = get_dataset(n_test_observations)
+        train_dataset = get_dataset(n_train)
+        test_dataset = get_dataset(n_test)
 
         super().__init__(train_dataset, test_dataset, [MSELoss()])

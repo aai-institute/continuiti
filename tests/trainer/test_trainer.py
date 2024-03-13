@@ -1,11 +1,11 @@
 import pytest
 from continuity.operators import DeepONet
-from continuity.data.sine import Sine
+from continuity.benchmarks.sine import SineBenchmark
 from continuity.trainer import Trainer
 
 
 def train():
-    dataset = Sine(num_sensors=32, size=256)
+    dataset = SineBenchmark().train_dataset
     operator = DeepONet(dataset.shapes, trunk_depth=16)
 
     Trainer(operator).fit(dataset, tol=1e-3)
