@@ -2,7 +2,6 @@ import pytest
 import torch
 from typing import List
 from itertools import product
-from continuity.operators import FusionOperator
 from continuity.data import OperatorDataset
 from continuity.data.sine import Sine
 from continuity.trainer import Trainer
@@ -34,20 +33,20 @@ def datasets() -> List[OperatorDataset]:
 
 
 @pytest.fixture(scope="module")
-def fusion_operators(datasets) -> List[FusionOperator]:
+def dnos(datasets) -> List[FusionOperator]:
     operators = []
     for dataset in datasets:
         operators.append(FusionOperator(dataset.shapes))
     return operators
 
 
-def test_can_initialize(fusion_operators):
-    for operator in fusion_operators:
+def test_can_initialize(dnos):
+    for operator in dnos:
         assert isinstance(operator, FusionOperator)
 
 
-def test_output_shape_correct(fusion_operators, datasets):
-    for operator, dataset in zip(fusion_operators, datasets):
+def test_output_shape_correct(dnos, datasets):
+    for operator, dataset in zip(dnos, datasets):
         x, u, y, v = dataset[:9]  # batched sample
         output = operator(x, u, y)
         assert output.shape == v.shape

@@ -1,7 +1,7 @@
 """
-`continuity.operators.fusion`
+`continuity.operators.deep_neural_operator`
 
-The Fusion architecture.
+The Deep Neural Operator architecture.
 """
 
 import torch
@@ -10,10 +10,11 @@ from continuity.operators.common import DeepResidualNetwork
 from continuity.data import DatasetShapes
 
 
-class FusionOperator(Operator):
+class DeepNeuralOperator(Operator):
     """
-    The `FusionOperator` class integrates a Deep Residual Network within a neural operator framework, designed for
-     effectively processing and fusing input function values and evaluation coordinates.
+    The `DeepNeuralOperator` class integrates a deep residual network within a neural operator framework. It uses all
+    scalar values of the input locations, input functions, and individual evaluation points as inputs for a deep
+    residual network.
 
     Args:
         shapes: An instance of `DatasetShapes`.
