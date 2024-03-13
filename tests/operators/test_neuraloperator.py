@@ -1,6 +1,6 @@
 import pytest
 import torch
-from continuity.data.sine import Sine
+from continuity.benchmarks.sine import SineBenchmark
 from continuity.operators import NeuralOperator
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
@@ -8,11 +8,8 @@ from continuity.operators.losses import MSELoss
 
 @pytest.mark.slow
 def test_neuraloperator():
-    # Parameters
-    num_sensors = 16
-
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    dataset = SineBenchmark(n_train=1).train_dataset
 
     # Operator
     operator = NeuralOperator(

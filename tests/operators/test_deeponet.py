@@ -2,8 +2,8 @@ import torch
 import pytest
 
 from continuity.operators import DeepONet
+from continuity.benchmarks.sine import SineBenchmark
 from continuity.data import OperatorDataset
-from continuity.data.sine import Sine
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
 
@@ -43,11 +43,8 @@ def test_output_shape():
 
 @pytest.mark.slow
 def test_deeponet():
-    # Parameters
-    num_sensors = 16
-
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    dataset = SineBenchmark(n_train=1).train_dataset
 
     # Operator
     operator = DeepONet(
@@ -60,7 +57,7 @@ def test_deeponet():
     )
 
     # Train
-    Trainer(operator).fit(dataset, tol=1e-3, batch_size=1)
+    Trainer(operator).fit(dataset, tol=1e-3)
 
     # Check solution
     x, u = dataset.x, dataset.u
