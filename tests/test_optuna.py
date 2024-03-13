@@ -1,10 +1,11 @@
 import pytest
 import torch
-from continuity.benchmarks.sine import SineBenchmark
+from continuity.benchmarks.sine import sine_benchmark
 from continuity.trainer import Trainer
 from continuity.trainer.callbacks import OptunaCallback, PrintTrainingLoss
 from continuity.data import split, dataset_loss
 from continuity.operators import DeepONet
+from continuity.operators.losses import MSELoss
 import optuna
 
 
@@ -16,14 +17,14 @@ def test_optuna():
         lr = trial.suggest_float("lr", 1e-4, 1e-3)
 
         # Data set
-        benchmark = SineBenchmark()
+        benchmark = sine_benchmark
 
         # Train/val split
         train_dataset, val_dataset = split(benchmark.train_dataset, 0.9)
 
         # Operator
         operator = DeepONet(
-            benchmark.dataset.shapes,
+            benchmark.train_dataset.shapes,
             trunk_width=trunk_width,
             trunk_depth=trunk_depth,
         )
@@ -38,7 +39,7 @@ def test_optuna():
             callbacks=[PrintTrainingLoss(), OptunaCallback(trial)],
         )
 
-        loss_val = dataset_loss(val_dataset, operator, benchmark.metric())
+        loss_val = dataset_loss(val_dataset, operator, MSELoss())
         print(f"loss/val: {loss_val:.4e}")
 
         return loss_val
