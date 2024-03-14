@@ -1,6 +1,6 @@
 import torch
 from continuity.benchmarks.sine import SineBenchmark
-from continuity.data.shape import DatasetShapes, TensorShape
+from continuity.operators.shape import OperatorShapes, TensorShape
 from continuity.operators.integralkernel import NeuralNetworkKernel, NaiveIntegralKernel
 
 
@@ -13,8 +13,7 @@ def test_neuralnetworkkernel():
     x = torch.rand(n_obs, x_num, x_dim)
     y = torch.rand(n_obs, y_num, y_dim)
 
-    shapes = DatasetShapes(
-        num_observations=n_obs,
+    shapes = OperatorShapes(
         x=TensorShape(num=x_num, dim=x_dim),
         u=TensorShape(num=x_num, dim=u_dim),
         y=TensorShape(num=y_num, dim=y_dim),

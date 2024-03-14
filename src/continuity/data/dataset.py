@@ -9,7 +9,7 @@ import torch
 import torch.utils.data as td
 from typing import Tuple
 
-from .shape import DatasetShapes, TensorShape
+from continuity.operators.shape import OperatorShapes, TensorShape
 
 
 class OperatorDataset(td.Dataset):
@@ -58,8 +58,7 @@ class OperatorDataset(td.Dataset):
         self.v = v
 
         # used to initialize architectures
-        self.shapes = DatasetShapes(
-            num_observations=int(x.size(0)),
+        self.shapes = OperatorShapes(
             x=TensorShape(*x.size()[1:]),
             u=TensorShape(*u.size()[1:]),
             y=TensorShape(*y.size()[1:]),
@@ -83,7 +82,7 @@ class OperatorDataset(td.Dataset):
         Returns:
             number of samples in the entire set.
         """
-        return self.shapes.num_observations
+        return self.x.size(0)
 
     def __getitem__(
         self, idx

@@ -11,18 +11,18 @@ v = operator(x, u, y)
 ```
 """
 
-from .common import DeepResidualNetwork
 from .operator import Operator
 from .neuraloperator import NeuralOperator
 from .deeponet import DeepONet
 from .belnet import BelNet
 from .deep_neural_operator import DeepNeuralOperator
+from .shape import OperatorShapes
 
 __all__ = [
     "Operator",
+    "OperatorShapes",
     "DeepONet",
     "NeuralOperator",
-    "DeepResidualNetwork",
     "BelNet",
     "DeepNeuralOperator",
 ]

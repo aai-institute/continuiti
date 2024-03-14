@@ -1,6 +1,7 @@
 import pytest
-import torch
+from continuity.operators.shape import TensorShape, OperatorShapes
 from continuity.benchmarks.sine import SineBenchmark
+from continuity.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
 from continuity.operators import NeuralOperator
 from continuity.trainer import Trainer
 from continuity.operators.losses import MSELoss
@@ -10,18 +11,26 @@ from continuity.operators.losses import MSELoss
 def test_neuraloperator():
     # Data set
     dataset = SineBenchmark(n_train=1).train_dataset
+    shapes = dataset.shapes
+
+    latent_channels = 1
+    hidden_shape = TensorShape(shapes.u.num, latent_channels)
+
+    shapes = [
+        OperatorShapes(x=shapes.x, u=shapes.u, y=shapes.x, v=hidden_shape),
+        OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.x, v=hidden_shape),
+        OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.y, v=shapes.v),
+    ]
 
     # Operator
-    operator = NeuralOperator(
-        shapes=dataset.shapes,
-        depth=1,
-        kernel_width=32,
-        kernel_depth=3,
-    )
+    layers = [
+        NaiveIntegralKernel(NeuralNetworkKernel(shapes[i], 32, 3))
+        for i in range(len(shapes))
+    ]
+    operator = NeuralOperator(dataset.shapes, layers)
 
     # Train
-    optimizer = torch.optim.Adam(operator.parameters(), lr=1e-2)
-    Trainer(operator, optimizer).fit(dataset, tol=1e-3)
+    Trainer(operator).fit(dataset, tol=1e-3)
 
     # Check solution
     x, u = dataset.x, dataset.u

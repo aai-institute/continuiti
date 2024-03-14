@@ -8,7 +8,7 @@ import torch
 from typing import Optional
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
-from continuity.data import DatasetShapes
+from continuity.operators.shape import OperatorShapes
 
 
 class DeepNeuralOperator(Operator):
@@ -17,7 +17,7 @@ class DeepNeuralOperator(Operator):
     input locations, input values, and the evaluation point as input for a deep residual network.
 
     Args:
-        shapes: An instance of `DatasetShapes`.
+        shapes: An instance of `OperatorShapes`.
         width: The width of the `DeepResidualNetwork`.
         depth: The depth of the `DeepResidualNetwork`.
         act: Activation function of the `DeepResidualNetwork`.
@@ -25,7 +25,7 @@ class DeepNeuralOperator(Operator):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         width: int = 32,
         depth: int = 3,
         act: Optional[torch.nn.Module] = None,

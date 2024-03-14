@@ -1,5 +1,5 @@
 """
-`continuity.data.shape`
+`continuity.operators.shape`
 """
 
 from dataclasses import dataclass
@@ -12,11 +12,10 @@ class TensorShape:
 
 
 @dataclass
-class DatasetShapes:
-    """Shapes of all elements inside an OperatorDataset.
+class OperatorShapes:
+    """Shape of input and output functions of an Operator.
 
     Attributes:
-        num_observations: Total number of all observations in the dataset.
         x: Sensor locations.
         u: Input function evaluated at sensor locations.
         y: Evaluation locations.
@@ -24,7 +23,6 @@ class DatasetShapes:
 
     """
 
-    num_observations: int
     x: TensorShape
     u: TensorShape
     y: TensorShape

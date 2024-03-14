@@ -39,7 +39,6 @@ def test_correct_shapes(x2_set):
     assert shapes.y.num == 13
     assert shapes.v.dim == 1
     assert shapes.v.num == 13
-    assert shapes.num_observations == 7
 
 
 def test_generate_in_distribution_observation_repr(x2_set):
