@@ -9,8 +9,8 @@ from continuity.operators.fourier_neural_operator import FourierLayer1d, Fourier
 torch.manual_seed(0)
 
 
-# @pytest.fixture(scope="module")
-def get_dataset() -> OperatorDataset:
+@pytest.fixture(scope="module")
+def dataset() -> OperatorDataset:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Input function
@@ -40,7 +40,8 @@ def get_dataset() -> OperatorDataset:
     return dataset
 
 
-def get_dataset2d() -> OperatorDataset:
+@pytest.fixture(scope="module")
+def dataset2d() -> OperatorDataset:
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Input function
@@ -82,8 +83,7 @@ def get_dataset2d() -> OperatorDataset:
 
 
 @pytest.mark.slow
-def test_fourier1d():
-    dataset = get_dataset()
+def test_fourier1d(dataset):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer1d(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
@@ -93,8 +93,7 @@ def test_fourier1d():
 
 
 @pytest.mark.slow
-def test_fno():
-    dataset = get_dataset()
+def test_fno(dataset):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
@@ -104,18 +103,16 @@ def test_fno():
 
 
 @pytest.mark.slow
-def test_fno_2d():
-    dataset = get_dataset2d()
+def test_fno_2d(dataset2d):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    operator = FourierLayer(dataset.shapes)
-    Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
+    operator = FourierLayer(dataset2d.shapes)
+    Trainer(operator, device=device).fit(dataset2d, tol=1e-12, epochs=10_000)
 
-    x, u, y, v = dataset[:1]
+    x, u, y, v = dataset2d[:1]
     assert MSELoss()(operator, x, u, y, v) < 1e-12
 
 
-def test_zero_padding():
-    dataset = get_dataset()
+def test_zero_padding(dataset):
     operator = FourierLayer(dataset.shapes)
 
     #### test behaviour for odd number of frequencies
@@ -186,8 +183,7 @@ def test_zero_padding():
     assert torch.all(output == x_zero_padded).item()
 
 
-def test_remove_large_frequencies():
-    dataset = get_dataset()
+def test_remove_large_frequencies(dataset):
     operator = FourierLayer(dataset.shapes)
 
     #### test behaviour for odd number of frequencies
