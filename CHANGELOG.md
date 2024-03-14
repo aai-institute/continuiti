@@ -15,6 +15,7 @@
 - Add `function.ipynb` example.
 - Add `Benchmark` base class.
 - Add `SineBenchmark`.
+- Implement `DeepNeuralOperator`.
 
 ## 0.0.0 (2024-02-22)
 

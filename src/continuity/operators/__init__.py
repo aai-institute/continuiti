@@ -16,6 +16,7 @@ from .operator import Operator
 from .neuraloperator import NeuralOperator
 from .deeponet import DeepONet
 from .belnet import BelNet
+from .deep_neural_operator import DeepNeuralOperator
 
 __all__ = [
     "Operator",
@@ -23,4 +24,5 @@ __all__ = [
     "NeuralOperator",
     "DeepResidualNetwork",
     "BelNet",
+    "DeepNeuralOperator",
 ]
