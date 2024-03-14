@@ -8,7 +8,7 @@ import torch
 from typing import Optional
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
-from continuity.data import DatasetShapes
+from continuity.operators.shape import OperatorShapes
 
 
 class BelNet(Operator):
@@ -28,7 +28,7 @@ class BelNet(Operator):
     expressive deep residual networks.
 
     Args:
-        shapes: Shape variable of the dataset
+        shapes: Shapes of the operator
         K: Number of basis functions
         N_1: Width of the projection basis network
         D_1: Depth of the projection basis network
@@ -41,7 +41,7 @@ class BelNet(Operator):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         K: int = 4,
         N_1: int = 32,
         D_1: int = 1,

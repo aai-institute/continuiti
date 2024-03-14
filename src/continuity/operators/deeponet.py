@@ -7,7 +7,7 @@ The DeepONet architecture.
 import torch
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
-from continuity.data import DatasetShapes
+from continuity.operators.shape import OperatorShapes
 
 
 class DeepONet(Operator):
@@ -22,7 +22,7 @@ class DeepONet(Operator):
     the same positions.
 
     Args:
-        shapes: Shape variable of the dataset
+        shapes: Shapes of the operator.
         branch_width: Width of branch network
         branch_depth: Depth of branch network
         trunk_width: Width of trunk network
@@ -32,7 +32,7 @@ class DeepONet(Operator):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         branch_width: int = 32,
         branch_depth: int = 3,
         trunk_width: int = 32,

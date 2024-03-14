@@ -7,8 +7,9 @@ Integral kernel operations.
 import torch
 from abc import ABC, abstractmethod
 from typing import Optional
-from continuity.operators import Operator, DeepResidualNetwork
-from continuity.data import DatasetShapes
+from continuity.operators import Operator
+from continuity.operators.common import DeepResidualNetwork
+from continuity.operators.shape import OperatorShapes
 
 
 class Kernel(torch.nn.Module, ABC):
@@ -36,10 +37,10 @@ class Kernel(torch.nn.Module, ABC):
     ```
 
     Args:
-        shapes: Shapes of the dataset
+        shapes: Shapes of the operator.
     """
 
-    def __init__(self, shapes: DatasetShapes):
+    def __init__(self, shapes: OperatorShapes):
         super().__init__()
         self.shapes = shapes
 
@@ -63,7 +64,7 @@ class NeuralNetworkKernel(Kernel):
     by a simple feed forward neural network with skip connections.
 
     Args:
-        shapes: Shape variable of the dataset
+        shapes: Shapes of the operator
         kernel_width: Width of kernel network
         kernel_depth: Depth of kernel network
         act: Activation function
@@ -71,7 +72,7 @@ class NeuralNetworkKernel(Kernel):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         kernel_width: int,
         kernel_depth: int,
         act: Optional[torch.nn.Module] = None,

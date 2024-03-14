@@ -1,5 +1,5 @@
 import pytest
-from continuity.data.shape import TensorShape, DatasetShapes
+from continuity.operators.shape import TensorShape, OperatorShapes
 from continuity.benchmarks.sine import SineBenchmark
 from continuity.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
 from continuity.operators import NeuralOperator
@@ -11,24 +11,21 @@ from continuity.operators.losses import MSELoss
 def test_neuraloperator():
     # Data set
     dataset = SineBenchmark(n_train=1).train_dataset
-
     shapes = dataset.shapes
-    obs = shapes.num_observations
 
-    latent_channels = 3
-    x1 = x2 = shapes.x
-    u1 = TensorShape(shapes.u.num, latent_channels)
-    u2 = TensorShape(shapes.u.num, latent_channels)
+    latent_channels = 1
+    hidden_shape = TensorShape(shapes.u.num, latent_channels)
 
     shapes = [
-        DatasetShapes(obs, x=shapes.x, u=shapes.u, y=x1, v=u1),
-        DatasetShapes(obs, x=x1, u=u1, y=x2, v=u2),
-        DatasetShapes(obs, x=x2, u=u2, y=shapes.y, v=shapes.v),
+        OperatorShapes(x=shapes.x, u=shapes.u, y=shapes.x, v=hidden_shape),
+        OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.x, v=hidden_shape),
+        OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.y, v=shapes.v),
     ]
 
     # Operator
     layers = [
-        NaiveIntegralKernel(NeuralNetworkKernel(shapes[i], 32, 3)) for i in range(3)
+        NaiveIntegralKernel(NeuralNetworkKernel(shapes[i], 32, 3))
+        for i in range(len(shapes))
     ]
     operator = NeuralOperator(dataset.shapes, layers)
 

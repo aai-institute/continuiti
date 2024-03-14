@@ -8,7 +8,7 @@ stack of continuous convolutions with a lifting layer and a projection layer.
 import torch
 from typing import List, Optional
 from continuity.operators import Operator
-from continuity.data import DatasetShapes
+from continuity.operators.shape import OperatorShapes
 
 
 class NeuralOperator(Operator):
@@ -31,7 +31,7 @@ class NeuralOperator(Operator):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         layers: List[Operator],
         act: Optional[torch.nn.Module] = None,
     ):
