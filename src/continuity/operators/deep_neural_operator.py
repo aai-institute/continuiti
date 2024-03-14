@@ -1,10 +1,11 @@
 """
 `continuity.operators.deep_neural_operator`
 
-The Deep Neural Operator architecture.
+The Deep Neural Operator (DNO) architecture.
 """
 
 import torch
+from typing import Optional
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
 from continuity.data import DatasetShapes
@@ -13,17 +14,22 @@ from continuity.data import DatasetShapes
 class DeepNeuralOperator(Operator):
     """
     The `DeepNeuralOperator` class integrates a deep residual network within a neural operator framework. It uses all
-    scalar values of the input locations, input functions, and individual evaluation points as inputs for a deep
-    residual network.
+    input locations, input values, and the evaluation point as input for a deep residual network.
 
     Args:
         shapes: An instance of `DatasetShapes`.
-        width: The width of the Deep Residual Network, defining the number of neurons in each hidden layer.
-        depth: The depth of the Deep Residual Network, indicating the number of hidden layers in the network.
-
+        width: The width of the `DeepResidualNetwork`.
+        depth: The depth of the `DeepResidualNetwork`.
+        act: Activation function of the `DeepResidualNetwork`.
     """
 
-    def __init__(self, shapes: DatasetShapes, width: int = 32, depth: int = 3):
+    def __init__(
+        self,
+        shapes: DatasetShapes,
+        width: int = 32,
+        depth: int = 3,
+        act: Optional[torch.nn.Module] = None,
+    ):
         super().__init__()
         self.shapes = shapes
 
@@ -32,11 +38,12 @@ class DeepNeuralOperator(Operator):
 
         self.net = DeepResidualNetwork(
             input_size=(
-                shapes.y.dim + shapes.u.dim * shapes.u.num + shapes.x.dim * shapes.x.num
+                shapes.x.dim * shapes.x.num + shapes.u.dim * shapes.u.num + shapes.y.dim
             ),
             output_size=shapes.v.dim,
             width=width,
             depth=depth,
+            act=act,
         )
 
     def forward(
