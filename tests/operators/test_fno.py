@@ -40,6 +40,47 @@ def get_dataset() -> OperatorDataset:
     return dataset
 
 
+def get_dataset2d() -> OperatorDataset:
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    # Input function
+    u = lambda x1, x2: torch.sin(x1) * torch.cos(x2)
+
+    # Target function
+    v = lambda x1, x2: torch.sin(x1) * torch.cos(x2)
+
+    # Size parameters
+    num_sensors_per_dimension = 32
+    num_evaluations_per_dimensions = 100
+
+    # Domain parameters
+    half_linspace = lambda N: 2 * torch.pi * torch.arange(N) / N
+    x1 = half_linspace(num_sensors_per_dimension).to(device)
+    x2 = half_linspace(num_sensors_per_dimension).to(device)
+    y1 = half_linspace(num_evaluations_per_dimensions).to(device)
+    y2 = half_linspace(num_evaluations_per_dimensions).to(device)
+
+    xx1, xx2 = torch.meshgrid(x1, x2)
+    x = torch.stack([xx1.flatten(), xx2.flatten()], axis=1)
+
+    yy1, yy2 = torch.meshgrid(y1, y2)
+    y = torch.stack([yy1.flatten(), yy2.flatten()], axis=1)
+
+    # This dataset contains only a single sample (first dimension of all tensors)
+    n_observations = 1
+    u_dim = v_dim = 1
+    x_dim = y_dim = 2
+    num_sensors = num_sensors_per_dimension**2
+    num_evaluations = num_evaluations_per_dimensions**2
+    dataset = OperatorDataset(
+        x=x.reshape(n_observations, num_sensors, x_dim),
+        u=u(x[:, 0], x[:, 1]).reshape(n_observations, num_sensors, u_dim),
+        y=y.reshape(n_observations, num_evaluations, y_dim),
+        v=v(y[:, 0], y[:, 1]).reshape(n_observations, num_evaluations, v_dim),
+    )
+    return dataset
+
+
 @pytest.mark.slow
 def test_fourier1d():
     dataset = get_dataset()
@@ -54,6 +95,17 @@ def test_fourier1d():
 @pytest.mark.slow
 def test_fno():
     dataset = get_dataset()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    operator = FourierLayer(dataset.shapes)
+    Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
+
+    x, u, y, v = dataset[:1]
+    assert MSELoss()(operator, x, u, y, v) < 1e-12
+
+
+@pytest.mark.slow
+def test_fno_2d():
+    dataset = get_dataset2d()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
@@ -207,4 +259,4 @@ def test_remove_large_frequencies():
 
 
 if __name__ == "__main__":
-    test_zero_padding()
+    test_fno_2d()
