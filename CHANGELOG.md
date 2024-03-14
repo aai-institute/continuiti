@@ -16,6 +16,8 @@
 - Add `Benchmark` base class.
 - Add `SineBenchmark`.
 - Implement `DeepNeuralOperator`.
+- Generalize `NeuralOperator` to take a list of operators.
+- The `data.DatasetShapes` class becomes `operators.OperatorShapes` without `num_observations` attribute.
 
 ## 0.0.0 (2024-02-22)
 
