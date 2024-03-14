@@ -2,9 +2,26 @@
 
 TODO:
     - Assumption: Grid is quadratic. This could be
-    changed in the future by introducing a new modified shape parameter
-    allowing for 'non-quadratic' grids.
-    - Freature that we can change num_modes afterwards?
+        changed in the future by introducing a new modified shape parameter
+        allowing for 'non-quadratic' grids.
+        -> Implement grid_shape parameter, Optional
+
+    - Freature that we can change num_modes afterwards? -> No
+
+    - Feature to have NeuralNetwork kernel: Right now we only have direct paraemtrization
+        Alternatives mentioned in paper are: linear parametrization and NN parametrization
+        -> Low priority
+
+Questions:
+    - num_modes larger ? -> Min from grid shape parameter
+
+    grid_shape = (4, 2)
+
+    grid_shape_i / grid_shape.sum() * y.size
+
+    num_modes = (5, 2) -> (4, 2)
+              = (10, 5) -> (4, 2)
+              = (3, 10) -> (3, 2)
 """
 
 from continuity.operators import Operator
@@ -113,28 +130,37 @@ class FourierLayer(Operator):
     def __init__(
         self,
         shapes: DatasetShapes,
+        grid_shape: Optional[Tuple[int]] = None,
         num_modes: Optional[Tuple[int]] = None,
     ) -> None:
         super().__init__()
 
         self.shapes = shapes
+        self.grid_shape = grid_shape
 
         assert (
             self.shapes.y.dim == self.shapes.x.dim
         ), f"The dimensions of x and y need to be the same. Given y.dim={self.shapes.y.dim} x.dim={self.shapes.x.dim}"
 
-        points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
-        assert (
-            points_per_dimension.is_integer()
-        ), "If shapes.x.num ** (1 / shapes.x.dim) is not an integer, the sensor points were not chosen to be on a grid."
-        points_per_dimension = int(points_per_dimension)
+        # if grid_shape is not given, assume grid with same number of points per dimension
+        if grid_shape is None:
+            points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
+            assert (
+                points_per_dimension.is_integer()
+            ), "If shapes.x.num ** (1 / shapes.x.dim) is not an integer, the sensor points were not chosen to be on a grid."
+            points_per_dimension = int(points_per_dimension)
+
+            self.grid_shape = [points_per_dimension] * self.shapes.x.dim
+
+        # make sure self.grid_shape is list
+        self.grid_shape = list(self.grid_shape)
+
+        # check for consistency
+        assert math.prod(self.grid_shape) == shapes.x.num
 
         self.num_modes = (
-            [points_per_dimension] * self.shapes.x.dim
-            if num_modes is None
-            else num_modes
+            self.grid_shape.copy() if num_modes is None else list(num_modes)
         )
-        self.num_modes = list(self.num_modes)
 
         assert len(self.num_modes) == self.shapes.x.dim
 
@@ -142,9 +168,12 @@ class FourierLayer(Operator):
         # This is due to the negative frequency modes being redundant.
         self.num_modes[-1] = self.num_modes[-1] // 2 + 1
 
-        assert all(mode <= points_per_dimension for mode in self.num_modes[:-1]), (
+        assert all(
+            mode <= points_per_dim
+            for mode, points_per_dim in zip(self.num_modes[:-1], self.grid_shape[:-1])
+        ), (
             "The given number of Fourier modes exceeds the number of sensor points given by dataset.shapes."
-            f" Given {self.num_modes[:-1]} Max={points_per_dimension}"
+            f" Given {self.num_modes[:-1]} Max={self.grid_shape[:-1]}"
         )
 
         weights_shape = self.num_modes + [shapes.v.dim, shapes.u.dim]
@@ -192,7 +221,7 @@ class FourierLayer(Operator):
         # compute n-dimensional real-valued fourier transform
         u_fft = rfftn(u, dim=fft_dimensions, norm="forward")
 
-        # transform Fourier modes from 'normal order' to 'ascending order'
+        # transform Fourier modes from 'standard order' to 'ascending order'
         u_fft = self.get_ascending_order(u_fft, dim=fft_dimensions)
 
         # add or remove frequencies such that the the fft dimensions of u_fft match self.num_modes
@@ -204,19 +233,35 @@ class FourierLayer(Operator):
         out_fft = self.contract_with_kernel(u_fft, dim=fft_dimensions)
 
         # we should use num_evaluations and not num_sensors for the inverse FFT
-        num_evaluations_per_dim = num_evaluations ** (1.0 / num_fft_dimensions)
-        assert (
-            num_evaluations_per_dim.is_integer()
-        ), "Input array 'y' needs to be sampled on a grid with equal number of points per dimension."
-        num_evaluations_per_dim = int(num_evaluations_per_dim)
+
+        # num_evaluations_per_dim = num_evaluations ** (1.0 / num_fft_dimensions)
+        # assert (
+        #    num_evaluations_per_dim.is_integer()
+        # ), "Input array 'y' needs to be sampled on a grid with equal number of points per dimension."
+        # num_evaluations_per_dim = int(num_evaluations_per_dim)
+
+        scaling_factor = (num_evaluations / math.prod(self.grid_shape)) ** (
+            1 / len(self.grid_shape)
+        )
+        target_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
+        # target_shape = [int(num_evaluations ** (grid_dim / sum(self.grid_shape))) for grid_dim in self.grid_shape]
+
+        assert num_evaluations == math.prod(target_shape), (
+            "Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter."
+            f"Given number of sensor points {num_evaluations}. Given grid shape {self.grid_shape}. Tried to reshape as {target_shape}"
+        )
+
+        # fft_shape is the same except last dimension
+        fft_shape = target_shape.copy()
+        fft_shape[-1] = fft_shape[-1] // 2 + 1
 
         # target shape for output
-        target_shape = (num_evaluations_per_dim,) * (num_fft_dimensions - 1)
-        target_shape += (num_evaluations_per_dim // 2 + 1,)
+        # target_shape = (num_evaluations_per_dim,) * (num_fft_dimensions - 1)
+        # target_shape += (num_evaluations_per_dim // 2 + 1,)
 
         # add or remove frequencies such that the fft dimensions of out_fft match target_shape
         out_fft = self.add_or_remove_frequencies(
-            out_fft, target_shape=target_shape, dim=fft_dimensions
+            out_fft, target_shape=fft_shape, dim=fft_dimensions
         )
 
         # transform Fourier modes from 'ascending order' to 'normal order'
@@ -226,11 +271,10 @@ class FourierLayer(Operator):
         out = irfftn(
             out_fft,
             dim=fft_dimensions,
-            s=(num_evaluations_per_dim,) * num_fft_dimensions,
+            s=target_shape,
             norm="forward",
         )
 
-        # TODO: u.shape will change
         out = out.reshape(batch_size, -1, self.shapes.v.dim)
 
         return out
@@ -285,14 +329,24 @@ class FourierLayer(Operator):
         # shapes that can change for different forward passes
         batch_size, u_num = u.shape[0], u.shape[1]
 
-        points_per_dim = (u_num) ** (1.0 / self.shapes.x.dim)
-        assert (
-            points_per_dim.is_integer()
-        ), "Input function 'u' can't be reshaped. 'u' needs to be evaluated on a grid."
+        # check if self.grid_shape is consistent with input function
+        if u_num == math.prod(self.grid_shape):
+            fft_shape = self.grid_shape
+        else:
+            # in case self.grid_shape is not consistent with the input function
+            # let's try to reshape the the input such that the relations between the
+            # different dimensions is constant.
+            scaling_factor = (u_num / math.prod(self.grid_shape)) ** (
+                1 / len(self.grid_shape)
+            )
+            fft_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
 
-        shape = [batch_size]
-        shape += [int(points_per_dim) for _ in range(self.shapes.x.dim)]
-        shape += [self.shapes.u.dim]
+            assert u_num == math.prod(fft_shape), (
+                "Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter."
+                f"Given number of sensor points {u_num}. Given grid shape {self.grid_shape}. Tried to reshape as {fft_shape}"
+            )
+
+        shape = (batch_size, *fft_shape, self.shapes.u.dim)
         return u.reshape(shape)
 
     def remove_large_frequencies(
