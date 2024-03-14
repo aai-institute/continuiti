@@ -3,7 +3,7 @@ import torch
 from typing import List
 from itertools import product
 from continuity.data import OperatorDataset
-from continuity.data.sine import Sine
+from continuity.benchmarks.sine import SineBenchmark
 from continuity.trainer import Trainer
 from continuity.operators import DeepNeuralOperator
 from continuity.operators.losses import MSELoss
@@ -55,11 +55,9 @@ def test_output_shape_correct(dnos, datasets):
 
 @pytest.mark.slow
 def test_does_converge():
-    # Parameters
-    num_sensors = 16
-
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    benchmark = SineBenchmark(n_test=1, n_train=1)
+    dataset = benchmark.train_dataset
 
     # Operator
     operator = DeepNeuralOperator(dataset.shapes)
