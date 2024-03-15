@@ -10,6 +10,7 @@
   Therefore, `Trainer.fit` expects an `OperatorDataset` now.
 - A `Criterion` now enables stopping the training loop.
 - The `plotting` module has been removed.
+- Add `FourierLayer` implementation.
 
 ## 0.0.0 (2024-02-22)
 
