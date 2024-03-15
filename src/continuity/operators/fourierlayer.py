@@ -9,8 +9,8 @@ import torch
 import torch.nn as nn
 from torch.fft import rfft, irfft, rfftn, irfftn
 from typing import Optional, Tuple, List
-from continuity.data import DatasetShapes
 from continuity.operators import Operator
+from continuity.operators.shape import OperatorShapes
 
 
 class FourierLayer1d(Operator):
@@ -24,7 +24,7 @@ class FourierLayer1d(Operator):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         num_frequencies: Optional[int] = None,
     ) -> None:
         super().__init__()
@@ -111,7 +111,7 @@ class FourierLayer(Operator):
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         grid_shape: Optional[Tuple[int]] = None,
         num_modes: Optional[Tuple[int]] = None,
     ):
