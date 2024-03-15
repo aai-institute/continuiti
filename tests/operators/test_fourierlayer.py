@@ -4,7 +4,7 @@ import pytest
 from continuity.operators.losses import MSELoss
 from continuity.trainer import Trainer
 from continuity.data import OperatorDataset
-from continuity.operators.fourier_neural_operator import FourierLayer1d, FourierLayer
+from continuity.operators.fourierlayer import FourierLayer1d, FourierLayer
 
 torch.manual_seed(0)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
