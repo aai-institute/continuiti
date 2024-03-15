@@ -80,7 +80,7 @@ def dataset2d() -> OperatorDataset:
 
 
 @pytest.mark.slow
-def test_fourier1d(dataset):
+def test_fourierlayer1d(dataset):
     operator = FourierLayer1d(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
 
@@ -89,7 +89,7 @@ def test_fourier1d(dataset):
 
 
 @pytest.mark.slow
-def test_fno(dataset):
+def test_fourierlayer_1d(dataset):
     operator = FourierLayer(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
 
@@ -98,7 +98,7 @@ def test_fno(dataset):
 
 
 @pytest.mark.slow
-def test_fno_2d(dataset2d):
+def test_fourierlayer_2d(dataset2d):
     operator = FourierLayer(dataset2d.shapes)
     Trainer(operator, device=device).fit(dataset2d, tol=1e-12, epochs=10_000)
 
@@ -136,7 +136,7 @@ def test_zero_padding(dataset):
     # test if zero padding works well together with `fftshift` method
     # if we include zeros at the wrong position, the 'standard order' will be destroyed
     x_shifted = torch.fft.fftshift(x, dim=(0,))
-    x_zero_padded = operator.zero_padding(
+    x_zero_padded = operator._zero_padding(
         x_shifted, target_shape=output.shape, dim=(0, 1)
     )
     x_zero_padded = torch.fft.ifftshift(x_zero_padded, dim=(0,))
@@ -169,7 +169,7 @@ def test_zero_padding(dataset):
     # test if zero padding works well together with `fftshift` method
     # if we include zeros at the wrong position, the 'standard order' will be destroyed
     x_shifted = torch.fft.fftshift(x, dim=(0,))
-    x_zero_padded = operator.zero_padding(
+    x_zero_padded = operator._zero_padding(
         x_shifted, target_shape=output.shape, dim=(0, 1)
     )
     x_zero_padded = torch.fft.ifftshift(x_zero_padded, dim=(0,))
@@ -207,7 +207,7 @@ def test_remove_large_frequencies(dataset):
 
     # test if removing frequencies works well together with `fftshift` method
     x_shifted = torch.fft.fftshift(x, dim=(0,))
-    x_zero_padded = operator.remove_large_frequencies(
+    x_zero_padded = operator._remove_large_frequencies(
         x_shifted, target_shape=output.shape, dim=(0, 1)
     )
     x_zero_padded = torch.fft.ifftshift(x_zero_padded, dim=(0,))
@@ -240,7 +240,7 @@ def test_remove_large_frequencies(dataset):
 
     # test if zero padding works well together with `fftshift` method
     x_shifted = torch.fft.fftshift(x, dim=(0,))
-    x_zero_padded = operator.remove_large_frequencies(
+    x_zero_padded = operator._remove_large_frequencies(
         x_shifted, target_shape=output.shape, dim=(0, 1)
     )
     x_zero_padded = torch.fft.ifftshift(x_zero_padded, dim=(0,))

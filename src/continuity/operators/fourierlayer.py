@@ -1,23 +1,24 @@
-""" Fourier Neural Operator.
+"""
+`continuity.operators.fourierlayer`
+
+The Fourier layer of the Fourier Neural Operator (FNO).
 """
 
-from continuity.operators import Operator
-import torch
-from continuity.data import DatasetShapes
-import torch.nn as nn
 import math
+import torch
+import torch.nn as nn
 from torch.fft import rfft, irfft, rfftn, irfftn
 from typing import Optional, Tuple, List
-
-
-# 'b', 'd' or 's' should not appear here.
-TENSOR_INDICES = "acefghijklmnopqrtuvxyz"
+from continuity.data import DatasetShapes
+from continuity.operators import Operator
 
 
 class FourierLayer1d(Operator):
-    """Fourier layer for x.dim = 1.
+    """Fourier layer for `x.dim = 1`.
 
-    Note: This will be removed in the future. See FourierLayer() for general implementation.
+    Note:
+        This implementation is here for reference only.
+        See `FourierLayer` for general implementation.
 
     """
 
@@ -79,9 +80,9 @@ class FourierLayer1d(Operator):
 
 
 class FourierLayer(Operator):
-    """Fourier layer. This layer performs an intergal kernel operation in Fourier space.
+    """Fourier layer. This layer performs an integral kernel operation in Fourier space.
 
-    The convolution with a kernel becomes a element-wise product in Fourier space,
+    The convolution with a kernel becomes an element-wise product in Fourier space,
     reducing the complexity of the computation from quadratic to linear.
     For the Fourier transformation pytorch's implementation of the FFT is used.
 
@@ -96,11 +97,13 @@ class FourierLayer(Operator):
             of points per dimension.
 
     Example:
+        ```python
         dataset = OperatorDataset(x, u, y, v)
-        fno = FourierLayer(dataset.shapes)
+        fourier = FourierLayer(dataset.shapes)
 
-        xi, ui, yi, vi = dataset[:]
-        vi_pred = fno(xi, ui, yi)
+        xi, ui, yi, vi = dataset[0:1]
+        vi_pred = fourier(xi, ui, yi)
+        ```
 
     """
 
@@ -109,7 +112,7 @@ class FourierLayer(Operator):
         shapes: DatasetShapes,
         grid_shape: Optional[Tuple[int]] = None,
         num_modes: Optional[Tuple[int]] = None,
-    ) -> None:
+    ):
         super().__init__()
 
         self.shapes = shapes
@@ -140,7 +143,7 @@ class FourierLayer(Operator):
 
         assert (
             len(self.grid_shape) == shapes.x.dim
-        ), "The number of dimensions specified by 'grid_shape' is inconcistent with x.dim."
+        ), "The number of dimensions specified by 'grid_shape' is inconsistent with x.dim."
 
         self.num_modes = (
             self.grid_shape.copy() if num_modes is None else list(num_modes)
@@ -152,7 +155,7 @@ class FourierLayer(Operator):
 
         assert (
             len(self.num_modes) == self.shapes.x.dim
-        ), "The number of dimensions specified by 'num_modes' is inconcistent with x.dim."
+        ), "The number of dimensions specified by 'num_modes' is inconsistent with x.dim."
 
         # The last dimension is half+1 because we use the `torch.fft.rfftn` method.
         # This is due to the negative frequency modes being redundant.
@@ -175,10 +178,10 @@ class FourierLayer(Operator):
         """Forward pass. Performs a kernel integral operation in Fourier space.
 
         Note:
-            * x.dim == y.dim is a necessary condition for the Fourier Layer.
-            * x and y have to be sampled on a regular grid. The dimensions of
-                x and y have to be consistent with the grid_shape parameter. If the
-                grid shape parameter was not specified, a grid with equal sizes is
+            * `x.dim == y.dim` is a necessary condition for the FourierLayer.
+            * `x` and `y` have to be sampled on a regular grid! The dimensions of
+                `x` and `y` have to be consistent with the `grid_shape` parameter. If the
+                `grid_shape` parameter was not specified, a grid with equal sizes is
                 assumed.
 
         Args:
@@ -199,22 +202,22 @@ class FourierLayer(Operator):
         fft_dimensions = list(range(1, num_fft_dimensions + 1))
 
         # reshape input to prepare for FFT
-        u = self.reshape(u)
+        u = self._reshape(u)
         assert u.dim() == num_fft_dimensions + 2
 
         # compute n-dimensional real-valued fourier transform
         u_fft = rfftn(u, dim=fft_dimensions, norm="forward")
 
         # transform Fourier modes from 'standard order' to 'ascending order'
-        u_fft = self.get_ascending_order(u_fft, dim=fft_dimensions)
+        u_fft = self._get_ascending_order(u_fft, dim=fft_dimensions)
 
         # add or remove frequencies such that the the fft dimensions of u_fft match self.num_modes
-        u_fft = self.add_or_remove_frequencies(
+        u_fft = self._add_or_remove_frequencies(
             u_fft, target_shape=self.num_modes, dim=fft_dimensions
         )
 
         # perform kernel integral operation in Fourier space
-        out_fft = self.contract_with_kernel(u_fft, dim=fft_dimensions)
+        out_fft = self._contract_with_kernel(u_fft, dim=fft_dimensions)
 
         # the output shape is determined by y.shape[1] (num_evaluations) and not x.shape[1]
         scaling_factor = (num_evaluations / math.prod(self.grid_shape)) ** (
@@ -223,9 +226,9 @@ class FourierLayer(Operator):
         target_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
 
         assert num_evaluations == math.prod(target_shape), (
-            "Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter."
-            f"Given number of sensor points {num_evaluations}. Given grid shape {self.grid_shape}."
-            f" Tried to reshape as {target_shape}"
+            f"Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter. "
+            f"Given number of sensor points {num_evaluations}. Given grid shape {self.grid_shape}. "
+            f"Tried to reshape as {target_shape}. "
         )
 
         # fft_shape is the same except last dimension, we only need half the frequencies for the last dimension
@@ -233,12 +236,12 @@ class FourierLayer(Operator):
         fft_shape[-1] = fft_shape[-1] // 2 + 1
 
         # add or remove frequencies such that the fft dimensions of out_fft match fft_shape
-        out_fft = self.add_or_remove_frequencies(
+        out_fft = self._add_or_remove_frequencies(
             out_fft, target_shape=fft_shape, dim=fft_dimensions
         )
 
         # transform Fourier modes from 'ascending order' to 'normal order'
-        out_fft = self.get_standard_order(out_fft, dim=fft_dimensions)
+        out_fft = self._get_standard_order(out_fft, dim=fft_dimensions)
 
         # transform back into real-space
         out = irfftn(
@@ -252,7 +255,7 @@ class FourierLayer(Operator):
 
         return out
 
-    def contract_with_kernel(
+    def _contract_with_kernel(
         self, fft_values: torch.Tensor, dim: Tuple[int]
     ) -> torch.Tensor:
         """Contract kernel with input values.
@@ -262,8 +265,9 @@ class FourierLayer(Operator):
             dim: List of fft dimensions.
 
         Returns:
-            Output tensor with shape = (batch-size, ..., v.dim)
+            Output tensor with shape = (batch_size, ..., v.dim)
         """
+        TENSOR_INDICES = "defghijklmnopqrstuvxyz"
 
         num_fft_dimensions = len(dim)
 
@@ -274,7 +278,7 @@ class FourierLayer(Operator):
         # contraction equation for torch.einsum method
         # d: v-dim, s: u-dim, b: batch-dim
         frequency_indices = "".join(TENSOR_INDICES[: int(num_fft_dimensions)])
-        contraction_equation = "{}ds,b{}s->b{}d".format(
+        contraction_equation = "{}ac,b{}c->b{}a".format(
             frequency_indices, frequency_indices, frequency_indices
         )
 
@@ -283,8 +287,8 @@ class FourierLayer(Operator):
 
         return out_fft
 
-    def reshape(self, u: torch.Tensor) -> torch.Tensor:
-        """Reshape input function from flattened respresentation to
+    def _reshape(self, u: torch.Tensor) -> torch.Tensor:
+        """Reshape input function from flattened representation to
         grid representation. The grid representation is required for
         `torch.fft.fftn`.
 
@@ -298,7 +302,7 @@ class FourierLayer(Operator):
             u: input function with shape (batch-size, u.num, u.dim).
 
         Return:
-            u: with input function (batch-size, (u.num)**(1/u.dim), (u.num)**(1/u.dim), ..., u.dim)
+            u: with input function (batch-size, *grid_shape, u.dim)
         """
 
         # shapes that can change for different forward passes
@@ -324,7 +328,7 @@ class FourierLayer(Operator):
         shape = (batch_size, *fft_shape, self.shapes.u.dim)
         return u.reshape(shape)
 
-    def remove_large_frequencies(
+    def _remove_large_frequencies(
         self, fft_values: torch.Tensor, dim: Tuple[int], target_shape: List[int]
     ) -> torch.Tensor:
         """Remove large positive or negative frequencies.
@@ -340,7 +344,7 @@ class FourierLayer(Operator):
         Args:
             fft_values: Tensor with fft values.
             dim: List of fft dimensions.
-            target_shape:  Determins output shape of fft-dimensions. Should
+            target_shape:  Determines output shape of fft-dimensions. Should
                 be same length as `dim`.
 
         Returns:
@@ -372,7 +376,7 @@ class FourierLayer(Operator):
 
         return u_fourier_sliced
 
-    def get_ascending_order(
+    def _get_ascending_order(
         self, fft_values: torch.Tensor, dim: Tuple[int]
     ) -> torch.Tensor:
         """Reorder fft values from 'standard order' to 'ascending order'.
@@ -398,7 +402,7 @@ class FourierLayer(Operator):
         fft_values_reordered = torch.fft.fftshift(fft_values, dim=dim[:-1])
         return fft_values_reordered
 
-    def get_standard_order(
+    def _get_standard_order(
         self, fft_values: torch.Tensor, dim: Tuple[int]
     ) -> torch.Tensor:
         """Reorder fft values from 'ascending order' to 'standard order'.
@@ -423,7 +427,7 @@ class FourierLayer(Operator):
         fft_values_reordered = torch.fft.ifftshift(fft_values, dim=dim[:-1])
         return fft_values_reordered
 
-    def zero_padding(
+    def _zero_padding(
         self, fft_values: torch.Tensor, target_shape: Tuple[int], dim: Tuple[int]
     ) -> torch.Tensor:
         """Add zeros at large positive and negative frequency positions.
@@ -439,7 +443,7 @@ class FourierLayer(Operator):
         Args:
             fft_values: tensor with fft values.
             dim: List of fft dimensions.
-            target_shape: Determins output shape of fft-dimensions. Should
+            target_shape: Determines output shape of fft-dimensions. Should
                 be same length as `dim`.
 
         Returns:
@@ -486,7 +490,7 @@ class FourierLayer(Operator):
 
         return fourier_values_zero_padded
 
-    def add_or_remove_frequencies(
+    def _add_or_remove_frequencies(
         self, fft_values: torch.Tensor, target_shape: Tuple[int], dim: Tuple[int]
     ) -> torch.Tensor:
         """Add or remove frequencies depending on the target_shape parameter.
@@ -511,11 +515,11 @@ class FourierLayer(Operator):
         """
 
         # remove large positive and negative frequencies if num_sensors_per_dimension > self.num_modes
-        fft_values = self.remove_large_frequencies(
+        fft_values = self._remove_large_frequencies(
             fft_values, target_shape=target_shape, dim=dim
         )
 
         # add zero-frequencies if num_sensors_per_dimension < self.num_modes
-        fft_values = self.zero_padding(fft_values, target_shape=target_shape, dim=dim)
+        fft_values = self._zero_padding(fft_values, target_shape=target_shape, dim=dim)
 
         return fft_values
