@@ -1,20 +1,13 @@
 <div align="center">
-
 <img alt="Continuity" src="https://aai-institute.github.io/continuity/img/icon.png" width="100">
 
 <h1>Continuity</h1>
 
 Learning function operators with neural networks.
 
-<a href="https://pytorch.org/get-started/locally/">
-  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white">
-</a>
-<a href="https://aai-institute.github.io/continuity/">
-  <img alt="Documentation" src="https://img.shields.io/badge/Documentation-blue">
-</a>
-<a href="https://github.com/aai-institute/continuity/actions/workflows/test.yml">
-  <img alt="Test" src="https://github.com/aai-institute/continuity/actions/workflows/test.yml/badge.svg">
-</a>
+[![PyTorch](https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://aai-institute.github.io/continuity/)
+[![Test](https://github.com/aai-institute/continuity/actions/workflows/test.yml/badge.svg)](https://github.com/aai-institute/continuity/actions/workflows/test.yml)
 </div>
 
 **Continuity** is a Python package for machine learning on function operators.

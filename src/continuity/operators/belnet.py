@@ -8,7 +8,7 @@ import torch
 from typing import Optional
 from continuity.operators import Operator
 from continuity.operators.common import DeepResidualNetwork
-from continuity.data import DatasetShapes
+from continuity.operators.shape import OperatorShapes
 
 
 class BelNet(Operator):
@@ -28,20 +28,20 @@ class BelNet(Operator):
     expressive deep residual networks.
 
     Args:
-        shapes: Shape variable of the dataset
+        shapes: Shapes of the operator
         K: Number of basis functions
         N_1: Width of the projection basis network
         D_1: Depth of the projection basis network
         N_2: Width of the construction network
         D_2: Depth of the construction network
-        a_x: Activation function of projection networks
-        a_u: Activation function applied after the projection
-        a_y: Activation function of the construction network
+        a_x: Activation function of projection networks. Default: Tanh
+        a_u: Activation function applied after the projection. Default: Tanh
+        a_y: Activation function of the construction network. Default: Tanh
     """
 
     def __init__(
         self,
-        shapes: DatasetShapes,
+        shapes: OperatorShapes,
         K: int = 4,
         N_1: int = 32,
         D_1: int = 1,
@@ -56,7 +56,7 @@ class BelNet(Operator):
         self.shapes = shapes
         self.K = K
         self.a_x = a_x or torch.nn.Tanh()
-        self.a_u = a_u or torch.nn.LeakyReLU()
+        self.a_u = a_u or torch.nn.Tanh()
         self.a_y = a_y or torch.nn.Tanh()
 
         self.Nx = self.shapes.x.num * self.shapes.x.dim
@@ -64,17 +64,12 @@ class BelNet(Operator):
         self.Kv = K * self.shapes.v.dim
 
         # K projection nets
-        self.p = torch.nn.ModuleList(
-            [
-                DeepResidualNetwork(
-                    input_size=self.Nx,
-                    output_size=self.Nu,
-                    width=N_1,
-                    depth=D_1,
-                    act=self.a_x,
-                )
-                for _ in range(K)
-            ]
+        self.p = DeepResidualNetwork(
+            input_size=self.Nx,
+            output_size=self.Nu * K,
+            width=N_1,
+            depth=D_1,
+            act=self.a_x,
         )
 
         # construction net
@@ -108,8 +103,8 @@ class BelNet(Operator):
         y = y.reshape(-1, self.shapes.y.dim)
 
         # build projection matrix
-        P = torch.stack([p(x) for p in self.p], dim=1)
-        assert P.shape[1:] == torch.Size([self.K, self.Nu])
+        P = self.p(x)
+        P = P.reshape(-1, self.K, self.Nu)
 
         # perform the projection
         aPu = self.a_u(torch.einsum("bkn,bn->bk", P, u))

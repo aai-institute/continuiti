@@ -10,81 +10,58 @@ env:
   USE_MPS_BACKEND: False
 
 jobs:
-  run_tests_ubuntu:
+  run_tests:
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
+        os: ["ubuntu-latest", "macos-latest"]
         python-version: ["3.9", "3.10", "3.11"]
 
     timeout-minutes: 20
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: "true"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - name: Setup venv
+        uses: ./.github/actions/setup-venv
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[testing]"
-
-      - name: List dependencies
-        run: |
-          python -m pip list
-
+          os-name: ${{ matrix.os }}
+          optional-dependencies: "[testing]"
       - name: Run pytest
         run: |
           pytest -v
 
-      - name: Test notebooks
-        run: |
-          sudo apt install gmsh
-          pytest --nbmake examples/
-
-  run_tests_macos:
+  run_tests_notebooks:
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        os: ["macos-latest"]
+        os: ["ubuntu-latest", "macos-latest"]
         python-version: ["3.9", "3.10", "3.11"]
 
     timeout-minutes: 20
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           lfs: "true"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - name: Setup venv
+        uses: ./.github/actions/setup-venv
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
+          os-name: ${{ matrix.os }}
+          optional-dependencies: "[testing]"
+      - name: Install missing system dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[testing]"
-
-      - name: List dependencies
-        run: |
-          python -m pip list
-
-      - name: Run pytest
-        run: |
-          pytest -v
-
+          sudo apt install libglu1
       - name: Test notebooks
         run: |
           pytest --nbmake examples/
@@ -95,21 +72,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v2
+        uses: actions/checkout@v4
+        with:
+          lfs: "true"
+      - name: Setup venv
+        uses: ./.github/actions/setup-venv
         with:
           python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[testing]"
-          pip install pytest-cov[toml]
-
+          os-name: "ubuntu-latest"
+          optional-dependencies: "[testing]"
       - name: Run tests and collect coverage
         run: pytest --cov src
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

@@ -53,9 +53,7 @@ def test_uniform_distribution(sampler_list):
 
 def test_uniform_dist_zero():
     n_samples = 100
-    sampler = UniformBoxSampler(
-        torch.tensor([0.0, 0.0, 0.0]), torch.tensor([0.0, 1.0, 0.0])
-    )
+    sampler = UniformBoxSampler([0.0, 0.0, 0.0], [0.0, 1.0, 0.0])  # initiate with lists
     samples = sampler(n_samples)
     assert samples.size(0) == n_samples
 

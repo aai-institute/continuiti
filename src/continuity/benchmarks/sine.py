@@ -3,44 +3,62 @@
 
 Sine benchmark.
 """
-
+import torch
+from continuity.data.function import FunctionOperatorDataset, FunctionSet, Function
 from continuity.benchmarks import Benchmark
-from continuity.data import split
-from continuity.data.sine import Sine
-from continuity.operators.losses import Loss, MSELoss
-from torch.utils.data import Dataset
+from continuity.discrete import RegularGridSampler
+from continuity.operators.losses import MSELoss
 
 
 class SineBenchmark(Benchmark):
-    """Sine benchmark.
+    r"""Sine benchmark.
 
-    A sine wave data set containing 100 samples with 32 sensors,
-    split randomly into 90% training and 10% test data.
+    The `SineBenchmark` contains a dataset of trigonometric functions
+
+    $$
+        f_k(x) = \sin(kx), \quad x \in [-1, 1], \quad k \in [\pi, 2\pi],
+    $$
+
+    with the following properties:
+
+    - Input and output function spaces are the same.
+    - The input space is mapped to the output space with the identity operator.
+    - Both the parameter space, the domain, and the co-domain are sampled on a
+      regular grid.
+
+    Args:
+        n_sensors: number of sensors.
+        n_evaluations: number of evaluations.
+        n_train: number of observations in the train dataset.
+        n_test: number of observations in the test dataset.
+
     """
 
-    def __init__(self):
-        self.num_sensors = 32
-        self.size = 100
+    def __init__(
+        self,
+        n_sensors: int = 32,
+        n_evaluations: int = 32,
+        n_train: int = 90,
+        n_test: int = 10,
+    ):
+        sine_set = FunctionSet(lambda k: Function(lambda x: torch.sin(k * x)))
 
-        self.dataset = Sine(
-            num_sensors=32,
-            size=100,
-        )
+        x_sampler = y_sampler = RegularGridSampler([-1.0], [1.0])
+        parameter_sampler = RegularGridSampler([torch.pi], [2 * torch.pi])
 
-        self.train_dataset, self.test_dataset = split(self.dataset, 0.9)
+        def get_dataset(n_obs: int):
+            return FunctionOperatorDataset(
+                input_function_set=sine_set,
+                x_sampler=x_sampler,
+                n_sensors=n_sensors,
+                output_function_set=sine_set,
+                y_sampler=y_sampler,
+                n_evaluations=n_evaluations,
+                parameter_sampler=parameter_sampler,
+                n_observations=n_obs,
+            )
 
-    def dataset(self) -> Dataset:
-        """Return data set."""
-        return self.dataset
+        train_dataset = get_dataset(n_train)
+        test_dataset = get_dataset(n_test)
 
-    def train_dataset(self) -> Dataset:
-        """Return training data set."""
-        return self.train_dataset
-
-    def test_dataset(self) -> Dataset:
-        """Return test data set."""
-        return self.test_dataset
-
-    def metric(self) -> Loss:
-        """Return MSELoss."""
-        return MSELoss()
+        super().__init__(train_dataset, test_dataset, [MSELoss()])

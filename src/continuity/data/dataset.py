@@ -9,7 +9,7 @@ import torch
 import torch.utils.data as td
 from typing import Tuple
 
-from .shape import DatasetShapes, TensorShape
+from continuity.operators.shape import OperatorShapes, TensorShape
 
 
 class OperatorDataset(td.Dataset):
@@ -58,8 +58,7 @@ class OperatorDataset(td.Dataset):
         self.v = v
 
         # used to initialize architectures
-        self.shapes = DatasetShapes(
-            num_observations=int(x.size(0)),
+        self.shapes = OperatorShapes(
             x=TensorShape(*x.size()[1:]),
             u=TensorShape(*u.size()[1:]),
             y=TensorShape(*y.size()[1:]),
@@ -83,7 +82,7 @@ class OperatorDataset(td.Dataset):
         Returns:
             number of samples in the entire set.
         """
-        return self.shapes.num_observations
+        return self.x.size(0)
 
     def __getitem__(
         self, idx
@@ -96,12 +95,25 @@ class OperatorDataset(td.Dataset):
         Returns:
             A tuple containing the three input tensors and the output tensor for the given index.
         """
-        sample = {
-            "x": self.x[idx],
-            "u": self.u[idx],
-            "y": self.y[idx],
-            "v": self.v[idx],
-        }
+        return self._apply_transformations(
+            self.x[idx], self.u[idx], self.y[idx], self.v[idx]
+        )
+
+    def _apply_transformations(
+        self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor, v: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Applies class transformations to four tensors.
+
+        Args:
+            x: Tensor of shape (#samples, #sensors, x-dim) with sensor positions.
+            u: Tensor of shape (#samples, #sensors, u-dim) with evaluations of the input functions at sensor positions.
+            y: Tensor of shape (#samples, #evaluations, y-dim) with evaluation positions.
+            v: Tensor of shape (#samples, #evaluations, v-dim) with ground truth operator mappings.
+
+        Returns:
+            Input samples with class transformations applied.
+        """
+        sample = {"x": x, "u": u, "y": y, "v": v}
 
         # transform
         for dim, val in sample.items():

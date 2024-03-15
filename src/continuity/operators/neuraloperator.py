@@ -6,9 +6,9 @@ stack of continuous convolutions with a lifting layer and a projection layer.
 """
 
 import torch
+from typing import List, Optional
 from continuity.operators import Operator
-from continuity.data import DatasetShapes
-from continuity.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
+from continuity.operators.shape import OperatorShapes
 
 
 class NeuralOperator(Operator):
@@ -22,42 +22,34 @@ class NeuralOperator(Operator):
 
     For now, sensor positions are equal across all layers.
 
-    TODO: This implementation has to be generalized to arbitrary `Operator` layers.
-
     Args:
-        coordinate_dim: Dimension of coordinate space
-        num_channels: Number of channels
-        depth: Number of hidden layers
-        kernel_width: Width of kernel network
-        kernel_depth: Depth of kernel network
+        shapes: Shapes of the input and output data.
+        layers: List of operator layers. First layer is used as lifting,
+                last layer as projection operator.
+        act: Activation function. Default is tanh.
     """
 
     def __init__(
         self,
-        shapes: DatasetShapes,
-        depth: int = 1,
-        kernel_width: int = 32,
-        kernel_depth: int = 3,
+        shapes: OperatorShapes,
+        layers: List[Operator],
+        act: Optional[torch.nn.Module] = None,
     ):
         super().__init__()
 
+        # Check shapes
+        assert len(layers) >= 2
+        assert layers[0].shapes.x == shapes.x
+        assert layers[0].shapes.u == shapes.u
+        for i in range(1, len(layers)):
+            assert layers[i].shapes.x == layers[i - 1].shapes.y
+            assert layers[i].shapes.u == layers[i - 1].shapes.v
+        assert layers[-1].shapes.y == shapes.y
+        assert layers[-1].shapes.v == shapes.v
+
         self.shapes = shapes
-        self.lifting = NaiveIntegralKernel(
-            NeuralNetworkKernel(shapes, kernel_width, kernel_depth),
-        )
-
-        self.hidden_layers = torch.nn.ModuleList(
-            [
-                NaiveIntegralKernel(
-                    NeuralNetworkKernel(shapes, kernel_width, kernel_depth),
-                )
-                for _ in range(depth)
-            ]
-        )
-
-        self.projection = NaiveIntegralKernel(
-            NeuralNetworkKernel(shapes, kernel_width, kernel_depth),
-        )
+        self.layers = torch.nn.ModuleList(layers)
+        self.act = act or torch.nn.Tanh()
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
@@ -72,20 +64,17 @@ class NeuralOperator(Operator):
         Returns:
             Evaluations of the mapped function with shape (batch_size, y_size, num_channels)
         """
-        # Lifting layer (we use x as evaluation coordinates for now)
-        v = self.lifting(x, u, x)
-        assert v.shape[1:] == torch.Size([self.shapes.x.num, self.shapes.u.dim])
+        assert u.shape[1:] == torch.Size([self.shapes.u.num, self.shapes.u.dim])
+
+        # Lifting
+        v = self.layers[0](x, u, x)
 
         # Hidden layers
-        for layer in self.hidden_layers:
-            # Layer operation (with residual connection)
-            v = layer(x, v, x) + v
-            assert v.shape[1:] == torch.Size([self.shapes.x.num, self.shapes.u.dim])
+        for layer in self.layers[1:-1]:
+            v = self.act(layer(x, v, x)) + v
 
-            # Activation
-            v = torch.tanh(v)
+        # Projection
+        w = self.layers[-1](x, v, y)
 
-        # Projection layer
-        w = self.projection(x, v, y)
-        assert w.shape[1:] == torch.Size([y.size(1), self.shapes.u.dim])
+        assert w.shape[1:] == torch.Size([y.size(1), self.shapes.v.dim])
         return w

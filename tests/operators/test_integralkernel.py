@@ -1,6 +1,6 @@
 import torch
-from continuity.data.sine import Sine
-from continuity.data.shape import DatasetShapes, TensorShape
+from continuity.benchmarks.sine import SineBenchmark
+from continuity.operators.shape import OperatorShapes, TensorShape
 from continuity.operators.integralkernel import NeuralNetworkKernel, NaiveIntegralKernel
 
 
@@ -13,8 +13,7 @@ def test_neuralnetworkkernel():
     x = torch.rand(n_obs, x_num, x_dim)
     y = torch.rand(n_obs, y_num, y_dim)
 
-    shapes = DatasetShapes(
-        num_observations=n_obs,
+    shapes = OperatorShapes(
         x=TensorShape(num=x_num, dim=x_dim),
         u=TensorShape(num=x_num, dim=u_dim),
         y=TensorShape(num=y_num, dim=y_dim),
@@ -33,12 +32,9 @@ def test_neuralnetworkkernel():
 
 
 def test_naiveintegralkernel():
-    # Parameters
-    num_sensors = 16
-    num_evals = num_sensors
-
     # Data set
-    dataset = Sine(num_sensors, size=1)
+    dataset = SineBenchmark(n_train=1).train_dataset
+
     x, u, _, _ = [a.unsqueeze(0) for a in dataset[0]]
 
     # Kernel
@@ -62,15 +58,14 @@ def test_naiveintegralkernel():
     operator = NaiveIntegralKernel(kernel=Dirac())
 
     # Create tensors
-    y = torch.linspace(-1, 1, num_evals).reshape(1, -1, 1)
+    y = torch.linspace(-1, 1, 32).reshape(1, -1, 1)
 
     # Apply operator
     v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
 
     # For num_sensors == num_evals, we get v = u / num_sensors.
-    if num_sensors == num_evals:
-        v_expected = u / num_sensors
-        assert (v == v_expected).all(), f"{v} != {v_expected}"
+    v_expected = u / 32
+    assert (v == v_expected).all(), f"{v} != {v_expected}"
 
 
 if __name__ == "__main__":

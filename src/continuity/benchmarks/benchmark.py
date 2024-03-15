@@ -4,23 +4,25 @@
 Benchmark base class.
 """
 
-from abc import ABC, abstractmethod
+from typing import List
+from dataclasses import dataclass, field
+from continuity.data import OperatorDataset
+from continuity.operators.losses import Loss, MSELoss
 
 
-class Benchmark(ABC):
-    """Benchmark base class."""
+@dataclass
+class Benchmark:
+    """Benchmark class.
 
-    @abstractmethod
-    def train_dataset(self):
-        """Return training data set."""
-        raise NotImplementedError
+    A Benchmark object encapsulates two distinct datasets: a train and a test dataset. The training dataset is used to
+    train an operator to fit the dataset. The test dataset, in contrast, is utilized solely for evaluating the
+    performance. The evaluation is done by measuring the loss on the test set.
+    """
 
-    @abstractmethod
-    def test_dataset(self):
-        """Return test data set."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def metric(self):
-        """Return metric, e.g. MSELoss."""
-        raise NotImplementedError
+    train_dataset: OperatorDataset
+    test_dataset: OperatorDataset
+    losses: List[Loss] = field(
+        default_factory=lambda: [
+            MSELoss(),
+        ]
+    )
