@@ -107,6 +107,8 @@ class FourierLayer(Operator):
 
     """
 
+    TENSOR_INDICES = "defghijklmnopqrstuvxyz"
+
     def __init__(
         self,
         shapes: DatasetShapes,
@@ -267,17 +269,16 @@ class FourierLayer(Operator):
         Returns:
             Output tensor with shape = (batch_size, ..., v.dim)
         """
-        TENSOR_INDICES = "defghijklmnopqrstuvxyz"
 
         num_fft_dimensions = len(dim)
 
         assert (
-            len(TENSOR_INDICES) > num_fft_dimensions
-        ), f"Too many dimensions. The current limit for the number of dimensions is {len(TENSOR_INDICES)}."
+            len(self.TENSOR_INDICES) > num_fft_dimensions
+        ), f"Too many dimensions. The current limit for the number of dimensions is {len(self.TENSOR_INDICES)}."
 
         # contraction equation for torch.einsum method
         # d: v-dim, s: u-dim, b: batch-dim
-        frequency_indices = "".join(TENSOR_INDICES[: int(num_fft_dimensions)])
+        frequency_indices = "".join(self.TENSOR_INDICES[: int(num_fft_dimensions)])
         contraction_equation = "{}ac,b{}c->b{}a".format(
             frequency_indices, frequency_indices, frequency_indices
         )
