@@ -7,12 +7,11 @@ from continuity.data import OperatorDataset
 from continuity.operators.fourier_neural_operator import FourierLayer1d, FourierLayer
 
 torch.manual_seed(0)
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 @pytest.fixture(scope="module")
 def dataset() -> OperatorDataset:
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     # Input function
     u = lambda x: torch.sin(x)
 
@@ -25,8 +24,8 @@ def dataset() -> OperatorDataset:
 
     # Domain parameters
     half_linspace = lambda N: 2 * torch.pi * torch.arange(N) / N
-    x = half_linspace(num_sensors).to(device)
-    y = half_linspace(num_evaluations).to(device)
+    x = half_linspace(num_sensors)
+    y = half_linspace(num_evaluations)
 
     # This dataset contains only a single sample (first dimension of all tensors)
     n_observations = 1
@@ -42,8 +41,6 @@ def dataset() -> OperatorDataset:
 
 @pytest.fixture(scope="module")
 def dataset2d() -> OperatorDataset:
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
     # Input function
     u = lambda x1, x2: torch.sin(x1) * torch.cos(x2)
 
@@ -56,15 +53,15 @@ def dataset2d() -> OperatorDataset:
 
     # Domain parameters
     half_linspace = lambda N: 2 * torch.pi * torch.arange(N) / N
-    x1 = half_linspace(num_sensors_per_dimension).to(device)
-    x2 = half_linspace(num_sensors_per_dimension).to(device)
-    y1 = half_linspace(num_evaluations_per_dimensions).to(device)
-    y2 = half_linspace(num_evaluations_per_dimensions).to(device)
+    x1 = half_linspace(num_sensors_per_dimension)
+    x2 = half_linspace(num_sensors_per_dimension)
+    y1 = half_linspace(num_evaluations_per_dimensions)
+    y2 = half_linspace(num_evaluations_per_dimensions)
 
-    xx1, xx2 = torch.meshgrid(x1, x2)
+    xx1, xx2 = torch.meshgrid(x1, x2, indexing="xy")
     x = torch.stack([xx1.flatten(), xx2.flatten()], axis=1)
 
-    yy1, yy2 = torch.meshgrid(y1, y2)
+    yy1, yy2 = torch.meshgrid(y1, y2, indexing="xy")
     y = torch.stack([yy1.flatten(), yy2.flatten()], axis=1)
 
     # This dataset contains only a single sample (first dimension of all tensors)
@@ -84,7 +81,6 @@ def dataset2d() -> OperatorDataset:
 
 @pytest.mark.slow
 def test_fourier1d(dataset):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer1d(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
 
@@ -94,7 +90,6 @@ def test_fourier1d(dataset):
 
 @pytest.mark.slow
 def test_fno(dataset):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
 
@@ -104,7 +99,6 @@ def test_fno(dataset):
 
 @pytest.mark.slow
 def test_fno_2d(dataset2d):
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     operator = FourierLayer(dataset2d.shapes)
     Trainer(operator, device=device).fit(dataset2d, tol=1e-12, epochs=10_000)
 
@@ -115,7 +109,7 @@ def test_fno_2d(dataset2d):
 def test_zero_padding(dataset):
     operator = FourierLayer(dataset.shapes)
 
-    #### test behaviour for odd number of frequencies
+    #### test behavior for odd number of frequencies
     # input tensor in 'standard order'
     x = torch.tensor(
         [
@@ -149,7 +143,7 @@ def test_zero_padding(dataset):
 
     assert torch.all(output == x_zero_padded).item()
 
-    #### test behaviour for even number of frequencies
+    #### test behavior for even number of frequencies
     # input tensor in 'standard order'
     x = torch.tensor(
         [
@@ -186,7 +180,7 @@ def test_zero_padding(dataset):
 def test_remove_large_frequencies(dataset):
     operator = FourierLayer(dataset.shapes)
 
-    #### test behaviour for odd number of frequencies
+    #### test behavior for odd number of frequencies
     # input tensor in 'standard order'
     # frequencies to be removed are marked with zeros
     x = torch.tensor(
@@ -220,7 +214,7 @@ def test_remove_large_frequencies(dataset):
 
     assert torch.all(output == x_zero_padded).item()
 
-    #### test behaviour for even number of frequencies
+    #### test behavior for even number of frequencies
     # input tensor in 'standard order'
     # frequencies to be removed are marked with zeros
     x = torch.tensor(
@@ -252,7 +246,3 @@ def test_remove_large_frequencies(dataset):
     x_zero_padded = torch.fft.ifftshift(x_zero_padded, dim=(0,))
 
     assert torch.all(output == x_zero_padded).item()
-
-
-if __name__ == "__main__":
-    test_fno_2d()
