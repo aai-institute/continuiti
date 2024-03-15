@@ -46,11 +46,11 @@ dependencies = [
     # dvc               # data version control
 
     # --------- dependencies --------- #
-    "torch==2.1.0",
-    "dadaptation==3.1",
+    "torch>=2.1.0,<3.0.0",
+    "dadaptation>=3.1,<4.0",
     "matplotlib",
     "pandas",
-    "optuna==3.5.0",
+    "optuna>=3.5.0,<4.0.0",
     "numpy",
 ]
 
