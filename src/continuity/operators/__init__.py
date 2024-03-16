@@ -16,6 +16,7 @@ from .neuraloperator import NeuralOperator
 from .deeponet import DeepONet
 from .belnet import BelNet
 from .dno import DeepNeuralOperator
+from .fno import FourierNeuralOperator
 from .shape import OperatorShapes
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "NeuralOperator",
     "BelNet",
     "DeepNeuralOperator",
+    "FourierNeuralOperator",
 ]
