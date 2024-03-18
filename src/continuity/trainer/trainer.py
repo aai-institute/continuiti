@@ -99,7 +99,7 @@ class Trainer:
 
         # Print number of model parameters
         if self.verbose:
-            num_params = sum(p.numel() for p in self.operator.parameters())
+            num_params = self.operator.num_params()
             print(f"Model parameters: {num_params}")
 
         # Move operator to device

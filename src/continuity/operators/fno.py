@@ -31,6 +31,10 @@ class FourierNeuralOperator(NeuralOperator):
         width: int = 3,
         act: Optional[torch.nn.Module] = None,
     ):
+        self.depth = depth
+        self.width = width
+        self.act = act
+
         latent_shapes = OperatorShapes(
             x=shapes.x,
             u=TensorShape(shapes.u.num, width),
@@ -43,3 +47,12 @@ class FourierNeuralOperator(NeuralOperator):
         )
 
         super().__init__(shapes, layers, act)
+
+    def __str__(self):
+        """String representation of the operator."""
+        s = "FourierNeuralOperator("
+        s += f"depth={self.depth}, width={self.width}"
+        if not isinstance(self.act, torch.nn.Tanh):
+            s += f", {self.act}"
+        s += ")"
+        return s

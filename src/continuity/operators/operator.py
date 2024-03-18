@@ -51,3 +51,7 @@ class Operator(torch.nn.Module):
             path: Path to the file.
         """
         self.load_state_dict(torch.load(path))
+
+    def num_params(self) -> int:
+        """Return the number of trainable parameters."""
+        return sum(p.numel() for p in self.parameters())
