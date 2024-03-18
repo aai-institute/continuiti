@@ -13,19 +13,17 @@ def test_neuraloperator():
     dataset = SineBenchmark(n_train=1).train_dataset
     shapes = dataset.shapes
 
-    latent_channels = 1
-    hidden_shape = TensorShape(shapes.u.num, latent_channels)
-
-    shapes = [
-        OperatorShapes(x=shapes.x, u=shapes.u, y=shapes.x, v=hidden_shape),
-        OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.x, v=hidden_shape),
-        OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.y, v=shapes.v),
-    ]
-
     # Operator
+    width, depth = 7, 9
+    latent_shape = OperatorShapes(
+        x=shapes.x,
+        u=TensorShape(shapes.u.num, width),
+        y=shapes.x,
+        v=TensorShape(shapes.u.num, width),
+    )
     layers = [
-        NaiveIntegralKernel(NeuralNetworkKernel(shapes[i], 32, 3))
-        for i in range(len(shapes))
+        NaiveIntegralKernel(NeuralNetworkKernel(latent_shape, 32, 3))
+        for _ in range(depth)
     ]
     operator = NeuralOperator(dataset.shapes, layers)
 

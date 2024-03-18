@@ -1,5 +1,5 @@
 """
-`continuity.operators.operator`
+`continuity.operators.neuraloperator`
 
 Operators can be stacked into a `NeuralOperator` architecture, which is a
 stack of continuous convolutions with a lifting layer and a projection layer.
@@ -24,8 +24,7 @@ class NeuralOperator(Operator):
 
     Args:
         shapes: Shapes of the input and output data.
-        layers: List of operator layers. First layer is used as lifting,
-                last layer as projection operator.
+        layers: List of operator layers.
         act: Activation function. Default is tanh.
     """
 
@@ -37,19 +36,25 @@ class NeuralOperator(Operator):
     ):
         super().__init__()
 
-        # Check shapes
-        assert len(layers) >= 2
-        assert layers[0].shapes.x == shapes.x
-        assert layers[0].shapes.u == shapes.u
-        for i in range(1, len(layers)):
-            assert layers[i].shapes.x == layers[i - 1].shapes.y
-            assert layers[i].shapes.u == layers[i - 1].shapes.v
-        assert layers[-1].shapes.y == shapes.y
-        assert layers[-1].shapes.v == shapes.v
-
         self.shapes = shapes
         self.layers = torch.nn.ModuleList(layers)
         self.act = act or torch.nn.Tanh()
+
+        self.first_dim = layers[0].shapes.u.dim
+        self.last_dim = layers[-1].shapes.v.dim
+
+        assert self.shapes.u.num == layers[0].shapes.u.num
+        assert self.shapes.v.num == layers[-1].shapes.v.num
+
+        self.lifting = torch.nn.Linear(self.shapes.u.dim, self.first_dim)
+        self.projection = torch.nn.Linear(self.last_dim, self.shapes.v.dim)
+
+        self.W = torch.nn.ModuleList(
+            [
+                torch.nn.Linear(layer.shapes.u.dim, layer.shapes.v.dim)
+                for layer in layers
+            ]
+        )
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
@@ -67,14 +72,18 @@ class NeuralOperator(Operator):
         assert u.shape[1:] == torch.Size([self.shapes.u.num, self.shapes.u.dim])
 
         # Lifting
-        v = self.layers[0](x, u, x)
+        u = u.reshape(-1, self.shapes.u.dim)
+        v = self.lifting(u)
+        v = v.reshape(-1, self.shapes.u.num, self.first_dim)
 
         # Hidden layers
-        for layer in self.layers[1:-1]:
-            v = self.act(layer(x, v, x)) + v
+        for i, layer in enumerate(self.layers):
+            v = self.act(layer(x, v, x)) + self.W[i](v)
 
         # Projection
-        w = self.layers[-1](x, v, y)
+        v = v.reshape(-1, self.last_dim)
+        v = self.projection(v)
+        w = v.reshape(-1, self.shapes.v.num, self.shapes.v.dim)
 
         assert w.shape[1:] == torch.Size([y.size(1), self.shapes.v.dim])
         return w
