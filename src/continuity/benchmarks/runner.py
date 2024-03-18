@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from continuity.benchmarks import Benchmark
 from continuity.operators import Operator, OperatorShapes
 from continuity.trainer import Trainer
+from continuity.trainer.callbacks import Callback, PrintTrainingLoss
 from continuity.data.utility import dataset_loss
 
 
@@ -42,24 +43,42 @@ class BenchmarkRunner:
 
         trainer = Trainer(op, lr=run.lr, loss_fn=loss_fn, device=run.device)
 
+        class LossHistory(Callback):
+            history = []
+
+            def __call__(self, logs):
+                self.history.append(logs.loss_train)
+
+            def on_train_begin(self):
+                pass
+
+            def on_train_end(self):
+                pass
+
+        loss_history = LossHistory()
+        callbacks = [PrintTrainingLoss(), loss_history]
+
         start = time()
-        stats = trainer.fit(bm.train_dataset, tol=run.tol, epochs=run.max_epochs)
+        stats = trainer.fit(
+            bm.train_dataset, tol=run.tol, epochs=run.max_epochs, callbacks=callbacks
+        )
         end = time()
-        stats["time/train"] = start - end
+        stats["time/train"] = end - start
 
         start = time()
         loss_test = dataset_loss(bm.test_dataset, op, loss_fn)
         end = time()
         stats["loss/test"] = loss_test
-        stats["time/test"] = start - end
+        stats["time/test"] = end - start
 
         # Append run configuration
         stats["Benchmark"] = run.benchmark_name
         stats["Operator"] = run.operator_name
-        stats["num_params"] = op.num_params()
+        stats["params"] = op.num_params()
         stats["seed"] = str(run.seed)
         stats["lr"] = str(run.lr)
         stats["tol"] = str(run.tol)
         stats["max_epochs"] = str(run.max_epochs)
+        stats["loss_history"] = loss_history.history
 
         return stats
