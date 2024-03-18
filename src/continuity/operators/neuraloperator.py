@@ -43,6 +43,9 @@ class NeuralOperator(Operator):
         self.first_dim = layers[0].shapes.u.dim
         self.last_dim = layers[-1].shapes.v.dim
 
+        assert self.shapes.u.num == layers[0].shapes.u.num
+        assert self.shapes.v.num == layers[-1].shapes.v.num
+
         self.lifting = torch.nn.Linear(self.shapes.u.dim, self.first_dim)
         self.projection = torch.nn.Linear(self.last_dim, self.shapes.v.dim)
 

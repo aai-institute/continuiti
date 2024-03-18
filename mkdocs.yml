@@ -182,6 +182,7 @@ nav:
       - Time Series: examples/timeseries.ipynb
       - Super-resolution: examples/superresolution.ipynb
       - Physics-informed: examples/physicsinformed.ipynb
+      - FNO: examples/fno.ipynb
       - Meshes: examples/meshes.ipynb
       - Self-supervised: examples/selfsupervised.ipynb
   - Code:
