@@ -1,20 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box
-}
-
-body, html {
-    height: 100%;
-    font-family: sans-serif
-}
-
-h1, h2, h3, h4, h5, h6 {
-    margin: 0;
-    padding-top: 30px;
-    padding-bottom: 10px;
-}
-
 .container {
     width: 100%;
     min-height: 100vh;
@@ -26,42 +9,40 @@ h1, h2, h3, h4, h5, h6 {
     padding: 33px 30px;
 }
 
-table {
+.benchmark-table {
     border-collapse: collapse;
     background: #fff;
-    border-radius: 10px;
+    color: #000;
     overflow: hidden;
     width: 100%;
     margin: 0 auto;
     position: relative;
-    box-shadow: 0px 5px 15px rgb(128, 128, 128);
+    box-shadow: 0px 5px 15px #000;
 }
 
-table td, table th {
+.benchmark-table td, table th {
     padding-left: 12px;
     border: 0;
 }
 
-table thead tr {
+.benchmark-table thead tr {
     height: 40px;
     background: #232323;
     color: #fff;
 }
 
-table tbody tr {
-    height:50px
-}
-
-table td, table th {
-    text-align: left
-}
-
-table td:nth-of-type(2n) {
-    background-color: #dbdbdb;
-}
-
-tbody tr {
+.benchmark-table tbody tr {
+    height: 50px;
     font-size: 15px;
     color: 000;
     line-height: 1.2;
+}
+
+.benchmark-table td, table th {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.benchmark-table td:nth-of-type(2n-1) {
+    background-color: #dbdbdb;
 }

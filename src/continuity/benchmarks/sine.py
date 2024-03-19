@@ -71,18 +71,47 @@ class SineBenchmark(Benchmark):
         super().__init__(train_dataset, test_dataset, [MSELoss()])
 
 
-SineRegular = SineBenchmark(
-    n_sensors=32,
-    n_evaluations=32,
-    n_train=1024,
-    n_test=32,
-    uniform=False,
-)
+class SineRegular(SineBenchmark):
+    """Regular sine benchmark.
 
-SineUniform = SineBenchmark(
-    n_sensors=32,
-    n_evaluations=32,
-    n_train=4096,
-    n_test=128,
-    uniform=True,
-)
+    The `SineRegular` benchmark is a `SineBenchmark` with the following
+    properties:
+
+    - `n_sensors` is 32.
+    - `n_evaluations` is 32.
+    - `n_train` is 1024.
+    - `n_test` is 32.
+    - `uniform` is `False`.
+    """
+
+    def __init__(self):
+        super().__init__(
+            n_sensors=32,
+            n_evaluations=32,
+            n_train=1024,
+            n_test=32,
+            uniform=False,
+        )
+
+
+class SineUniform(SineBenchmark):
+    """Regular sine benchmark.
+
+    The `SineRegular` benchmark is a `SineBenchmark` with the following
+    properties:
+
+    - `n_sensors` is 32.
+    - `n_evaluations` is 32.
+    - `n_train` is 4096.
+    - `n_test` is 128.
+    - `uniform` is `True`.
+    """
+
+    def __init__(self):
+        super().__init__(
+            n_sensors=32,
+            n_evaluations=32,
+            n_train=4096,
+            n_test=128,
+            uniform=True,
+        )
