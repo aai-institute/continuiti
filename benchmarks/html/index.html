@@ -1,0 +1,31 @@
+<html>
+<head><title>Continuity Benchmark</title></head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<body>
+<div class="container">
+<h2>SineRegular</h2>
+<table>
+<thead>
+<tr><th></th><th>Params</th><th>Learning Curve</th><th>loss/train</th><th>loss/test</th></tr>
+</thead>
+<tbody>
+<tr><th>FNO</th><td>505</td><th><img height="60px" src="img/SineRegular_FNO.png"></th><td>1.22e-07</td><td><b>1.4e-07</b></td></tr>
+<tr><th>DNO</th><td>4257</td><th><img height="60px" src="img/SineRegular_DNO.png"></th><td>8.66e-07</td><td>1.17e-06</td></tr>
+<tr><th>DeepONet</th><td>5872</td><th><img height="60px" src="img/SineRegular_DeepONet.png"></th><td>3.21e-06</td><td>3.14e-06</td></tr>
+<tr><th>BelNet</th><td>14056</td><th><img height="60px" src="img/SineRegular_BelNet.png"></th><td>1.22e-05</td><td>9.91e-06</td></tr>
+</tbody>
+</table><h2>SineUniform</h2>
+<table>
+<thead>
+<tr><th></th><th>Params</th><th>Learning Curve</th><th>loss/train</th><th>loss/test</th></tr>
+</thead>
+<tbody>
+<tr><th>DNO</th><td>4257</td><th><img height="60px" src="img/SineUniform_DNO.png"></th><td>0.000169</td><td><b>0.000333</b></td></tr>
+<tr><th>BelNet</th><td>14056</td><th><img height="60px" src="img/SineUniform_BelNet.png"></th><td>2.78e-05</td><td>0.000425</td></tr>
+<tr><th>DeepONet</th><td>5872</td><th><img height="60px" src="img/SineUniform_DeepONet.png"></th><td>0.00214</td><td>0.00642</td></tr>
+<tr><th>FNO</th><td>505</td><th><img height="60px" src="img/SineUniform_FNO.png"></th><td>0.191</td><td>0.238</td></tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

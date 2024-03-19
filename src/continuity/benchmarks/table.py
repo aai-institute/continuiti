@@ -61,12 +61,15 @@ class BenchmarkTable:
         filename = "html/index.html"
         by_benchmark_and_operator = self.by_benchmark_and_operator()
 
+        benchmarks = sorted(list(by_benchmark_and_operator.keys()))
+
         table = ""
-        for bm, benchmark_data in by_benchmark_and_operator.items():
+        for bm in benchmarks:
+            benchmark_data = by_benchmark_and_operator[bm]
             table += f"<h2>{bm}</h2>\n"
 
             table += (
-                "<table>\n<thead>\n<tr><th></th><th>params</th><th>learning curve</th>"
+                "<table>\n<thead>\n<tr><th></th><th>Params</th><th>Learning Curve</th>"
             )
             for key in self.keys:
                 table += f"<th>{key}</th>"
