@@ -30,7 +30,7 @@ dependencies = [
     # --------- loggers --------- #
     # wandb
     # neptune-client
-    "mlflow",
+    # mlflow
     # comet-ml
     # tensorboard
 
@@ -47,6 +47,7 @@ dependencies = [
 
     # --------- dependencies --------- #
     "torch>=2.1.0,<3.0.0",
+    "matplotlib",
     "pandas",
     "optuna>=3.5.0,<4.0.0",
     "numpy",

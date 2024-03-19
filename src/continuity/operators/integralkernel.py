@@ -78,8 +78,6 @@ class NeuralNetworkKernel(Kernel):
         act: Optional[torch.nn.Module] = None,
     ):
         super().__init__(shapes)
-        self.kernel_width = kernel_width
-        self.kernel_depth = kernel_depth
 
         self.shapes = shapes
         self.net = DeepResidualNetwork(
@@ -89,9 +87,6 @@ class NeuralNetworkKernel(Kernel):
             depth=kernel_depth,
             act=act,
         )
-
-    def __str__(self) -> str:
-        return f"NeuralNetworkKernel(kernel_width={self.kernel_width}, kernel_depth={self.kernel_depth})"
 
     def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         """Forward pass.
@@ -163,9 +158,6 @@ class NaiveIntegralKernel(Operator):
 
         self.kernel = kernel
         self.shapes = kernel.shapes
-
-    def __str__(self) -> str:
-        return f"NaiveIntegralKernel(kernel={self.kernel})"
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
