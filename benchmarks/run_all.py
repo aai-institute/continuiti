@@ -1,7 +1,7 @@
 from typing import List
 from continuity.benchmarks.runner import BenchmarkRunner, RunConfig
 from continuity.benchmarks.database import BenchmarkDatabase
-from continuity.benchmarks.sine import SineBenchmark
+from continuity.benchmarks.sine import SineRegular, SineUniform
 from continuity.operators import (
     DeepONet,
     BelNet,
@@ -15,7 +15,8 @@ def all_runs():
 
     # Benchmarks
     benchmarks = {
-        "Sine": lambda: SineBenchmark(),
+        "SineRegular": lambda: SineRegular,
+        "SineUniform": lambda: SineUniform,
     }
 
     # Operators

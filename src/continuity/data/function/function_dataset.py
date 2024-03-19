@@ -111,9 +111,13 @@ class FunctionOperatorDataset(OperatorDataset):
         # sample the parameter space
         p_samples = p_sampler(n_observations)
 
-        # sample physical spaces
-        x = torch.stack([x_sampler(n_sensors) for _ in range(n_observations)])
-        y = torch.stack([y_sampler(n_evaluations) for _ in range(n_observations)])
+        # sample physical spaces (sorted for consistency)
+        x = torch.stack(
+            [x_sampler(n_sensors).sort(dim=0).values for _ in range(n_observations)]
+        )
+        y = torch.stack(
+            [y_sampler(n_evaluations).sort(dim=0).values for _ in range(n_observations)]
+        )
 
         # input set discretization
         u_funcs = self.input_function_set(parameters=p_samples)
