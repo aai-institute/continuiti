@@ -1,0 +1,48 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 33px 30px;
+}
+
+.benchmark-table {
+    border-collapse: collapse;
+    background: #fff;
+    color: #000;
+    overflow: hidden;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0px 5px 15px #000;
+}
+
+.benchmark-table td, table th {
+    padding-left: 12px;
+    border: 0;
+}
+
+.benchmark-table thead tr {
+    height: 40px;
+    background: #232323;
+    color: #fff;
+}
+
+.benchmark-table tbody tr {
+    height: 50px;
+    font-size: 15px;
+    color: 000;
+    line-height: 1.2;
+}
+
+.benchmark-table td, table th {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.benchmark-table td:nth-of-type(2n-1) {
+    background-color: #dbdbdb;
+}

@@ -14,6 +14,7 @@ hooks:
   - build_scripts/copy_notebooks.py
   - build_scripts/copy_changelog.py
   - build_scripts/copy_contributing.py
+  - build_scripts/copy_benchmarks.py
 
 plugins:
   - autorefs
@@ -185,6 +186,7 @@ nav:
       - FNO: examples/fno.ipynb
       - Meshes: examples/meshes.ipynb
       - Self-supervised: examples/selfsupervised.ipynb
+  - Benchmarks: benchmarks/index.md
   - Code:
       - API: api/continuity/
       - Changelog: CHANGELOG.md

@@ -7,6 +7,7 @@ Callbacks for Trainer in Continuity.
 from abc import ABC, abstractmethod
 from typing import Optional, List
 import matplotlib.pyplot as plt
+import torch
 from .logs import Logs
 
 try:
@@ -154,11 +155,13 @@ class MLFlowLogger(Callback):
     def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
+
         Args:
             logs: Training logs.
         """
         mlflow.log_metric("loss/train", logs.loss_train, step=logs.epoch)
-        mlflow.log_metric("loss/val", logs.loss_val, step=logs.epoch)
+        if logs.loss_val is not None:
+            mlflow.log_metric("loss/val", logs.loss_val, step=logs.epoch)
         mlflow.log_metric("seconds_per_epoch", logs.seconds_per_epoch, step=logs.epoch)
 
     def on_train_begin(self):
@@ -168,3 +171,60 @@ class MLFlowLogger(Callback):
     def on_train_end(self):
         """Called at the end of training."""
         mlflow.end_run()
+
+
+class LossHistory(Callback):
+    """
+    Callback that stores the loss history.
+    """
+
+    def __call__(self, logs):
+        """Callback function.
+        Called at the end of each epoch.
+
+        Args:
+            logs: Training logs.
+        """
+        self.train_history.append(logs.loss_train)
+        if logs.loss_val is not None:
+            self.val_history.append(logs.loss_val)
+
+    def on_train_begin(self):
+        """Called at the beginning of training."""
+        self.train_history = []
+        self.val_history = []
+
+    def on_train_end(self):
+        """Called at the end of training."""
+
+
+class LinearLRScheduler(Callback):
+    """
+    Callback for a linear learning rate scheduler.
+
+    ```
+    lr(epoch) = lr0 * (1 - epoch / max_epochs)
+    ```
+
+    where `lr0` is the initial learning rate of the optimizer.
+
+    Args:
+        optimizer: Optimizer. The learning rate of the first parameter group will be updated.
+        max_epochs: Maximum number of epochs.
+    """
+
+    def __init__(self, optimizer: torch.optim.Optimizer, max_epochs: int):
+        self.optimizer = optimizer
+        self.max_epochs = max_epochs
+
+        lr0 = self.optimizer.param_groups[0]["lr"]
+        self.schedule = lambda epoch: lr0 * (1 - epoch / max_epochs)
+
+    def __call__(self, logs):
+        self.optimizer.param_groups[0]["lr"] = self.schedule(logs.epoch)
+
+    def on_train_begin(self):
+        pass
+
+    def on_train_end(self):
+        pass

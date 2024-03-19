@@ -1,12 +1,12 @@
 """
 `continuity.benchmarks.sine`
 
-Sine benchmark.
+Sine benchmarks.
 """
 import torch
 from continuity.data.function import FunctionOperatorDataset, FunctionSet, Function
 from continuity.benchmarks import Benchmark
-from continuity.discrete import RegularGridSampler
+from continuity.discrete import RegularGridSampler, UniformBoxSampler
 from continuity.operators.losses import MSELoss
 
 
@@ -23,14 +23,16 @@ class SineBenchmark(Benchmark):
 
     - Input and output function spaces are the same.
     - The input space is mapped to the output space with the identity operator.
-    - Both the parameter space, the domain, and the co-domain are sampled on a
-      regular grid.
+    - Both the the domain and the co-domain are sampled on a regular grid, if
+      `uniform` is `False`, or uniformly, otherwise.
+    - The parameter $k$ is sampled uniformly from $[\pi, 2\pi]$.
 
     Args:
         n_sensors: number of sensors.
         n_evaluations: number of evaluations.
         n_train: number of observations in the train dataset.
         n_test: number of observations in the test dataset.
+        uniform: whether to sample the domain and co-domain random uniformly.
 
     """
 
@@ -38,13 +40,18 @@ class SineBenchmark(Benchmark):
         self,
         n_sensors: int = 32,
         n_evaluations: int = 32,
-        n_train: int = 90,
-        n_test: int = 10,
+        n_train: int = 1024,
+        n_test: int = 32,
+        uniform: bool = False,
     ):
         sine_set = FunctionSet(lambda k: Function(lambda x: torch.sin(k * x)))
 
-        x_sampler = y_sampler = RegularGridSampler([-1.0], [1.0])
-        parameter_sampler = RegularGridSampler([torch.pi], [2 * torch.pi])
+        if uniform:
+            x_sampler = y_sampler = UniformBoxSampler([-1.0], [1.0])
+        else:
+            x_sampler = y_sampler = RegularGridSampler([-1.0], [1.0])
+
+        parameter_sampler = UniformBoxSampler([torch.pi], [2 * torch.pi])
 
         def get_dataset(n_obs: int):
             return FunctionOperatorDataset(
@@ -62,3 +69,49 @@ class SineBenchmark(Benchmark):
         test_dataset = get_dataset(n_test)
 
         super().__init__(train_dataset, test_dataset, [MSELoss()])
+
+
+class SineRegular(SineBenchmark):
+    """Regular sine benchmark.
+
+    The `SineRegular` benchmark is a `SineBenchmark` with the following
+    properties:
+
+    - `n_sensors` is 32.
+    - `n_evaluations` is 32.
+    - `n_train` is 1024.
+    - `n_test` is 32.
+    - `uniform` is `False`.
+    """
+
+    def __init__(self):
+        super().__init__(
+            n_sensors=32,
+            n_evaluations=32,
+            n_train=1024,
+            n_test=32,
+            uniform=False,
+        )
+
+
+class SineUniform(SineBenchmark):
+    """Regular sine benchmark.
+
+    The `SineRegular` benchmark is a `SineBenchmark` with the following
+    properties:
+
+    - `n_sensors` is 32.
+    - `n_evaluations` is 32.
+    - `n_train` is 4096.
+    - `n_test` is 128.
+    - `uniform` is `True`.
+    """
+
+    def __init__(self):
+        super().__init__(
+            n_sensors=32,
+            n_evaluations=32,
+            n_train=4096,
+            n_test=128,
+            uniform=True,
+        )

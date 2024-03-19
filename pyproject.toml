@@ -32,7 +32,7 @@ dependencies = [
     # neptune-client
     # mlflow
     # comet-ml
-    "tensorboard",
+    # tensorboard
 
     # --------- linters --------- #
     "pre-commit",       # hooks for applying linters on commit
@@ -47,7 +47,6 @@ dependencies = [
 
     # --------- dependencies --------- #
     "torch>=2.1.0,<3.0.0",
-    "dadaptation>=3.1,<4.0",
     "matplotlib",
     "pandas",
     "optuna>=3.5.0,<4.0.0",
