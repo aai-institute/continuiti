@@ -66,7 +66,7 @@ class BenchmarkRunner:
         stats["time/train"] = end - start
 
         start = time()
-        loss_test = dataset_loss(bm.test_dataset, op, loss_fn)
+        loss_test = dataset_loss(bm.test_dataset, op, loss_fn, run.device)
         end = time()
         stats["loss/test"] = loss_test
         stats["time/test"] = end - start

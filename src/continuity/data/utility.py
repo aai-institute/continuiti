@@ -49,9 +49,7 @@ def dataset_loss(
     loss_fn = loss_fn or MSELoss()
     device = device or torch.device("cpu")
 
-    x = torch.stack([x for x, _, _, _ in dataset]).to(device)
-    u = torch.stack([u for _, u, _, _ in dataset]).to(device)
-    y = torch.stack([y for _, _, y, _ in dataset]).to(device)
-    v = torch.stack([v for _, _, _, v in dataset]).to(device)
+    x, u, y, v = dataset[:]
+    x, u, y, v = x.to(device), u.to(device), y.to(device), v.to(device)
 
     return loss_fn(operator, x, u, y, v).item()

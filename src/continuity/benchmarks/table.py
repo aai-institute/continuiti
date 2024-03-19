@@ -1,29 +1,24 @@
 import pandas as pd
-from typing import List
 import matplotlib.pyplot as plt
-
-default_keys = [
-    "epoch",
-    "loss/train",
-    "loss/test",
-    "time/train",
-    "time/test",
-]
+from continuity.benchmarks.database import BenchmarkDatabase
 
 
 class BenchmarkTable:
-    def __init__(
-        self,
-        keys: List[str] = default_keys,
-    ):
-        self.keys = keys
-        self.all_runs = []
+    def __init__(self, db: BenchmarkDatabase):
+        self.db = db
+        self.keys = [
+            "epoch",
+            "loss/train",
+            "loss/test",
+            "time/train",
+            "time/test",
+        ]
 
-    def add_run_stats(self, stats: dict):
-        self.all_runs.append(stats)
+    def all_runs(self):
+        return self.db.all_runs
 
     def as_data_frame(self) -> pd.DataFrame:
-        return pd.concat([pd.DataFrame([r]) for r in self.all_runs])
+        return pd.concat([pd.DataFrame([r]) for r in self.all_runs()])
 
     def by_benchmark_and_operator(self) -> dict:
         processed = {}
@@ -49,17 +44,18 @@ class BenchmarkTable:
 
         # Plot all loss histories
         loss_history = None
-        for r in self.all_runs:
+        for r in self.all_runs():
             if r["Benchmark"] == bm and r["Operator"] == op:
                 loss_history = r["loss_history"]
-                ax.plot(range(len(loss_history)), loss_history, "k-", alpha=0.5)
+                ax.plot(range(len(loss_history)), loss_history, "k-", alpha=0.7)
 
         ax.axis("off")
         plt.yscale("log")
-        fig.savefig(filename)
+        fig.savefig("html/" + filename)
         return filename
 
-    def write_html(self, filename: str = "results.html"):
+    def write_html(self):
+        filename = "html/index.html"
         by_benchmark_and_operator = self.by_benchmark_and_operator()
 
         table = ""
@@ -89,7 +85,7 @@ class BenchmarkTable:
                 table += "</tr>\n"
             table += "</tbody>\n</table>"
 
-        with open("template.html", "r") as f:
+        with open("html/template.html", "r") as f:
             template = f.read()
 
         with open(filename, "w") as f:
