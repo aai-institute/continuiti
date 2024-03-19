@@ -46,3 +46,24 @@ class TrainingLossCriterion(Criterion):
             bool: True if training loss is below threshold.
         """
         return logs.loss_train < self.threshold
+
+
+class ValidationLossCriterion(Criterion):
+    """
+    Stopping criterion based on validation loss.
+    """
+
+    def __init__(self, threshold: float):
+        self.threshold = threshold
+
+    def __call__(self, logs: Logs) -> bool:
+        """Callback function.
+        Called at the end of each epoch.
+
+        Args:
+            logs: Training logs.
+
+        Returns:
+            bool: True if training and validation loss are below threshold.
+        """
+        return logs.loss_train < self.threshold and logs.loss_val < self.threshold

@@ -8,7 +8,11 @@ from dataclasses import dataclass
 from continuity.benchmarks import Benchmark
 from continuity.operators import Operator, OperatorShapes
 from continuity.trainer import Trainer
-from continuity.trainer.callbacks import Callback, PrintTrainingLoss
+from continuity.trainer.callbacks import (
+    PrintTrainingLoss,
+    LossHistory,
+    LinearLRScheduler,
+)
 from continuity.data.utility import dataset_loss
 
 
@@ -21,7 +25,7 @@ class RunConfig:
     seed: int = 0
     lr: float = 1e-3
     tol: float = 1e-5
-    max_epochs: int = 100
+    max_epochs: int = 1000
     device: Union[torch.device, str] = "cpu"
 
 
@@ -41,27 +45,22 @@ class BenchmarkRunner:
         def loss_fn(*args):
             return sum(loss(*args) for loss in bm.losses)
 
-        trainer = Trainer(op, lr=run.lr, loss_fn=loss_fn, device=run.device)
+        optimizer = torch.optim.Adam(op.parameters(), lr=run.lr)
+        trainer = Trainer(op, optimizer, loss_fn=loss_fn, device=run.device)
+        max_epochs = int(run.max_epochs)
 
-        class LossHistory(Callback):
-            history = []
-
-            def __call__(self, logs):
-                self.history.append(logs.loss_train)
-
-            def on_train_begin(self):
-                pass
-
-            def on_train_end(self):
-                pass
-
-        loss_history = LossHistory()
-        callbacks = [PrintTrainingLoss(), loss_history]
+        history = LossHistory()
+        lr_scheduler = LinearLRScheduler(optimizer, max_epochs)
+        callbacks = [PrintTrainingLoss(), history, lr_scheduler]
 
         start = time()
         stats = trainer.fit(
-            bm.train_dataset, tol=run.tol, epochs=run.max_epochs, callbacks=callbacks
+            bm.train_dataset,
+            tol=run.tol,
+            epochs=max_epochs,
+            callbacks=callbacks,
         )
+
         end = time()
         stats["time/train"] = end - start
 
@@ -76,9 +75,8 @@ class BenchmarkRunner:
         stats["Operator"] = run.operator_name
         stats["params"] = op.num_params()
         stats["seed"] = str(run.seed)
-        stats["lr"] = str(run.lr)
         stats["tol"] = str(run.tol)
         stats["max_epochs"] = str(run.max_epochs)
-        stats["loss_history"] = loss_history.history
+        stats["train_history"] = history.train_history
 
         return stats

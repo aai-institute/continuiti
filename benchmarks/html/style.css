@@ -16,12 +16,12 @@ h1, h2, h3, h4, h5, h6 {
 .container {
     width: 100%;
     min-height: 100vh;
-    background: #e3e3e3;
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 33px 30px
+    padding: 33px 30px;
 }
 
 table {
@@ -31,7 +31,8 @@ table {
     overflow: hidden;
     width: 100%;
     margin: 0 auto;
-    position: relative
+    position: relative;
+    box-shadow: 0px 5px 15px rgb(128, 128, 128);
 }
 
 table td, table th {

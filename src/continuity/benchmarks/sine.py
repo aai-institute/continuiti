@@ -23,8 +23,8 @@ class SineBenchmark(Benchmark):
 
     - Input and output function spaces are the same.
     - The input space is mapped to the output space with the identity operator.
-    - Both the parameter space, the domain, and the co-domain are sampled on a
-      regular grid.
+    - Both the the domain and the co-domain are sampled on a regular grid.
+    - The parameter $k$ is sampled uniformly from $[\pi, 2\pi]$.
 
     Args:
         n_sensors: number of sensors.
@@ -38,13 +38,13 @@ class SineBenchmark(Benchmark):
         self,
         n_sensors: int = 32,
         n_evaluations: int = 32,
-        n_train: int = 90,
-        n_test: int = 10,
+        n_train: int = 1024,
+        n_test: int = 32,
     ):
         sine_set = FunctionSet(lambda k: Function(lambda x: torch.sin(k * x)))
 
         x_sampler = y_sampler = RegularGridSampler([-1.0], [1.0])
-        parameter_sampler = RegularGridSampler([torch.pi], [2 * torch.pi])
+        parameter_sampler = UniformBoxSampler([torch.pi], [2 * torch.pi])
 
         def get_dataset(n_obs: int):
             return FunctionOperatorDataset(

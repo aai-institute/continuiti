@@ -15,13 +15,16 @@ class BenchmarkDatabase:
         self.all_runs.append(stats)
         self.save()
 
+    def __len__(self):
+        return len(self.all_runs)
+
     def load(self):
         try:
             with open(self.file, "rb") as f:
                 self.all_runs = pickle.load(f)
             print(f"Load database with {len(self.all_runs)} entries.")
         except FileNotFoundError:
-            print(f"Creating new database: {self.file}")
+            pass
 
     def save(self):
         with open(self.file, "wb") as f:

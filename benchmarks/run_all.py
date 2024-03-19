@@ -1,8 +1,13 @@
 from typing import List
 from continuity.benchmarks.runner import BenchmarkRunner, RunConfig
 from continuity.benchmarks.database import BenchmarkDatabase
-from continuity.benchmarks.sine import SineBenchmark, SineRandomBenchmark
-from continuity.operators import DeepONet, BelNet, FourierNeuralOperator
+from continuity.benchmarks.sine import SineBenchmark
+from continuity.operators import (
+    DeepONet,
+    BelNet,
+    FourierNeuralOperator,
+    DeepNeuralOperator,
+)
 
 
 def all_runs():
@@ -11,7 +16,6 @@ def all_runs():
     # Benchmarks
     benchmarks = {
         "Sine": lambda: SineBenchmark(),
-        "SineRandom": lambda: SineRandomBenchmark(),
     }
 
     # Operators
@@ -19,16 +23,11 @@ def all_runs():
         "DeepONet": lambda s: DeepONet(s),
         "FNO": lambda s: FourierNeuralOperator(s),
         "BelNet": lambda s: BelNet(s),
+        "DNO": lambda s: DeepNeuralOperator(s),
     }
 
     # Seeds
     num_seeds = 3
-
-    # Training parameters
-    lr = 1e-4
-    tol = 1e-3
-    max_epochs = 100
-    device = "cpu"
 
     # Generate all combinations
     for benchmark_name, benchmark_factory in benchmarks.items():
@@ -40,10 +39,6 @@ def all_runs():
                     operator_name,
                     operator_factory,
                     seed,
-                    lr,
-                    tol,
-                    max_epochs,
-                    device,
                 )
                 runs.append(run)
 
