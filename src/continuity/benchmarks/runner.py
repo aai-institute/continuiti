@@ -24,14 +24,14 @@ class RunConfig:
     operator_factory: Callable[[OperatorShapes], Operator]
     seed: int = 0
     lr: float = 1e-3
-    tol: float = 1e-5
+    tol: float = 0
     max_epochs: int = 1000
     device: Union[torch.device, str] = "cpu"
 
 
 class BenchmarkRunner:
     def run(self, run: RunConfig) -> dict:
-        print(f"[{run.seed}] {run.benchmark_name} {run.operator_name}")
+        print(f"{run.benchmark_name} {run.operator_name} seed={run.seed}")
 
         bm = run.benchmark_factory()
         shapes = bm.train_dataset.shapes
@@ -59,6 +59,7 @@ class BenchmarkRunner:
             tol=run.tol,
             epochs=max_epochs,
             callbacks=callbacks,
+            val_dataset=bm.test_dataset,
         )
 
         end = time()

@@ -7,7 +7,6 @@ class BenchmarkTable:
     def __init__(self, db: BenchmarkDatabase):
         self.db = db
         self.keys = [
-            "epoch",
             "loss/train",
             "loss/test",
         ]
@@ -46,6 +45,8 @@ class BenchmarkTable:
         filename = f"img/{bm}_{op}.png"
 
         max_epochs = int(operator_data["max_epochs"])
+        ax.hlines(1e-5, 0, max_epochs, "black", "--")
+
         train_history = operator_data["train_history"].values[0]
         ax.plot(range(len(train_history)), train_history, "k-")
 

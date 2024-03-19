@@ -27,7 +27,7 @@ def all_runs():
     }
 
     # Seeds
-    num_seeds = 3
+    num_seeds = 1
 
     # Generate all combinations
     for benchmark_name, benchmark_factory in benchmarks.items():
@@ -49,6 +49,7 @@ if __name__ == "__main__":
     db = BenchmarkDatabase()
     runner = BenchmarkRunner()
 
-    for run in all_runs():
+    for i, run in enumerate(all_runs()):
+        print(f"Running {i+1}/{len(all_runs())}")
         stats = runner.run(run)
         db.add_run(stats)

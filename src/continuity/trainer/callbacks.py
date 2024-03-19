@@ -160,7 +160,8 @@ class MLFlowLogger(Callback):
             logs: Training logs.
         """
         mlflow.log_metric("loss/train", logs.loss_train, step=logs.epoch)
-        mlflow.log_metric("loss/val", logs.loss_val, step=logs.epoch)
+        if logs.loss_val is not None:
+            mlflow.log_metric("loss/val", logs.loss_val, step=logs.epoch)
         mlflow.log_metric("seconds_per_epoch", logs.seconds_per_epoch, step=logs.epoch)
 
     def on_train_begin(self):
