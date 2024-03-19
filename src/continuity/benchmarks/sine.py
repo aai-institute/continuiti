@@ -72,7 +72,7 @@ class SineBenchmark(Benchmark):
 
 
 class SineRegular(SineBenchmark):
-    """Regular sine benchmark.
+    """Sine benchmark with the domain and co-domain sampled on a regular grid.
 
     The `SineRegular` benchmark is a `SineBenchmark` with the following
     properties:
@@ -95,7 +95,7 @@ class SineRegular(SineBenchmark):
 
 
 class SineUniform(SineBenchmark):
-    """Regular sine benchmark.
+    """Sine benchmark with the domain and co-domain sampled random uniformly.
 
     The `SineRegular` benchmark is a `SineBenchmark` with the following
     properties:
@@ -105,6 +105,7 @@ class SineUniform(SineBenchmark):
     - `n_train` is 4096.
     - `n_test` is 128.
     - `uniform` is `True`.
+
     """
 
     def __init__(self):
