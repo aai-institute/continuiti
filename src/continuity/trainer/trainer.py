@@ -13,7 +13,7 @@ from continuity.data import OperatorDataset, dataset_loss
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.device import get_device
-from .callbacks import Callback, PrintTrainingLoss, LinearLRScheduler
+from .callbacks import Callback, PrintTrainingLoss
 from .criterion import Criterion, TrainingLossCriterion
 from .logs import Logs
 
@@ -80,7 +80,7 @@ class Trainer:
             dataset: Data set.
             tol: Tolerance for stopping criterion. Ignored if criterion is not None.
             epochs: Maximum number of epochs.
-            callbacks: List of callbacks. Defaults to LinearLRScheduler and, if verbose, PrintTrainingLoss.
+            callbacks: List of callbacks. Defaults to PrintTrainingLoss, if verbose.
             criterion: Stopping criterion. Defaults to TrainingLossCriteria(tol).
             batch_size: Batch size.
             shuffle: Shuffle data set.
@@ -89,10 +89,6 @@ class Trainer:
         # Default callbacks
         if callbacks is None:
             callbacks = []
-
-            # Linear learning rate scheduler
-            lr_scheduler = LinearLRScheduler(self.optimizer, epochs)
-            callbacks.append(lr_scheduler)
 
             if self.verbose:
                 callbacks.append(PrintTrainingLoss())

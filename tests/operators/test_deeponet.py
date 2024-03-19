@@ -47,14 +47,7 @@ def test_deeponet():
     dataset = SineBenchmark(n_train=1).train_dataset
 
     # Operator
-    operator = DeepONet(
-        dataset.shapes,
-        branch_width=32,
-        branch_depth=1,
-        trunk_width=32,
-        trunk_depth=1,
-        basis_functions=4,
-    )
+    operator = DeepONet(dataset.shapes)
 
     # Train
     Trainer(operator).fit(dataset, tol=1e-3)

@@ -56,14 +56,14 @@ def test_output_shape_correct(dnos, datasets):
 @pytest.mark.slow
 def test_does_converge():
     # Data set
-    benchmark = SineBenchmark(n_test=1, n_train=1)
+    benchmark = SineBenchmark(n_train=1)
     dataset = benchmark.train_dataset
 
     # Operator
     operator = DeepNeuralOperator(dataset.shapes)
 
     # Train
-    Trainer(operator).fit(dataset, tol=1e-3, batch_size=1)
+    Trainer(operator).fit(dataset, tol=1e-3, epochs=3000)
 
     # Check solution
     x, u = dataset.x, dataset.u
