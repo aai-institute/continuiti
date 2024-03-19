@@ -1,11 +1,11 @@
 from continuity.benchmarks.runner import BenchmarkRunner, RunConfig
 from continuity.benchmarks.database import BenchmarkDatabase
-from continuity.benchmarks.sine import SineBenchmark
+from continuity.benchmarks import SineRegular
 from continuity.operators import DeepONet
 
 run = RunConfig(
     benchmark_name="Sine",
-    benchmark_factory=lambda: SineBenchmark(),
+    benchmark_factory=lambda: SineRegular(),
     operator_name="DeepONet",
     operator_factory=lambda s: DeepONet(s),
     seed=0,
