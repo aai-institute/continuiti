@@ -43,7 +43,9 @@ class NeuralOperator(Operator):
         self.first_dim = layers[0].shapes.u.dim
         self.last_dim = layers[-1].shapes.v.dim
 
+        assert self.shapes.x == layers[0].shapes.x
         assert self.shapes.u.num == layers[0].shapes.u.num
+        assert self.shapes.y == layers[-1].shapes.y
         assert self.shapes.v.num == layers[-1].shapes.v.num
 
         self.lifting = torch.nn.Linear(self.shapes.u.dim, self.first_dim)
@@ -77,8 +79,11 @@ class NeuralOperator(Operator):
         v = v.reshape(-1, self.shapes.u.num, self.first_dim)
 
         # Hidden layers
-        for i, layer in enumerate(self.layers):
-            v = self.act(layer(x, v, x)) + self.W[i](v)
+        for i, layer in enumerate(self.layers[:-1]):
+            v = self.act(layer(x, v, x) + self.W[i](v))
+
+        # Last layer (evaluates y)
+        v = self.layers[-1](x, v, y)
 
         # Projection
         v = v.reshape(-1, self.last_dim)
