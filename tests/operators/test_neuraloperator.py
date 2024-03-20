@@ -18,7 +18,7 @@ def test_neuraloperator():
     latent_shape = OperatorShapes(
         x=shapes.x,
         u=TensorShape(shapes.u.num, width),
-        y=shapes.x,
+        y=shapes.y,
         v=TensorShape(shapes.u.num, width),
     )
     layers = [
