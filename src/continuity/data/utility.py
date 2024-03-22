@@ -37,6 +37,7 @@ def dataset_loss(
     operator,
     loss_fn: Optional[Loss] = None,
     device: Optional[torch.device] = None,
+    batch_size: int = 32,
 ):
     """Evaluate operator performance on data set.
 
@@ -45,11 +46,19 @@ def dataset_loss(
         operator: Operator.
         loss_fn: Loss function. Default is MSELoss.
         device: Device to evaluate on. Default is CPU.
+        batch_size: Batch size. Default is 32.
     """
     loss_fn = loss_fn or MSELoss()
     device = device or torch.device("cpu")
 
-    x, u, y, v = dataset[:]
-    x, u, y, v = x.to(device), u.to(device), y.to(device), v.to(device)
+    # Move operator to device
+    operator.to(device)
 
-    return loss_fn(operator, x, u, y, v).item()
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+
+    loss = 0
+    for x, u, y, v in dataloader:
+        x, u, y, v = x.to(device), u.to(device), y.to(device), v.to(device)
+        loss += loss_fn(operator, x, u, y, v).item()
+
+    return loss / len(dataloader)
