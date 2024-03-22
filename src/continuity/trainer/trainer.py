@@ -7,14 +7,14 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
-from time import time
-from typing import Optional, List
+from typing import Optional, List, Union
 from continuity.data import OperatorDataset, dataset_loss
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.device import get_device
 from .callbacks import Callback, PrintTrainingLoss
-from .criterion import Criterion, TrainingLossCriterion
+from .scheduler import LinearLRScheduler
+from .criterion import Criterion, TrainingLossCriterion, TestLossCriterion
 from .logs import Logs
 
 
@@ -60,8 +60,12 @@ class Trainer:
         )
         self.loss_fn = loss_fn if loss_fn is not None else MSELoss()
         self.device = device
-        self.rank = device.index or 0 if device != "cpu" else 0
-        self.verbose = verbose if verbose is not None else self.rank == 0
+
+        # Verbosity
+        if self.device.index is not None:
+            self.verbose = verbose or self.device.index == 0
+        else:
+            self.verbose = verbose or True
 
     def fit(
         self,
@@ -72,7 +76,8 @@ class Trainer:
         criterion: Optional[Criterion] = None,
         batch_size: int = 32,
         shuffle: bool = True,
-        val_dataset: Optional[OperatorDataset] = None,
+        test_dataset: Optional[OperatorDataset] = None,
+        lr_scheduler: Union[bool, Callback] = True,
     ):
         """Fit operator to data set.
 
@@ -80,22 +85,30 @@ class Trainer:
             dataset: Data set.
             tol: Tolerance for stopping criterion. Ignored if criterion is not None.
             epochs: Maximum number of epochs.
-            callbacks: List of callbacks. Defaults to PrintTrainingLoss, if verbose.
+            callbacks: List of additional callbacks.
             criterion: Stopping criterion. Defaults to TrainingLossCriteria(tol).
             batch_size: Batch size.
             shuffle: Shuffle data set.
-            val_dataset: Validation data set.
+            test_dataset: Test data set.
+            lr_scheduler: Learning rate scheduler. If True, `LinearLRScheduler` is used.
         """
-        # Default callbacks
-        if callbacks is None:
-            callbacks = []
+        # Callbacks
+        callbacks = callbacks or []
 
-            if self.verbose:
-                callbacks.append(PrintTrainingLoss())
+        if self.verbose:
+            callbacks.append(PrintTrainingLoss())
+
+        if lr_scheduler is not False:
+            if lr_scheduler is True:
+                lr_scheduler = LinearLRScheduler(self.optimizer, epochs)
+            callbacks.append(lr_scheduler)
 
         # Default criterion
         if criterion is None:
-            criterion = TrainingLossCriterion(tol)
+            if test_dataset is None:
+                criterion = TrainingLossCriterion(tol)
+            else:
+                criterion = TestLossCriterion(tol)
 
         # Print number of model parameters
         if self.verbose:
@@ -131,11 +144,11 @@ class Trainer:
             callback.on_train_begin()
 
         # Train
+        loss_train, loss_test, epoch = None, None, 0
         operator.train()
         for epoch in range(epochs):
             loss_train = 0
 
-            start = time()
             for x, u, y, v in data_loader:
                 x, u = x.to(self.device), u.to(self.device)
                 y, v = y.to(self.device), v.to(self.device)
@@ -146,28 +159,24 @@ class Trainer:
                     loss.backward(retain_graph=True)
                     return loss
 
-                self.optimizer.step(closure)
+                loss = self.optimizer.step(closure)
 
                 # Compute mean loss
-                loss_train += self.loss_fn(operator, x, u, y, v).detach().item()
+                loss_train += loss.detach().item()
 
-            end = time()
-            seconds_per_epoch = end - start
             loss_train /= len(data_loader)
 
-            # Compute validation loss
-            loss_val = None
-            if val_dataset is not None:
-                loss_val = dataset_loss(
-                    val_dataset, operator, self.loss_fn, self.device
+            # Compute test loss
+            if test_dataset is not None:
+                loss_test = dataset_loss(
+                    test_dataset, operator, self.loss_fn, self.device
                 )
 
             # Callbacks
             logs = Logs(
                 epoch=epoch + 1,
                 loss_train=loss_train,
-                loss_val=loss_val,
-                seconds_per_epoch=seconds_per_epoch,
+                loss_test=loss_test,
             )
 
             for callback in callbacks:
@@ -184,6 +193,3 @@ class Trainer:
 
         # Move operator back to CPU
         self.operator.to("cpu")
-
-        # Return statistics
-        return {"loss/train": loss_train, "loss/val": loss_val, "epoch": epoch + 1}
