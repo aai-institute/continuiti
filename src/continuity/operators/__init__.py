@@ -18,6 +18,7 @@ from .belnet import BelNet
 from .dno import DeepNeuralOperator
 from .fno import FourierNeuralOperator
 from .shape import OperatorShapes
+from .cnn import ConvolutionalNeuralNetwork
 
 __all__ = [
     "Operator",
@@ -27,4 +28,5 @@ __all__ = [
     "BelNet",
     "DeepNeuralOperator",
     "FourierNeuralOperator",
+    "ConvolutionalNeuralNetwork",
 ]
