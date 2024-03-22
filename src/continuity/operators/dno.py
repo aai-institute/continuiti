@@ -1,5 +1,5 @@
 """
-`continuity.operators.deep_neural_operator`
+`continuity.operators.dno`
 
 The Deep Neural Operator (DNO) architecture.
 """
