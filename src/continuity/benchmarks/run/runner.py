@@ -32,6 +32,10 @@ class BenchmarkRunner:
         shapes = benchmark.train_dataset.shapes
         operator = config.operator_factory(shapes)
 
+        # Print
+        if params_dict is None:
+            params_dict = {}
+
         param_str = " ".join(f"{key}={value}" for key, value in params_dict.items())
         print(f"> {benchmark} {operator} {param_str}")
 

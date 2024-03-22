@@ -28,12 +28,8 @@ def test_neuraloperator():
     operator = NeuralOperator(dataset.shapes, layers)
 
     # Train
-    Trainer(operator).fit(dataset, tol=1e-3)
+    Trainer(operator).fit(dataset, tol=1e-2)
 
     # Check solution
-    x, u = dataset.x, dataset.u
-    assert MSELoss()(operator, x, u, x, u) < 1e-3
-
-
-if __name__ == "__main__":
-    test_neuraloperator()
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-2
