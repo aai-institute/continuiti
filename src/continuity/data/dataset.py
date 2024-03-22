@@ -8,11 +8,39 @@ Every data set is a list of `(x, u, y, v)` tuples.
 import torch
 import torch.utils.data as td
 from typing import Tuple
+from abc import ABC, abstractmethod
 
 from continuity.operators.shape import OperatorShapes, TensorShape
 
 
-class OperatorDataset(td.Dataset):
+class OperatorDatasetBase(td.Dataset, ABC):
+    """Abstract base class of a dataset for operator training."""
+
+    shapes: OperatorShapes
+
+    @abstractmethod
+    def __len__(self) -> int:
+        """Return the number of samples.
+
+        Returns:
+            number of samples in the entire set.
+        """
+
+    @abstractmethod
+    def __getitem__(
+        self, idx
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Retrieves the input-output pair at the specified index and applies transformations.
+
+        Parameters:
+            - idx: The index of the sample to retrieve.
+
+        Returns:
+            A tuple containing the three input tensors and the output tensor for the given index.
+        """
+
+
+class OperatorDataset(OperatorDatasetBase):
     """A dataset for operator training.
 
     In operator training, at least one function is mapped onto a second one. To fulfill the properties discretization
