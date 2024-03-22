@@ -59,6 +59,7 @@ testing = [
     "pytest-cov",
     "nbmake",
     "gmsh",
+    "mlflow",
 ]
 docs = [
     "markdown-captions",
