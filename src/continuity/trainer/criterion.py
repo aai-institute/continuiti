@@ -48,9 +48,9 @@ class TrainingLossCriterion(Criterion):
         return logs.loss_train < self.threshold
 
 
-class ValidationLossCriterion(Criterion):
+class TestLossCriterion(Criterion):
     """
-    Stopping criterion based on validation loss.
+    Stopping criterion based on training and test loss.
     """
 
     def __init__(self, threshold: float):
@@ -64,6 +64,6 @@ class ValidationLossCriterion(Criterion):
             logs: Training logs.
 
         Returns:
-            bool: True if training and validation loss are below threshold.
+            bool: True if training and test loss are below threshold.
         """
-        return logs.loss_train < self.threshold and logs.loss_val < self.threshold
+        return logs.loss_train < self.threshold and logs.loss_test < self.threshold

@@ -63,8 +63,8 @@ def test_does_converge():
     operator = DeepNeuralOperator(dataset.shapes)
 
     # Train
-    Trainer(operator).fit(dataset, tol=1e-3, epochs=3000)
+    Trainer(operator, lr=1e-2).fit(dataset, tol=1e-3)
 
     # Check solution
-    x, u = dataset.x, dataset.u
-    assert MSELoss()(operator, x, u, x, u) < 1e-3
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-3

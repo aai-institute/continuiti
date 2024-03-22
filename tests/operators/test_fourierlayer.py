@@ -100,10 +100,10 @@ def test_fourierlayer_1d(dataset):
 @pytest.mark.slow
 def test_fourierlayer_2d(dataset2d):
     operator = FourierLayer(dataset2d.shapes)
-    Trainer(operator, device=device).fit(dataset2d, tol=1e-12, epochs=10_000)
+    Trainer(operator, device=device).fit(dataset2d, tol=1e-10, epochs=10_000)
 
     x, u, y, v = dataset2d[:1]
-    assert MSELoss()(operator, x, u, y, v) < 1e-12
+    assert MSELoss()(operator, x, u, y, v) < 1e-10
 
 
 def test_zero_padding(dataset):

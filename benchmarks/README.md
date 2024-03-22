@@ -1,5 +1,15 @@
 # Benchmarks
 
+## Prerequisites
+
+The benchmarks require optional dependencies:
+
+```bash
+pip install -e ".[benchmark]"
+```
+
+## Run
+
 Run the `run_all.py` script to run all benchmarks.
 
 ```bash
@@ -15,7 +25,15 @@ python run_single.py
 
 ## Visualize
 
-In order to visualize the benchmark runs in your database, run
+We use MLFlow to log the benchmark runs and you can run
+
+```bash
+mlflow ui
+```
+
+to visualize the logged experiments in your browser.
+
+In order to visualize the best runs for every benchmark in an HTML table, run
 
 ```bash
 python process.py

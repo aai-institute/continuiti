@@ -18,9 +18,5 @@ def test_fno():
     Trainer(operator, device="cpu").fit(dataset, tol=1e-12, epochs=10_000)
 
     # Check solution
-    x, u = dataset.x, dataset.u
-    assert MSELoss()(operator, x, u, x, u) < 1e-12
-
-
-if __name__ == "__main__":
-    test_fno()
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-12

@@ -32,7 +32,3 @@ def test_dataset():
         assert y.shape[1] == coordinate_dim
         assert v.shape[1] == num_channels
         assert (v == f(y)).all()
-
-
-if __name__ == "__main__":
-    test_dataset()

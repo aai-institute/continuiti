@@ -13,11 +13,9 @@ class Logs:
     Attributes:
         epoch: Current epoch.
         loss_train: Training loss.
-        loss_val: Validation loss.
-        time: Time taken for epoch.
+        loss_test: Test loss.
     """
 
     epoch: int
     loss_train: float
-    loss_val: float
-    seconds_per_epoch: float
+    loss_test: float

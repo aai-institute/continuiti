@@ -49,7 +49,6 @@ dependencies = [
     "torch>=2.1.0,<3.0.0",
     "matplotlib",
     "pandas",
-    "optuna>=3.5.0,<4.0.0",
     "numpy",
 ]
 
@@ -60,6 +59,7 @@ testing = [
     "pytest-cov",
     "nbmake",
     "gmsh",
+    "mlflow",
 ]
 docs = [
     "markdown-captions",
@@ -78,6 +78,10 @@ docs = [
     "mknotebooks>=0.8.0",
     "neoteroi-mkdocs",
     "pygments",
+]
+benchmark = [
+    "mlflow",
+    "optuna>=3.5.0,<4.0.0",
 ]
 
 [tool.setuptools.dynamic]

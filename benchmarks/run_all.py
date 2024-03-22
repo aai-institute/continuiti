@@ -1,6 +1,7 @@
-from typing import List
-from continuity.benchmarks.runner import BenchmarkRunner, RunConfig
-from continuity.benchmarks.database import BenchmarkDatabase
+import optuna
+import torch
+from functools import partial
+from continuity.benchmarks.run import BenchmarkRunner, RunConfig
 from continuity.benchmarks import SineRegular, SineUniform
 from continuity.operators import (
     DeepONet,
@@ -9,48 +10,85 @@ from continuity.operators import (
     DeepNeuralOperator,
 )
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+n_trials = 10
 
-def all_runs():
-    runs: List[RunConfig] = []
+
+def run_single(benchmark_factory, operator_factory):
+    """Run hyper-parameter sweep for one benchmark and operator."""
+
+    def objective(trial):
+        seed = trial.suggest_int("seed", 0, 100)
+
+        config = RunConfig(
+            benchmark_factory,
+            operator_factory(trial),
+            seed=seed,
+            device=device,
+        )
+
+        test_loss = BenchmarkRunner.run(config, trial.params)
+        return test_loss
+
+    study = optuna.create_study(direction="minimize")
+    study.optimize(objective, n_trials=n_trials)
+
+
+def run_all():
+    """Run benchmarks for all operators."""
 
     # Benchmarks
-    benchmarks = {
-        "SineRegular": lambda: SineRegular(),
-        "SineUniform": lambda: SineUniform(),
-    }
+    benchmarks = [
+        SineRegular,
+        SineUniform,
+    ]
+
+    def DeepONetFactory(trial):
+        branch_width = trial.suggest_categorical("branch_width", [8, 16, 32])
+        branch_depth = trial.suggest_categorical("branch_depth", [1, 4, 8])
+        trunk_width = trial.suggest_categorical("trunk_width", [8, 16, 32])
+        trunk_depth = trial.suggest_categorical("trunk_depth", [1, 4, 8])
+        basis_functions = trial.suggest_categorical("basis_functions", [8, 16, 32])
+        return partial(
+            DeepONet,
+            branch_width=branch_width,
+            branch_depth=branch_depth,
+            trunk_width=trunk_width,
+            trunk_depth=trunk_depth,
+            basis_functions=basis_functions,
+        )
+
+    def FourierNeuralOperatorFactory(trial):
+        width = trial.suggest_categorical("width", [1, 2, 3, 4])
+        depth = trial.suggest_categorical("depth", [1, 2, 3])
+        return partial(FourierNeuralOperator, width=width, depth=depth)
+
+    def BelNetFactory(trial):
+        K = trial.suggest_categorical("K", [8, 16, 32])
+        N_1 = trial.suggest_categorical("N_1", [8, 16, 32])
+        D_1 = trial.suggest_categorical("D_1", [1, 4, 8])
+        N_2 = trial.suggest_categorical("N_2", [8, 16, 32])
+        D_2 = trial.suggest_categorical("D_2", [1, 4, 8])
+        return partial(BelNet, K=K, N_1=N_1, D_1=D_1, N_2=N_2, D_2=D_2)
+
+    def DeepNeuralOperatorFactory(trial):
+        width = trial.suggest_categorical("width", [8, 32, 128])
+        depth = trial.suggest_categorical("depth", [1, 8, 32])
+        return partial(DeepNeuralOperator, width=width, depth=depth)
 
     # Operators
-    operators = {
-        "DeepONet": lambda s: DeepONet(s),
-        "FNO": lambda s: FourierNeuralOperator(s),
-        "BelNet": lambda s: BelNet(s),
-        "DNO": lambda s: DeepNeuralOperator(s),
-    }
+    operators = [
+        DeepONetFactory,
+        FourierNeuralOperatorFactory,
+        BelNetFactory,
+        DeepNeuralOperatorFactory,
+    ]
 
-    # Seeds
-    num_seeds = 1
-
-    # Generate all combinations
-    for benchmark_name, benchmark_factory in benchmarks.items():
-        for operator_name, operator_factory in operators.items():
-            for seed in range(num_seeds):
-                run = RunConfig(
-                    benchmark_name,
-                    benchmark_factory,
-                    operator_name,
-                    operator_factory,
-                    seed,
-                )
-                runs.append(run)
-
-    return runs
+    # Run all combinations
+    for benchmark_factory in benchmarks:
+        for operator_factory in operators:
+            run_single(benchmark_factory, operator_factory)
 
 
 if __name__ == "__main__":
-    db = BenchmarkDatabase()
-    runner = BenchmarkRunner()
-
-    for i, run in enumerate(all_runs()):
-        print(f"Running {i+1}/{len(all_runs())}")
-        stats = runner.run(run)
-        db.add_run(stats)
+    run_all()

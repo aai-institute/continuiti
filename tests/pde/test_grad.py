@@ -42,8 +42,3 @@ def test_div():
     # Test divergence operator
     div_u = Div()(x, u, x)
     assert torch.norm(div_u - div_f(x)) < 1e-6
-
-
-if __name__ == "__main__":
-    test_grad()
-    test_div()

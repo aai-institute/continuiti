@@ -66,8 +66,3 @@ def test_naiveintegralkernel():
     # For num_sensors == num_evals, we get v = u / num_sensors.
     v_expected = u / 32
     assert (v == v_expected).all(), f"{v} != {v_expected}"
-
-
-if __name__ == "__main__":
-    test_neuralnetworkkernel()
-    test_naiveintegralkernel()
