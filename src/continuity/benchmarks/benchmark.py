@@ -26,3 +26,7 @@ class Benchmark:
             MSELoss(),
         ]
     )
+
+    def __str__(self):
+        """Return string representation of the benchmark."""
+        return self.__class__.__name__

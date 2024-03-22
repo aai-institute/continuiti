@@ -1,12 +1,6 @@
-from continuity.benchmarks.table import BenchmarkTable
-from continuity.benchmarks.database import BenchmarkDatabase
+from continuity.benchmarks.run.table import BenchmarkTable
 
 
 if __name__ == "__main__":
-    db = BenchmarkDatabase()
-
-    if len(db) == 0:
-        quit()
-
-    table = BenchmarkTable(db)
+    table = BenchmarkTable()
     table.write_html()

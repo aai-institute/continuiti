@@ -1,21 +1,41 @@
+import mlflow
 import pandas as pd
 import matplotlib.pyplot as plt
-from continuity.benchmarks.database import BenchmarkDatabase
 
 
 class BenchmarkTable:
-    def __init__(self, db: BenchmarkDatabase):
-        self.db = db
+    def __init__(self):
         self.keys = [
             "loss/train",
             "loss/test",
         ]
 
-    def all_runs(self):
-        return self.db.all_runs
+        self.client = mlflow.MlflowClient()
+        experiments = self.client.search_experiments()
+        experiment_ids = [e.experiment_id for e in experiments]
+        self.runs = self.client.search_runs(experiment_ids)
 
     def as_data_frame(self) -> pd.DataFrame:
-        return pd.concat([pd.DataFrame([r]) for r in self.all_runs()])
+        all_runs_dicts = []
+
+        for run in self.runs:
+            history = self.client.get_metric_history(run.info.run_id, "loss/train")
+            loss_history = [m.value for m in history]
+
+            all_runs_dicts.append(
+                {
+                    "Benchmark": run.data.tags["benchmark"],
+                    "Operator": run.data.tags["operator"],
+                    "num_params": run.data.metrics["num_params"],
+                    "loss/train": run.data.metrics["loss/train"],
+                    "loss/test": run.data.metrics["loss/test"],
+                    "train_history": loss_history,
+                    "max_epochs": run.data.params["max_epochs"],
+                    "params": run.data.params,
+                }
+            )
+
+        return pd.concat([pd.DataFrame([r]) for r in all_runs_dicts])
 
     def by_benchmark_and_operator(self) -> dict:
         processed = {}
@@ -66,13 +86,6 @@ class BenchmarkTable:
         # Path to the API documentation
         path = "../api/continuity/"
 
-        def op_alias(op):
-            if op == "FNO":
-                return "FourierNeuralOperator"
-            if op == "DNO":
-                return "DeepNeuralOperator"
-            return op
-
         table = '<link rel="stylesheet" href="style.css">\n'
         for bm in benchmarks:
             benchmark_data = by_benchmark_and_operator[bm]
@@ -92,10 +105,19 @@ class BenchmarkTable:
             for i, op in enumerate(benchmark_data["Operator"]):
                 operator_data = benchmark_data[benchmark_data["Operator"] == op]
 
-                table += f'<tr><th><a href="{path}operators/#continuity.operators.{op_alias(op)}">{op}</a></th>'
+                params_dict = operator_data["params"][0]
+                exclude_params = ["max_epochs", "seed", "lr", "tol", "batch_size"]
+                params_dict = {
+                    k: v for k, v in params_dict.items() if k not in exclude_params
+                }
+                param_str = " ".join([f"{k}={v} " for k, v in params_dict.items()])
+                table += (
+                    f'<tr><th><a href="{path}operators/#continuity.operators.{op}" '
+                )
+                table += f'title="{param_str}">{op}</a></th>'
 
-                params = operator_data["params"]
-                table += f"<td>{int(params)}</td>"
+                num_weights = operator_data["num_params"]
+                table += f"<td>{int(num_weights)}</td>"
 
                 loss_plot = self.generate_loss_plot(operator_data)
                 table += f'<td width="150px"><img height="60px" src="{loss_plot}"></td>'

@@ -1,14 +1,3 @@
-.container {
-    width: 100%;
-    min-height: 100vh;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 33px 30px;
-}
-
 .benchmark-table {
     border-collapse: collapse;
     background: #fff;
@@ -18,6 +7,7 @@
     margin: 0 auto;
     position: relative;
     box-shadow: 0px 5px 15px #000;
+    font: 1em sans-serif;
 }
 
 .benchmark-table td, table th {
