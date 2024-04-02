@@ -72,7 +72,7 @@ class SineBenchmark(Benchmark):
 
 
 class SineRegular(SineBenchmark):
-    """Sine benchmark with the domain and co-domain sampled on a regular grid.
+    r"""Sine benchmark with the domain and co-domain sampled on a regular grid.
 
     The `SineRegular` benchmark is a `SineBenchmark` with the following
     properties:
@@ -80,8 +80,11 @@ class SineRegular(SineBenchmark):
     - `n_sensors` is 32.
     - `n_evaluations` is 32.
     - `n_train` is 1024.
-    - `n_test` is 32.
+    - `n_test` is 1024.
     - `uniform` is `False`.
+
+    ![Visualizations of a few samples.](/continuity/benchmarks/SineRegular.svg)
+
     """
 
     def __init__(self):
@@ -89,13 +92,13 @@ class SineRegular(SineBenchmark):
             n_sensors=32,
             n_evaluations=32,
             n_train=1024,
-            n_test=32,
+            n_test=1024,
             uniform=False,
         )
 
 
 class SineUniform(SineBenchmark):
-    """Sine benchmark with the domain and co-domain sampled random uniformly.
+    r"""Sine benchmark with the domain and co-domain sampled random uniformly.
 
     The `SineRegular` benchmark is a `SineBenchmark` with the following
     properties:
@@ -103,8 +106,10 @@ class SineUniform(SineBenchmark):
     - `n_sensors` is 32.
     - `n_evaluations` is 32.
     - `n_train` is 4096.
-    - `n_test` is 128.
+    - `n_test` is 4096.
     - `uniform` is `True`.
+
+    ![Visualizations of a few samples.](/continuity/benchmarks/SineUniform.svg)
 
     """
 
@@ -113,6 +118,26 @@ class SineUniform(SineBenchmark):
             n_sensors=32,
             n_evaluations=32,
             n_train=4096,
-            n_test=128,
+            n_test=4096,
             uniform=True,
         )
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    n = 3
+
+    for benchmark in [SineRegular(), SineUniform()]:
+        fig, axs = plt.subplots(n, 2, figsize=(10, 4 * n))
+        indices = torch.randint(0, len(benchmark.train_dataset), (n,))
+        for i in range(n):
+            idx = indices[i]
+            x, u, y, v = benchmark.train_dataset[idx]
+            axs[i][0].scatter(x, u, 10, color="green")
+            axs[i][0].set_title(f"Input {idx}")
+            axs[i][1].scatter(y, v, 10, color="red")
+            axs[i][1].set_title(f"Output {idx}")
+
+        fig.tight_layout()
+        fig.savefig(f"docs/benchmarks/{benchmark}.svg", transparent=True)
