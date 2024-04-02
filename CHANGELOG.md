@@ -24,6 +24,8 @@
 - Add `FourierLayer` and `FourierNeuralOperator` with example.
 - Add `benchmarks` infrastructure.
 - Add `MultiHeadAttention` class.
+- Add `FunctionEncoderLayer` and `FunctionEncoder` classes.
+- Add `TransformerOperator` class.
 
 ## 0.0.0 (2024-02-22)
 
