@@ -6,7 +6,7 @@ The DeepONet architecture.
 
 import torch
 from continuity.operators import Operator
-from continuity.operators.common import DeepResidualNetwork
+from continuity.networks import DeepResidualNetwork
 from continuity.operators.shape import OperatorShapes
 
 

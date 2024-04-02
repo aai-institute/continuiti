@@ -8,7 +8,7 @@ import torch
 from abc import ABC, abstractmethod
 from typing import Optional
 from continuity.operators import Operator
-from continuity.operators.common import DeepResidualNetwork
+from continuity.networks import DeepResidualNetwork
 from continuity.operators.shape import OperatorShapes
 
 
