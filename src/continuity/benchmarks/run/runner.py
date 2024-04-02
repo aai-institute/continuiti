@@ -84,7 +84,7 @@ class BenchmarkRunner:
             optimizer,
             loss_fn=loss_fn,
             device=config.device,
-            verbose=True,
+            verbose=config.verbose,
         )
 
         # Train

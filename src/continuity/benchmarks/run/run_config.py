@@ -20,6 +20,7 @@ class RunConfig:
         max_epochs: Maximum number of epochs.
         batch_size: Batch size.
         device: Device.
+        verbose: Verbose training.
     """
 
     benchmark_factory: Callable[[], Benchmark]
@@ -30,3 +31,4 @@ class RunConfig:
     max_epochs: int = 100
     batch_size: int = 8
     device: Union[torch.device, str] = get_device()
+    verbose: bool = False
