@@ -26,6 +26,7 @@
 - Add `MultiHeadAttention` class.
 - Add `FunctionEncoderLayer` and `FunctionEncoder` classes.
 - Add `TransformerOperator` class.
+- Add `heterogeneous_normalized_attention` function.
 
 ## 0.0.0 (2024-02-22)
 
