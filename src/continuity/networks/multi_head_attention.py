@@ -61,7 +61,7 @@ class MultiHeadAttention(nn.Module):
         query: torch.Tensor,
         key: torch.Tensor,
         value: torch,
-        attn_mask: torch.Tensor,
+        attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
         batch_size = query.size(0)
 
@@ -71,9 +71,9 @@ class MultiHeadAttention(nn.Module):
         value = self.value_project(value)
 
         # form individual heads
-        query = query.reshape(batch_size, self.num_heads, -1, self.head_dim)
-        key = key.reshape(batch_size, self.num_heads, -1, self.head_dim)
-        value = value.reshape(batch_size, self.num_heads, -1, self.head_dim)
+        query = query.reshape(batch_size, self.n_heads, -1, self.head_dim)
+        key = key.reshape(batch_size, self.n_heads, -1, self.head_dim)
+        value = value.reshape(batch_size, self.n_heads, -1, self.head_dim)
 
         # perform attention
         attn_out = self.attention(
