@@ -6,7 +6,7 @@ from continuity.networks import DeepResidualNetwork
 
 @pytest.fixture(scope="session")
 def trivial_res_net():
-    return DeepResidualNetwork(3, 5, 7, 2, act=nn.GELU())
+    return DeepResidualNetwork(3, 5, 7, 2, act=nn.Tanh())
 
 
 @pytest.fixture(scope="session")
