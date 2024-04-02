@@ -19,6 +19,7 @@ from .dno import DeepNeuralOperator
 from .fno import FourierNeuralOperator
 from .shape import OperatorShapes
 from .cnn import ConvolutionalNeuralNetwork
+from .transformer_operator import TransformerOperator
 
 __all__ = [
     "Operator",
@@ -29,4 +30,5 @@ __all__ = [
     "DeepNeuralOperator",
     "FourierNeuralOperator",
     "ConvolutionalNeuralNetwork",
+    "TransformerOperator",
 ]
