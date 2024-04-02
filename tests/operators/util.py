@@ -10,6 +10,11 @@ def get_shape_mismatches(
 ) -> List[OperatorShapes]:
     """Evaluates if an operator outputs the same shape as a list of datasets expects.
 
+    The list of operators needs to be initialized in the same order as the list of operator-datasets. For each matching
+    operator and dataset, a single batched forward pass is performed. If the shape of the output does not match the
+    expected ground truth, its shape is added to a list. If there are AssertionErrors or RuntimeErrors, the shape of
+    this specific dataset is also added to the list. The list of failed shapes is returned.
+
     Args:
         operators: List of operator instances matching the list of datasets.
         datasets: list of operator datasets on which this property should be checked.
