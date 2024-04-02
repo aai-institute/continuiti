@@ -7,10 +7,6 @@ Continuity.
 
 ::cards:: cols=2
 
-- title: Basics
-  content: Learning function operators with Continuity
-  url: basics
-
 - title: Time Series
   content: >
     Operator learning for non-uniform time series
@@ -24,6 +20,11 @@ Continuity.
   content: >
     Training physics-informed neural operators
   url: physicsinformed
+
+- title: FNO
+  content: >
+    Fourier layers and Fourier neural operators
+  url: fno
 
 - title: Meshes
   content: >

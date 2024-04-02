@@ -36,3 +36,9 @@
 .benchmark-table td:nth-of-type(2n-1) {
     background-color: #dbdbdb;
 }
+
+.div-params {
+    font-size: 6pt;
+    font-weight: lighter;
+    color: #232323;
+}

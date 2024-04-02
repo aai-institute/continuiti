@@ -44,16 +44,8 @@ class BenchmarkTable:
         benchmarks = df["Benchmark"].unique()
 
         for bm in benchmarks:
-            processed[bm] = {}
-
             mask = df["Benchmark"] == bm
-            df_bm = df.loc[mask]
-
-            # Find the best run w.r.t. test loss
-            groups = df_bm.groupby(["Operator"])
-            idx = groups["loss/test"].transform(min) == df_bm["loss/test"]
-
-            processed[bm] = df_bm[idx]
+            processed[bm] = df.loc[mask]
 
         return processed
 
@@ -62,13 +54,18 @@ class BenchmarkTable:
         op = str(operator_data["Operator"].values[0])
 
         fig, ax = plt.subplots(figsize=(5, 2))
-        filename = f"img/{bm}_{op}.png"
+        filename = f"img/{bm}_{op}.svg"
 
-        max_epochs = int(operator_data["max_epochs"])
+        max_epochs = int(operator_data["max_epochs"].iloc[0])
         ax.hlines(1e-5, 0, max_epochs, "black", "--")
 
-        train_history = operator_data["train_history"].values[0]
-        ax.plot(range(len(train_history)), train_history, "k-")
+        # Plot all runs
+        train_history = operator_data["train_history"].values
+        for i in range(1, len(train_history)):
+            ax.plot(range(len(train_history[i])), train_history[i], "k-", alpha=0.1)
+
+        # Plot the best run
+        ax.plot(range(len(train_history[0])), train_history[0], "k-")
 
         ax.axis("off")
         plt.xlim(0, max_epochs)
@@ -102,28 +99,38 @@ class BenchmarkTable:
             # Sort by test loss
             benchmark_data = benchmark_data.sort_values("loss/test")
 
-            for i, op in enumerate(benchmark_data["Operator"]):
-                operator_data = benchmark_data[benchmark_data["Operator"] == op]
+            visited = set()
 
-                params_dict = operator_data["params"][0]
+            for i, op in enumerate(benchmark_data["Operator"]):
+                if op in visited:
+                    continue
+                else:
+                    visited.add(op)
+
+                # Show only the best run for each operator
+                sorted_data = benchmark_data[benchmark_data["Operator"] == op]
+                operator_data = sorted_data.iloc[0]
+
+                params_dict = operator_data["params"]
                 exclude_params = ["max_epochs", "seed", "lr", "tol", "batch_size"]
                 params_dict = {
                     k: v for k, v in params_dict.items() if k not in exclude_params
                 }
-                param_str = " ".join([f"{k}={v} " for k, v in params_dict.items()])
+                sorted_keys = sorted(params_dict.keys())
+                param_str = ", ".join([f"{k}={params_dict[k]}" for k in sorted_keys])
                 table += (
                     f'<tr><th><a href="{path}operators/#continuity.operators.{op}" '
                 )
-                table += f'title="{param_str}">{op}</a></th>'
+                table += f'>{op}</a><div class="div-params">({param_str})</div></th>'
 
                 num_weights = operator_data["num_params"]
                 table += f"<td>{int(num_weights)}</td>"
 
-                loss_plot = self.generate_loss_plot(operator_data)
+                loss_plot = self.generate_loss_plot(sorted_data)
                 table += f'<td width="150px"><img height="60px" src="{loss_plot}"></td>'
 
                 for key in self.keys:
-                    v = operator_data[key].values[0]
+                    v = operator_data[key]
                     if key in ["epoch"]:
                         table += f"<td>{int(v)}</td>"
                     elif key in ["loss/test"] and i == 0:
