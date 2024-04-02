@@ -23,6 +23,7 @@
 - Change `optuna` dependency from "3.5.0" to ">=3.5.0,<4.0.0".
 - Add `FourierLayer` and `FourierNeuralOperator` with example.
 - Add `benchmarks` infrastructure.
+- Add `MultiHeadAttention` class.
 
 ## 0.0.0 (2024-02-22)
 
