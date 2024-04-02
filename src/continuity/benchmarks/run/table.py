@@ -1,4 +1,5 @@
 import mlflow
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -44,16 +45,8 @@ class BenchmarkTable:
         benchmarks = df["Benchmark"].unique()
 
         for bm in benchmarks:
-            processed[bm] = {}
-
             mask = df["Benchmark"] == bm
-            df_bm = df.loc[mask]
-
-            # Find the best run w.r.t. test loss
-            groups = df_bm.groupby(["Operator"])
-            idx = groups["loss/test"].transform(min) == df_bm["loss/test"]
-
-            processed[bm] = df_bm[idx]
+            processed[bm] = df.loc[mask]
 
         return processed
 
@@ -64,11 +57,18 @@ class BenchmarkTable:
         fig, ax = plt.subplots(figsize=(5, 2))
         filename = f"img/{bm}_{op}.png"
 
-        max_epochs = int(operator_data["max_epochs"])
+        max_epochs = int(operator_data["max_epochs"].iloc[0])
         ax.hlines(1e-5, 0, max_epochs, "black", "--")
 
-        train_history = operator_data["train_history"].values[0]
-        ax.plot(range(len(train_history)), train_history, "k-")
+        train_history = operator_data["train_history"].values
+        x = range(len(train_history[0]))
+        y = train_history[0]
+        ax.plot(x, y, "k-")
+        all = np.array([x for x in train_history if len(x) == max_epochs])
+        x = range(max_epochs)
+        lower = np.min(all, axis=0)
+        upper = np.max(all, axis=0)
+        ax.fill_between(x, lower, upper, color="black", alpha=0.1)
 
         ax.axis("off")
         plt.xlim(0, max_epochs)
@@ -102,10 +102,19 @@ class BenchmarkTable:
             # Sort by test loss
             benchmark_data = benchmark_data.sort_values("loss/test")
 
-            for i, op in enumerate(benchmark_data["Operator"]):
-                operator_data = benchmark_data[benchmark_data["Operator"] == op]
+            visited = set()
 
-                params_dict = operator_data["params"][0]
+            for i, op in enumerate(benchmark_data["Operator"]):
+                if op in visited:
+                    continue
+                else:
+                    visited.add(op)
+
+                # Show only the best run for each operator
+                sorted_data = benchmark_data[benchmark_data["Operator"] == op]
+                operator_data = sorted_data.iloc[0]
+
+                params_dict = operator_data["params"]
                 exclude_params = ["max_epochs", "seed", "lr", "tol", "batch_size"]
                 params_dict = {
                     k: v for k, v in params_dict.items() if k not in exclude_params
@@ -119,11 +128,11 @@ class BenchmarkTable:
                 num_weights = operator_data["num_params"]
                 table += f"<td>{int(num_weights)}</td>"
 
-                loss_plot = self.generate_loss_plot(operator_data)
+                loss_plot = self.generate_loss_plot(sorted_data)
                 table += f'<td width="150px"><img height="60px" src="{loss_plot}"></td>'
 
                 for key in self.keys:
-                    v = operator_data[key].values[0]
+                    v = operator_data[key]
                     if key in ["epoch"]:
                         table += f"<td>{int(v)}</td>"
                     elif key in ["loss/test"] and i == 0:
