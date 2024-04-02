@@ -7,7 +7,13 @@ from continuity.data import OperatorDataset
 
 @pytest.fixture(scope="session")
 def random_shape_operator_datasets() -> List[OperatorDataset]:
-    """
+    """Pytest fixture returning 16 combinations of differently shaped domains, input function observations, co-domains,
+    and output function observations.
+
+    The dimensionality of each vector-space (domain, input function observation, co-domain, and output function
+    observation) is one or two. All combinations (n=2^4) of different dimensionality are probed with this list of
+    Operator-Datasets. The number of sensors, evaluations, and observations is constant (prime numbers) across these
+    different sets of data.
 
     Returns:
         List containing permutations of 1D and 2D vectors (x, u, y, v) in OperatorDataset.
