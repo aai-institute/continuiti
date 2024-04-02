@@ -1,5 +1,4 @@
 import mlflow
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -55,20 +54,18 @@ class BenchmarkTable:
         op = str(operator_data["Operator"].values[0])
 
         fig, ax = plt.subplots(figsize=(5, 2))
-        filename = f"img/{bm}_{op}.png"
+        filename = f"img/{bm}_{op}.svg"
 
         max_epochs = int(operator_data["max_epochs"].iloc[0])
         ax.hlines(1e-5, 0, max_epochs, "black", "--")
 
+        # Plot all runs
         train_history = operator_data["train_history"].values
-        x = range(len(train_history[0]))
-        y = train_history[0]
-        ax.plot(x, y, "k-")
-        all = np.array([x for x in train_history if len(x) == max_epochs])
-        x = range(max_epochs)
-        lower = np.min(all, axis=0)
-        upper = np.max(all, axis=0)
-        ax.fill_between(x, lower, upper, color="black", alpha=0.1)
+        for i in range(1, len(train_history)):
+            ax.plot(range(len(train_history[i])), train_history[i], "k-", alpha=0.1)
+
+        # Plot the best run
+        ax.plot(range(len(train_history[0])), train_history[0], "k-")
 
         ax.axis("off")
         plt.xlim(0, max_epochs)
@@ -119,11 +116,12 @@ class BenchmarkTable:
                 params_dict = {
                     k: v for k, v in params_dict.items() if k not in exclude_params
                 }
-                param_str = " ".join([f"{k}={v} " for k, v in params_dict.items()])
+                sorted_keys = sorted(params_dict.keys())
+                param_str = ", ".join([f"{k}={params_dict[k]}" for k in sorted_keys])
                 table += (
                     f'<tr><th><a href="{path}operators/#continuity.operators.{op}" '
                 )
-                table += f'title="{param_str}">{op}</a></th>'
+                table += f'>{op}</a><div class="div-params">({param_str})</div></th>'
 
                 num_weights = operator_data["num_params"]
                 table += f"<td>{int(num_weights)}</td>"
