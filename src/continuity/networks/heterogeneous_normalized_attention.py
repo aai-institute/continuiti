@@ -8,6 +8,7 @@ def heterogeneous_normalized_attention(
     value: torch.Tensor,
     attn_mask: torch.Tensor = None,
     tau: float = 1.0,
+    dropout_p: float = 0.0,
 ) -> torch.Tensor:
     r"""Heterogeneous normalized attention.
 
