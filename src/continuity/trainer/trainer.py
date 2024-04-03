@@ -2,6 +2,7 @@
 `continuity.trainer.trainer`
 """
 
+import math
 import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -96,7 +97,12 @@ class Trainer:
         callbacks = callbacks or []
 
         if self.verbose:
-            callbacks.append(PrintTrainingLoss())
+            callbacks.append(
+                PrintTrainingLoss(
+                    epochs=epochs,
+                    steps=math.ceil(len(dataset) / batch_size),
+                )
+            )
 
         if lr_scheduler is not False:
             if lr_scheduler is True:
@@ -113,7 +119,7 @@ class Trainer:
         # Print number of model parameters
         if self.verbose:
             num_params = self.operator.num_params()
-            print(f"Model parameters: {num_params}")
+            print(f"Parameters: {num_params}", end="  ")
 
         # Move operator to device
         operator = self.operator.to(self.device)
@@ -149,6 +155,14 @@ class Trainer:
         for epoch in range(epochs):
             loss_train = 0
 
+            # Callbacks
+            logs = Logs(
+                epoch=epoch + 1,
+                step=0,
+                loss_train=loss_train,
+                loss_test=loss_test,
+            )
+
             for x, u, y, v in data_loader:
                 x, u = x.to(self.device), u.to(self.device)
                 y, v = y.to(self.device), v.to(self.device)
@@ -164,6 +178,13 @@ class Trainer:
                 # Compute mean loss
                 loss_train += loss.detach().item()
 
+                # Callbacks
+                logs.step += 1
+                logs.loss_train = loss_train / logs.step
+
+                for callback in callbacks:
+                    callback.step(logs)
+
             loss_train /= len(data_loader)
 
             # Compute test loss
@@ -172,19 +193,17 @@ class Trainer:
                     test_dataset, operator, self.loss_fn, self.device
                 )
 
-            # Callbacks
-            logs = Logs(
-                epoch=epoch + 1,
-                loss_train=loss_train,
-                loss_test=loss_test,
-            )
+            logs.loss_test = loss_test
 
+            # Callbacks
             for callback in callbacks:
                 callback(logs)
 
             # Stopping criterion
             if criterion is not None:
                 if criterion(logs):
+                    if self.verbose:
+                        print("- stopping criterion met")
                     break
 
         # Call on_train_end

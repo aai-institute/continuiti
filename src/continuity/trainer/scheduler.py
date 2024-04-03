@@ -32,9 +32,3 @@ class LinearLRScheduler(Callback):
 
     def __call__(self, logs):
         self.optimizer.param_groups[0]["lr"] = self.schedule(logs.epoch)
-
-    def on_train_begin(self):
-        pass
-
-    def on_train_end(self):
-        pass

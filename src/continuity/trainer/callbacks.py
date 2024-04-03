@@ -4,9 +4,9 @@
 Callbacks for Trainer in Continuity.
 """
 
-from abc import ABC, abstractmethod
 from typing import Optional, List
 from time import time
+import math
 import matplotlib.pyplot as plt
 from continuity.operators import Operator
 from .logs import Logs
@@ -17,12 +17,11 @@ except ImportError:
     pass
 
 
-class Callback(ABC):
+class Callback:
     """
     Callback base class for `fit` method of `Trainer`.
     """
 
-    @abstractmethod
     def __call__(self, logs: Logs):
         """Callback function.
         Called at the end of each epoch.
@@ -30,13 +29,17 @@ class Callback(ABC):
         Args:
             logs: Training logs.
         """
-        raise NotImplementedError
 
-    @abstractmethod
+    def step(self, logs: Logs):
+        """Called after every gradient step.
+
+        Args:
+            logs: Training logs.
+        """
+
     def on_train_begin(self):
         """Called at the beginning of training."""
 
-    @abstractmethod
     def on_train_end(self):
         """Called at the end of training."""
 
@@ -44,9 +47,15 @@ class Callback(ABC):
 class PrintTrainingLoss(Callback):
     """
     Callback to print training/test loss.
+
+    Args:
+        epochs: Number of epochs. Default is None.
+        steps: Number of steps per epoch. Default is None.
     """
 
-    def __init__(self):
+    def __init__(self, epochs: Optional[int] = None, steps: Optional[int] = None):
+        self.epochs = epochs
+        self.steps = steps
         super().__init__()
 
     def __call__(self, logs: Logs):
@@ -56,15 +65,49 @@ class PrintTrainingLoss(Callback):
         Args:
             logs: Training logs.
         """
-        seconds_per_epoch = time() - self.time
-        print(
-            f"\rEpoch {logs.epoch}:  ",
-            f"loss/train = {logs.loss_train:.4e}  ",
-            f"loss/test = {logs.loss_test:.4e}  " if logs.loss_test is not None else "",
-            f"({seconds_per_epoch:.3f} s/epoch)",
-            end="",
-        )
+        self.step(logs)
         self.time = time()
+
+    def step(self, logs: Logs):
+        """Called after every gradient step.
+
+        Args:
+            logs: Training logs.
+        """
+        ms_per_step = (time() - self.time) / logs.step * 1000
+
+        s = ""
+        s += f"Epoch {logs.epoch:2.0f}"
+        if self.epochs is not None:
+            s += f"/{self.epochs}"
+        s += "  "
+
+        s += f"Step {logs.step:2.0f}"
+        if self.steps is not None:
+            s += f"/{self.steps}"
+
+            # Progress bar
+            n = 20
+            done = math.ceil(logs.step / self.steps * n)
+            s += "  [" + "=" * done + " " * (n - done) + "]"
+        s += "  "
+
+        s += f"{ms_per_step:.0f}ms/step"
+
+        if self.epochs is not None and self.steps is not None:
+            remaining_steps = (self.epochs - logs.epoch) * self.steps
+            remaining_steps += self.steps - logs.step
+            eta = remaining_steps * ms_per_step / 1000
+            eta_fmt = f"{eta/60:.0f}:{eta%60:02.0f}min"
+            s += f"  ETA {eta_fmt}"
+        s += " - "
+
+        s += f"loss/train = {logs.loss_train:.4e}  "
+
+        if logs.loss_test is not None:
+            s += f"loss/test = {logs.loss_test:.4e} "
+
+        print("\r" + s, end="")
 
     def on_train_begin(self):
         """Called at the beginning of training."""
@@ -143,12 +186,6 @@ class OptunaCallback(Callback):
             logs: Training logs.
         """
         self.trial.report(logs.loss_train, step=logs.epoch)
-
-    def on_train_begin(self):
-        """Called at the beginning of training."""
-
-    def on_train_end(self):
-        """Called at the end of training."""
 
 
 class MLFlowLogger(Callback):
