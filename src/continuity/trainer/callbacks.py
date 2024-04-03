@@ -191,6 +191,9 @@ class OptunaCallback(Callback):
 class MLFlowLogger(Callback):
     """
     Callback to log metrics to MLFlow.
+
+    Args:
+        operator: Operator to save snapshots. Default is None.
     """
 
     def __init__(self, operator: Optional[Operator] = None):
@@ -208,8 +211,7 @@ class MLFlowLogger(Callback):
         if logs.loss_test is not None:
             mlflow.log_metric("loss/test", logs.loss_test, step=logs.epoch)
 
-        if logs.epoch % 100 == 0:
-            self._save_model(f"ckpt_{logs.epoch:06d}")
+        self._save_model(f"ckpt_{logs.epoch:06d}")
 
     def on_train_begin(self):
         """Called at the beginning of training."""
