@@ -19,10 +19,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
-      - name: Setup venv
-        uses: ./.github/actions/setup-venv
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
-          os-name: ubuntu-latest
-          optional-dependencies: "[docs]"
+          cache: "pip"
+      - name: Install
+        run: |
+          pip install ".[docs]"
       - run: mkdocs gh-deploy --force

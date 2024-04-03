@@ -26,12 +26,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: "true"
-      - name: Setup venv
-        uses: ./.github/actions/setup-venv
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          os-name: ${{ matrix.os }}
-          optional-dependencies: "[testing]"
+          cache: "pip"
+      - name: Install
+        run: |
+          pip install ".[testing]"
       - name: Run pytest
         run: |
           pytest -v
@@ -52,12 +54,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: "true"
-      - name: Setup venv
-        uses: ./.github/actions/setup-venv
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          os-name: ${{ matrix.os }}
-          optional-dependencies: "[testing]"
+          cache: "pip"
+      - name: Install
+        run: |
+          pip install ".[testing]"
       - name: Install missing system dependencies
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -75,12 +79,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: "true"
-      - name: Setup venv
-        uses: ./.github/actions/setup-venv
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          os-name: "ubuntu-latest"
-          optional-dependencies: "[testing]"
+          python-version: 3.11
+          cache: "pip"
+      - name: Install
+        run: |
+          pip install ".[testing]"
       - name: Run tests and collect coverage
         run: pytest --cov src
       - name: Upload coverage to Codecov
