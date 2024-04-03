@@ -71,14 +71,14 @@ class TransformerOperator(Operator):
 
         # input function
         self.key_encoding = DeepResidualNetwork(
-            input_size=shapes.x.dim,
+            input_size=shapes.x.dim + shapes.u.dim,
             output_size=hidden_dim,
             width=hidden_dim,
             depth=encoding_depth,
             act=act,
         )
         self.val_encoding = DeepResidualNetwork(
-            input_size=shapes.u.dim,
+            input_size=shapes.x.dim + shapes.u.dim,
             output_size=hidden_dim,
             width=hidden_dim,
             depth=encoding_depth,
@@ -130,8 +130,8 @@ class TransformerOperator(Operator):
     ) -> torch.Tensor:
         # cross-attention block
         query = self.query_encoding(y)
-        key = self.key_encoding(x)
-        value = self.val_encoding(u)
+        key = self.key_encoding(torch.cat([u, x], dim=-1))
+        value = self.val_encoding(torch.cat([u, x], dim=-1))
         out = self.cross_attn(query, key, value)
         out = out + query
         out = self.cross_norm(out)
