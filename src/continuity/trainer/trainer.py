@@ -202,6 +202,8 @@ class Trainer:
             # Stopping criterion
             if criterion is not None:
                 if criterion(logs):
+                    if self.verbose:
+                        print("- stopping criterion met")
                     break
 
         # Call on_train_end
