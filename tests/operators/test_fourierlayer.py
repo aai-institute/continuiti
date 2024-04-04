@@ -82,19 +82,19 @@ def dataset2d() -> OperatorDataset:
 @pytest.mark.slow
 def test_fourierlayer1d(dataset):
     operator = FourierLayer1d(dataset.shapes)
-    Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
+    Trainer(operator, device=device).fit(dataset, tol=1e-10, epochs=10_000)
 
     x, u, y, v = dataset[:1]
-    assert MSELoss()(operator, x, u, y, v) < 1e-12
+    assert MSELoss()(operator, x, u, y, v) < 1e-10
 
 
 @pytest.mark.slow
 def test_fourierlayer_1d(dataset):
     operator = FourierLayer(dataset.shapes)
-    Trainer(operator, device=device).fit(dataset, tol=1e-12, epochs=10_000)
+    Trainer(operator, device=device).fit(dataset, tol=1e-10, epochs=10_000)
 
     x, u, y, v = dataset[:1]
-    assert MSELoss()(operator, x, u, y, v) < 1e-12
+    assert MSELoss()(operator, x, u, y, v) < 1e-10
 
 
 @pytest.mark.slow

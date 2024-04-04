@@ -21,6 +21,7 @@ class ConvolutionalNeuralNetwork(Operator):
         depth: The number of hidden layers.
         kernel_size: The size of the convolutional kernel.
         act: Activation function.
+        device: Device.
     """
 
     def __init__(
@@ -30,10 +31,11 @@ class ConvolutionalNeuralNetwork(Operator):
         depth: int = 3,
         kernel_size: int = 3,
         act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
         assert depth > 1, "Depth is at least one."
-        super().__init__()
-        self.shapes = shapes
+        super().__init__(shapes, device)
+
         self.act = torch.nn.Tanh() if act is None else act
         padding = kernel_size // 2
 
@@ -41,14 +43,14 @@ class ConvolutionalNeuralNetwork(Operator):
         Conv = [torch.nn.Conv1d, torch.nn.Conv2d, torch.nn.Conv3d][shapes.x.dim - 1]
 
         self.first_layer = Conv(
-            shapes.u.dim, width, kernel_size=kernel_size, padding=padding
+            shapes.u.dim, width, kernel_size=kernel_size, padding=padding, device=device
         )
         self.hidden_layers = torch.nn.ModuleList(
-            Conv(width, width, kernel_size=kernel_size, padding=padding)
+            Conv(width, width, kernel_size=kernel_size, padding=padding, device=device)
             for _ in range(depth - 1)
         )
         self.last_layer = Conv(
-            width, shapes.v.dim, kernel_size=kernel_size, padding=padding
+            width, shapes.v.dim, kernel_size=kernel_size, padding=padding, device=device
         )
 
     def forward(

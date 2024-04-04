@@ -29,9 +29,9 @@ class DeepNeuralOperator(Operator):
         width: int = 32,
         depth: int = 3,
         act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
-        super().__init__()
-        self.shapes = shapes
+        super().__init__(shapes, device)
 
         self.width = width
         self.depth = depth
@@ -44,6 +44,7 @@ class DeepNeuralOperator(Operator):
             width=width,
             depth=depth,
             act=act,
+            device=device,
         )
 
     def forward(

@@ -38,11 +38,13 @@ class Kernel(torch.nn.Module, ABC):
 
     Args:
         shapes: Shapes of the operator.
+        device: Device.
     """
 
-    def __init__(self, shapes: OperatorShapes):
+    def __init__(self, shapes: OperatorShapes, device: Optional[torch.device] = None):
         super().__init__()
         self.shapes = shapes
+        self.device = device
 
     @abstractmethod
     def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
@@ -68,6 +70,7 @@ class NeuralNetworkKernel(Kernel):
         kernel_width: Width of kernel network
         kernel_depth: Depth of kernel network
         act: Activation function
+        device: Device
     """
 
     def __init__(
@@ -76,8 +79,9 @@ class NeuralNetworkKernel(Kernel):
         kernel_width: int,
         kernel_depth: int,
         act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
-        super().__init__(shapes)
+        super().__init__(shapes, device)
 
         self.shapes = shapes
         self.net = DeepResidualNetwork(
@@ -86,6 +90,7 @@ class NeuralNetworkKernel(Kernel):
             width=kernel_width,
             depth=kernel_depth,
             act=act,
+            device=device,
         )
 
     def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
@@ -154,10 +159,8 @@ class NaiveIntegralKernel(Operator):
         self,
         kernel: Kernel,
     ):
-        super().__init__()
-
+        super().__init__(kernel.shapes, kernel.device)
         self.kernel = kernel
-        self.shapes = kernel.shapes
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor

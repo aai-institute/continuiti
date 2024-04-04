@@ -26,6 +26,7 @@ class NeuralOperator(Operator):
         shapes: Shapes of the input and output data.
         layers: List of operator layers.
         act: Activation function. Default is tanh.
+        device: Device.
     """
 
     def __init__(
@@ -33,10 +34,10 @@ class NeuralOperator(Operator):
         shapes: OperatorShapes,
         layers: List[Operator],
         act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
-        super().__init__()
+        super().__init__(shapes, device)
 
-        self.shapes = shapes
         self.layers = torch.nn.ModuleList(layers)
         self.act = act or torch.nn.Tanh()
 
@@ -48,12 +49,14 @@ class NeuralOperator(Operator):
         assert self.shapes.y == layers[-1].shapes.y
         assert self.shapes.v.num == layers[-1].shapes.v.num
 
-        self.lifting = torch.nn.Linear(self.shapes.u.dim, self.first_dim)
-        self.projection = torch.nn.Linear(self.last_dim, self.shapes.v.dim)
+        self.lifting = torch.nn.Linear(self.shapes.u.dim, self.first_dim, device=device)
+        self.projection = torch.nn.Linear(
+            self.last_dim, self.shapes.v.dim, device=device
+        )
 
         self.W = torch.nn.ModuleList(
             [
-                torch.nn.Linear(layer.shapes.u.dim, layer.shapes.v.dim)
+                torch.nn.Linear(layer.shapes.u.dim, layer.shapes.v.dim, device=device)
                 for layer in layers
             ]
         )

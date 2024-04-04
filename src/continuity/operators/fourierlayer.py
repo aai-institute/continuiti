@@ -26,8 +26,9 @@ class FourierLayer1d(Operator):
         self,
         shapes: OperatorShapes,
         num_frequencies: Optional[int] = None,
+        device: Optional[torch.device] = None,
     ) -> None:
-        super().__init__()
+        super().__init__(shapes, device)
 
         assert (
             shapes.x.dim == 1
@@ -95,6 +96,7 @@ class FourierLayer(Operator):
             the maximum number of modes is assumed which is given by
             either grid_shape or if grid_shape is not specified by the number
             of points per dimension.
+        device: Device.
 
     Example:
         ```python
@@ -114,10 +116,10 @@ class FourierLayer(Operator):
         shapes: OperatorShapes,
         grid_shape: Optional[Tuple[int]] = None,
         num_modes: Optional[Tuple[int]] = None,
+        device: Optional[torch.device] = None,
     ):
-        super().__init__()
+        super().__init__(shapes, device)
 
-        self.shapes = shapes
         self.grid_shape = grid_shape
 
         assert (
@@ -165,8 +167,8 @@ class FourierLayer(Operator):
 
         weights_shape = (*self.num_modes, shapes.v.dim, shapes.u.dim)
 
-        weights_real = torch.Tensor(*weights_shape)
-        weights_img = torch.Tensor(*weights_shape)
+        weights_real = torch.Tensor(*weights_shape, device=device)
+        weights_img = torch.Tensor(*weights_shape, device=device)
 
         nn.init.kaiming_uniform_(weights_real, a=math.sqrt(5))
         nn.init.kaiming_uniform_(weights_img, a=math.sqrt(5))

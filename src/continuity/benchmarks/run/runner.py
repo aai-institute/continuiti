@@ -37,7 +37,7 @@ class BenchmarkRunner:
 
         # Operator
         shapes = benchmark.train_dataset.shapes
-        operator = config.operator_factory(shapes)
+        operator = config.operator_factory(shapes, device=device)
 
         # Log parameters
         if rank == 0:
