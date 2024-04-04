@@ -10,7 +10,7 @@ config = RunConfig(
     tol=0,
     max_epochs=100,
     batch_size=32,
-    device="cpu",
+    verbose=True,
 )
 
 if __name__ == "__main__":

@@ -64,7 +64,10 @@ class Trainer:
 
         # Verbosity
         if self.device.index is not None:
-            self.verbose = verbose or self.device.index == 0
+            if verbose is False:
+                self.verbose = False
+            else:
+                self.verbose = self.device.index == 0
         else:
             self.verbose = verbose or True
 
@@ -97,12 +100,8 @@ class Trainer:
         callbacks = callbacks or []
 
         if self.verbose:
-            callbacks.append(
-                PrintTrainingLoss(
-                    epochs=epochs,
-                    steps=math.ceil(len(dataset) / batch_size),
-                )
-            )
+            steps = math.ceil(len(dataset) / batch_size)
+            callbacks.append(PrintTrainingLoss(epochs, steps))
 
         if lr_scheduler is not False:
             if lr_scheduler is True:
@@ -125,13 +124,18 @@ class Trainer:
         operator = self.operator.to(self.device)
 
         # Use DistributedDataParallel if available
+        is_distributed = dist.is_available() and dist.is_initialized()
         sampler = None
-        if dist.is_available() and dist.is_initialized():
-            operator = DDP(
-                operator, device_ids=[self.device], output_device=self.device
-            )
-            sampler = DistributedSampler(dataset)
+        if is_distributed:
+            torch.cuda.set_device(self.device)
+            operator = DDP(operator, device_ids=[self.device])
+            sampler = DistributedSampler(dataset, shuffle=shuffle)
             shuffle = False
+
+            assert (
+                batch_size % dist.get_world_size() == 0
+            ), "Batch size must be divisible by world size"
+            batch_size = batch_size // dist.get_world_size()  # Per-GPU batch size
 
             if self.verbose:
                 ngpu = dist.get_world_size()
@@ -154,6 +158,9 @@ class Trainer:
         operator.train()
         for epoch in range(epochs):
             loss_train = 0
+
+            if is_distributed:
+                sampler.set_epoch(epoch)
 
             # Callbacks
             logs = Logs(

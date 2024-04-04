@@ -92,14 +92,19 @@ class PrintTrainingLoss(Callback):
             s += "  [" + "=" * done + " " * (n - done) + "]"
         s += "  "
 
-        s += f"{ms_per_step:.0f}ms/step"
+        if ms_per_step < 1000:
+            s += f"{ms_per_step:.0f}ms/step"
+        else:
+            s += f"{ms_per_step/1000:.2f}s/step"
 
         if self.epochs is not None and self.steps is not None:
             remaining_steps = (self.epochs - logs.epoch) * self.steps
             remaining_steps += self.steps - logs.step
             eta = remaining_steps * ms_per_step / 1000
             eta_fmt = f"{eta/60:.0f}:{eta%60:02.0f}min"
-            s += f"  ETA {eta_fmt}"
+            elapsed = time() - self.time
+            elapsed_fmt = f"{elapsed/60:.0f}:{elapsed%60:02.0f}min"
+            s += f"  [{elapsed_fmt}<{eta_fmt}]"
         s += " - "
 
         s += f"loss/train = {logs.loss_train:.4e}  "

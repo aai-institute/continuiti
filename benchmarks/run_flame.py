@@ -11,13 +11,12 @@ from continuity.operators import (
 def run():
     kwargs = {
         "verbose": True,
-        "batch_size": 1,
+        "batch_size": 512,
     }
 
     config = RunConfig(
         partial(Flame, upsample=True),
         partial(ConvolutionalNeuralNetwork, kernel_size=15),
-        device="mps",
         lr=1e-4,
         **kwargs,
     )
@@ -26,7 +25,6 @@ def run():
     config = RunConfig(
         partial(Flame, upsample=True),
         partial(FourierNeuralOperator, width=4, depth=8),
-        device="cpu",
         lr=1e-3,
         **kwargs,
     )
@@ -35,7 +33,6 @@ def run():
     config = RunConfig(
         partial(Flame, upsample=False),
         partial(DeepNeuralOperator, width=16 * 16, depth=32),
-        device="mps",
         lr=1e-4,
         **kwargs,
     )
