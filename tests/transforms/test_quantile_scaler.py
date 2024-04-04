@@ -52,6 +52,20 @@ class TestQuantileScaler:
         _ = quantile_scaler(t)
         assert True
 
+    def test_forward_zero_dim(self, quantile_scaler):
+        """out of distribution"""
+        t = torch.rand(7)
+
+        out = quantile_scaler.undo(t)
+        assert out.shape == t.shape
+
+    def test_forward_many_dim(self, quantile_scaler):
+        """out of distribution"""
+        t = torch.rand(1, 2, 3, 4, 7)
+
+        out = quantile_scaler.undo(t)
+        assert out.shape == t.shape
+
     def test_undo_shape(self, quantile_scaler, random_multiscale_tensor):
         out = quantile_scaler.undo(random_multiscale_tensor)
         assert out.shape == random_multiscale_tensor.shape
@@ -76,3 +90,17 @@ class TestQuantileScaler:
         test_tensor = torch.linspace(*limit, 700).reshape(1, 100, 7)
         _ = quantile_scaler.undo(test_tensor)
         assert True
+
+    def test_undo_zero_dim(self, quantile_scaler):
+        """out of distribution"""
+        t = torch.rand(7)
+
+        out = quantile_scaler.undo(t)
+        assert out.shape == t.shape
+
+    def test_undo_many_dim(self, quantile_scaler):
+        """out of distribution"""
+        t = torch.rand(1, 2, 3, 4, 7)
+
+        out = quantile_scaler.undo(t)
+        assert out.shape == t.shape
