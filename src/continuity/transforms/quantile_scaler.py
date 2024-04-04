@@ -5,7 +5,7 @@ Quantile Scaler class.
 """
 
 import torch
-from .transform import Transform
+from continuity.transforms import Transform
 from typing import Union
 
 
@@ -70,7 +70,7 @@ class QuantileScaler(Transform):
         )
         self.target_quantile_fractions = torch.linspace(
             0 + eps, 1 - eps, self.n_q_points
-        )  # bounded domain (for eps->0 idcf->+-inf)
+        )  # bounded domain
         target_quantile_points = self.target_distribution.icdf(
             self.target_quantile_fractions
         )
@@ -92,24 +92,36 @@ class QuantileScaler(Transform):
         Returns:
             The transformed tensor, scaled to the target distribution.
         """
-        work_dim = 2  # dimension alon which calculations are performed
-        bcs = tensor.size(0)
-        n_elements = tensor.size(1)
+        assert tensor.size(-1) == self.n_dim
+
+        # preprocess tensors
+        v1 = tensor
+        v2 = self.quantile_points
+        work_ndim = max([v1.ndim, v2.ndim])
+
+        v2_shape = [1] * (work_ndim - v2.ndim) + list(v2.shape)
+        v2 = v2.view(*v2_shape)
+        v2 = v2.unsqueeze(0)
+
+        v1_shape = [1] * (work_ndim - v1.ndim) + list(v1.shape)
+        v1 = v1.view(*v1_shape)
+        v1 = v1.unsqueeze(v2.ndim - 2)
+
+        work_dims = torch.Size([max([a, b]) for a, b in zip(v1.shape, v2.shape)])
+        v1 = v1.expand(work_dims)
+        v2 = v2.expand(work_dims)
 
         # find left boundary inside quantile intervals
-        v1 = tensor.unsqueeze(work_dim).expand(-1, -1, self.n_q_points, -1)
-        v2 = (
-            self.quantile_points.unsqueeze(0)
-            .unsqueeze(0)
-            .expand(bcs, v1.size(1), self.n_q_points, -1)
-        )
         diff = v2 - v1
         diff[diff >= 0] = -torch.inf  # discard right boundaries
-        indices = diff.argmax(dim=work_dim)  # defaults to zero when all values are -inf
+        indices = diff.argmax(dim=-2)  # defaults to zero when all values are -inf
         indices[indices > self.n_quantile_intervals] -= 1  # right boundary overflow
 
         # prepare for indexing
-        indices = (indices.view(-1), torch.arange(self.n_dim).repeat(bcs * n_elements))
+        indices = (
+            indices.view(-1),
+            torch.arange(self.n_dim).repeat(tensor.nelement() // self.n_dim),
+        )
 
         # Scale input tensor to the unit interval based on source quantiles
         p_min = self.quantile_points[indices].view(tensor.shape)
@@ -135,24 +147,35 @@ class QuantileScaler(Transform):
         Returns:
             The tensor with the quantile scaling transformation reversed according to the src distribution.
         """
-        work_dim = 2
-        bcs = tensor.size(0)
-        n_elements = tensor.size(1)
+        assert tensor.size(-1) == self.n_dim
 
-        # find left boundary inside quantile intervals
-        v1 = tensor.unsqueeze(work_dim).expand(-1, -1, self.n_q_points, -1)
-        v2 = (
-            self.target_quantile_points.unsqueeze(0)
-            .unsqueeze(0)
-            .expand(bcs, v1.size(1), self.n_q_points, -1)
-        )
+        # preprocess tensors
+        v1 = tensor
+        v2 = self.target_quantile_points
+        work_ndim = max([v1.ndim, v2.ndim])
+
+        v2_shape = [1] * (work_ndim - v2.ndim) + list(v2.shape)
+        v2 = v2.view(*v2_shape)
+        v2 = v2.unsqueeze(0)
+
+        v1_shape = [1] * (work_ndim - v1.ndim) + list(v1.shape)
+        v1 = v1.view(*v1_shape)
+        v1 = v1.unsqueeze(v2.ndim - 2)
+
+        work_dims = torch.Size([max([a, b]) for a, b in zip(v1.shape, v2.shape)])
+        v1 = v1.expand(work_dims)
+        v2 = v2.expand(work_dims)
+
         diff = v2 - v1
         diff[diff >= 0] = -torch.inf  # discard right boundaries
-        indices = diff.argmax(dim=work_dim)  # defaults to zero when all values are -inf
+        indices = diff.argmax(dim=-2)  # defaults to zero when all values are -inf
         indices[indices > self.n_quantile_intervals] -= 1  # right boundary overflow
 
         # prepare for indexing
-        indices = (indices.view(-1), torch.arange(self.n_dim).repeat(bcs * n_elements))
+        indices = (
+            indices.view(-1),
+            torch.arange(self.n_dim).repeat(tensor.nelement() // self.n_dim),
+        )
 
         # Scale input tensor to the unit interval based on the target distribution
         p_t_min = self.target_quantile_points[indices].view(tensor.shape)
