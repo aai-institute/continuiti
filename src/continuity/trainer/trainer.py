@@ -9,7 +9,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from typing import Optional, List, Union
-from continuity.data import OperatorDataset, dataset_loss
+from continuity.data import OperatorDataset
 from continuity.operators import Operator
 from continuity.operators.losses import Loss, MSELoss
 from continuity.trainer.device import get_device
@@ -125,29 +125,50 @@ class Trainer:
 
         # Use DistributedDataParallel if available
         is_distributed = dist.is_available() and dist.is_initialized()
-        sampler = None
+        sampler, test_sampler = None, None
         if is_distributed:
             torch.cuda.set_device(self.device)
-            operator = DDP(operator, device_ids=[self.device])
+
+            operator = DDP(
+                operator,
+                device_ids=[self.device],
+            )
+
             sampler = DistributedSampler(dataset, shuffle=shuffle)
+            if test_dataset is not None:
+                test_sampler = DistributedSampler(test_dataset, shuffle=shuffle)
             shuffle = False
 
             assert (
                 batch_size % dist.get_world_size() == 0
             ), "Batch size must be divisible by world size"
             batch_size = batch_size // dist.get_world_size()  # Per-GPU batch size
+            num_workers = dist.get_world_size()
 
             if self.verbose:
                 ngpu = dist.get_world_size()
                 print(f"Device: CUDA ({ngpu} GPU{'' if ngpu == 1 else 's'})")
         else:
+            num_workers = 0
             if self.verbose:
                 print(f"Device: {self.device}")
 
         # Create data loader
         data_loader = DataLoader(
-            dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler
+            dataset,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            sampler=sampler,
+            num_workers=num_workers,
         )
+        if test_dataset is not None:
+            test_data_loader = DataLoader(
+                test_dataset,
+                batch_size=batch_size,
+                shuffle=shuffle,
+                sampler=test_sampler,
+                num_workers=num_workers,
+            )
 
         # Call on_train_begin
         for callback in callbacks:
@@ -196,9 +217,16 @@ class Trainer:
 
             # Compute test loss
             if test_dataset is not None:
-                loss_test = dataset_loss(
-                    test_dataset, operator, self.loss_fn, self.device
-                )
+                loss_test = 0
+                for x, u, y, v in test_data_loader:
+                    x, u = x.to(self.device), u.to(self.device)
+                    y, v = y.to(self.device), v.to(self.device)
+                    loss = self.loss_fn(operator, x, u, y, v)
+                    if is_distributed:
+                        dist.all_reduce(loss)
+                        loss /= dist.get_world_size()
+                    loss_test += loss.detach().item()
+                loss_test /= len(test_data_loader)
 
             logs.loss_test = loss_test
 
@@ -219,3 +247,5 @@ class Trainer:
 
         # Move operator back to CPU
         self.operator.to("cpu")
+
+        return logs

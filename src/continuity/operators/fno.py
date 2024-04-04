@@ -46,8 +46,9 @@ class FourierNeuralOperator(NeuralOperator):
             v=TensorShape(shapes.v.num, width),
         )
 
-        layers = [FourierLayer(latent_shapes, device=device) for _ in range(depth - 1)]
-        layers.append(FourierLayer(output_shapes, device=device))
+        layers = [
+            FourierLayer(latent_shapes, device=device) for _ in range(depth - 1)
+        ] + [FourierLayer(output_shapes, device=device)]
         layers = torch.nn.ModuleList(layers)
 
         super().__init__(shapes, layers, act, device)

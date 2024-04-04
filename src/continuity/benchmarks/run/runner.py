@@ -7,7 +7,6 @@ from typing import Optional
 from continuity.benchmarks.run import RunConfig
 from continuity.trainer import Trainer
 from continuity.trainer.callbacks import MLFlowLogger
-from continuity.data.utility import dataset_loss
 from continuity.trainer.device import get_device
 
 
@@ -104,7 +103,7 @@ class BenchmarkRunner:
         if rank == 0:
             callbacks = [MLFlowLogger(operator)]
 
-        trainer.fit(
+        logs = trainer.fit(
             benchmark.train_dataset,
             tol=config.tol,
             epochs=config.max_epochs,
@@ -114,4 +113,4 @@ class BenchmarkRunner:
         )
 
         # Return test loss
-        return dataset_loss(benchmark.test_dataset, operator, loss_fn, config.device)
+        return logs.loss_test

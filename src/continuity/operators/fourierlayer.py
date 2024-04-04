@@ -45,15 +45,17 @@ class FourierLayer1d(Operator):
         assert shapes.u.dim == shapes.v.dim
 
         shape = (self.num_frequencies, shapes.u.dim, shapes.u.dim)
-        weights_real = torch.Tensor(*shape)
-        weights_img = torch.Tensor(*shape)
+        weights_real = torch.empty(shape, device=device)
+        weights_img = torch.empty(shape, device=device)
 
         # initialize
         nn.init.kaiming_uniform_(weights_real, a=math.sqrt(5))
         nn.init.kaiming_uniform_(weights_img, a=math.sqrt(5))
 
         self.weights_complex = torch.complex(weights_real, weights_img)
-        self.kernel = torch.nn.Parameter(self.weights_complex)
+        self.kernel = torch.nn.Parameter(
+            torch.view_as_real(self.weights_complex)
+        )  # NCCL does not support complex numbers
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
@@ -71,8 +73,9 @@ class FourierLayer1d(Operator):
 
         u_fourier = rfft(u, axis=1, norm="forward")
 
+        kernel = torch.view_as_complex(self.kernel)
         out_fourier = torch.einsum(
-            "nds,bns->bnd", self.kernel, u_fourier[:, : self.num_frequencies, :]
+            "nds,bns->bnd", kernel, u_fourier[:, : self.num_frequencies, :]
         )
 
         out = irfft(out_fourier, axis=1, n=y.shape[1], norm="forward")
@@ -167,14 +170,16 @@ class FourierLayer(Operator):
 
         weights_shape = (*self.num_modes, shapes.v.dim, shapes.u.dim)
 
-        weights_real = torch.Tensor(*weights_shape, device=device)
-        weights_img = torch.Tensor(*weights_shape, device=device)
+        weights_real = torch.empty(weights_shape, device=device)
+        weights_img = torch.empty(weights_shape, device=device)
 
         nn.init.kaiming_uniform_(weights_real, a=math.sqrt(5))
         nn.init.kaiming_uniform_(weights_img, a=math.sqrt(5))
 
         self.weights_complex = torch.complex(weights_real, weights_img)
-        self.kernel = torch.nn.Parameter(self.weights_complex)
+        self.kernel = torch.nn.Parameter(
+            torch.view_as_real(self.weights_complex)
+        )  # NCCL does not support complex numbers
 
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
@@ -286,7 +291,8 @@ class FourierLayer(Operator):
         )
 
         # perform kernel operation in Fourier space
-        out_fft = torch.einsum(contraction_equation, self.kernel, fft_values)
+        kernel = torch.view_as_complex(self.kernel)
+        out_fft = torch.einsum(contraction_equation, kernel, fft_values)
 
         return out_fft
 
