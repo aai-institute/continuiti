@@ -63,8 +63,6 @@ class QuantileScaler(Transform):
             interpolation="linear",
         )
         self.deltas = self.quantile_points[1:] - self.quantile_points[:-1]
-        self.src_max = torch.max(src)
-        self.src_min = torch.min(src)
 
         # target distribution
         self.target_distribution = torch.distributions.normal.Normal(
@@ -72,7 +70,7 @@ class QuantileScaler(Transform):
         )
         self.target_quantile_fractions = torch.linspace(
             0 + eps, 1 - eps, self.n_q_points
-        )  # bounded domain
+        )  # bounded domain (for eps->0 idcf->+-inf)
         target_quantile_points = self.target_distribution.icdf(
             self.target_quantile_fractions
         )
@@ -105,9 +103,10 @@ class QuantileScaler(Transform):
             .unsqueeze(0)
             .expand(bcs, v1.size(1), self.n_q_points, -1)
         )
-        diff = v1 - v2
-        diff[diff > 0] = -torch.inf  # left boundary (either negative or zero)
+        diff = v2 - v1
+        diff[diff >= 0] = -torch.inf  # discard right boundaries
         indices = diff.argmax(dim=work_dim)  # defaults to zero when all values are -inf
+        indices[indices > self.n_quantile_intervals] -= 1  # right boundary overflow
 
         # prepare for indexing
         indices = (indices.view(-1), torch.arange(self.n_dim).repeat(bcs * n_elements))
@@ -147,9 +146,10 @@ class QuantileScaler(Transform):
             .unsqueeze(0)
             .expand(bcs, v1.size(1), self.n_q_points, -1)
         )
-        diff = v1 - v2
-        diff[diff > 0] = -torch.inf  # left boundary (either negative or zero)
+        diff = v2 - v1
+        diff[diff >= 0] = -torch.inf  # discard right boundaries
         indices = diff.argmax(dim=work_dim)  # defaults to zero when all values are -inf
+        indices[indices > self.n_quantile_intervals] -= 1  # right boundary overflow
 
         # prepare for indexing
         indices = (indices.view(-1), torch.arange(self.n_dim).repeat(bcs * n_elements))
