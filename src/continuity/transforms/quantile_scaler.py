@@ -6,7 +6,7 @@ Quantile Scaler class.
 
 import torch
 from continuity.transforms import Transform
-from typing import Union
+from typing import Union, Tuple
 
 
 class QuantileScaler(Transform):
@@ -83,20 +83,24 @@ class QuantileScaler(Transform):
 
         super().__init__()
 
-    def forward(self, tensor: torch.Tensor) -> torch.Tensor:
-        """Transforms the input tensor to match the target distribution using quantile scaling .
+    def _get_scaling_indices(
+        self, src: torch.Tensor, quantile_tensor: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Method to get the indices of a tensor closest to src.
 
         Args:
-            tensor: The input tensor to transform.
+            src: Input tensor.
+            quantile_tensor: Tensor containing quantile interval information of a distribution.
 
         Returns:
-            The transformed tensor, scaled to the target distribution.
+            Tuple containing the indices with the same shape as src with indices of quantile_tensor where the distance
+                between src and quantile_tensor is minimal, according to the last dim.
         """
-        assert tensor.size(-1) == self.n_dim
+        assert src.size(-1) == self.n_dim
 
         # preprocess tensors
-        v1 = tensor
-        v2 = self.quantile_points
+        v1 = src
+        v2 = quantile_tensor
         work_ndim = max([v1.ndim, v2.ndim])
 
         v2_shape = [1] * (work_ndim - v2.ndim) + list(v2.shape)
@@ -118,11 +122,21 @@ class QuantileScaler(Transform):
         indices[indices > self.n_quantile_intervals] -= 1  # right boundary overflow
 
         # prepare for indexing
-        indices = (
+        return (
             indices.view(-1),
-            torch.arange(self.n_dim).repeat(tensor.nelement() // self.n_dim),
+            torch.arange(self.n_dim).repeat(src.nelement() // self.n_dim),
         )
 
+    def forward(self, tensor: torch.Tensor) -> torch.Tensor:
+        """Transforms the input tensor to match the target distribution using quantile scaling .
+
+        Args:
+            tensor: The input tensor to transform.
+
+        Returns:
+            The transformed tensor, scaled to the target distribution.
+        """
+        indices = self._get_scaling_indices(tensor, self.quantile_points)
         # Scale input tensor to the unit interval based on source quantiles
         p_min = self.quantile_points[indices].view(tensor.shape)
         delta = self.deltas[indices].view(tensor.shape)
@@ -147,35 +161,7 @@ class QuantileScaler(Transform):
         Returns:
             The tensor with the quantile scaling transformation reversed according to the src distribution.
         """
-        assert tensor.size(-1) == self.n_dim
-
-        # preprocess tensors
-        v1 = tensor
-        v2 = self.target_quantile_points
-        work_ndim = max([v1.ndim, v2.ndim])
-
-        v2_shape = [1] * (work_ndim - v2.ndim) + list(v2.shape)
-        v2 = v2.view(*v2_shape)
-        v2 = v2.unsqueeze(0)
-
-        v1_shape = [1] * (work_ndim - v1.ndim) + list(v1.shape)
-        v1 = v1.view(*v1_shape)
-        v1 = v1.unsqueeze(v2.ndim - 2)
-
-        work_dims = torch.Size([max([a, b]) for a, b in zip(v1.shape, v2.shape)])
-        v1 = v1.expand(work_dims)
-        v2 = v2.expand(work_dims)
-
-        diff = v2 - v1
-        diff[diff >= 0] = -torch.inf  # discard right boundaries
-        indices = diff.argmax(dim=-2)  # defaults to zero when all values are -inf
-        indices[indices > self.n_quantile_intervals] -= 1  # right boundary overflow
-
-        # prepare for indexing
-        indices = (
-            indices.view(-1),
-            torch.arange(self.n_dim).repeat(tensor.nelement() // self.n_dim),
-        )
+        indices = self._get_scaling_indices(tensor, self.target_quantile_points)
 
         # Scale input tensor to the unit interval based on the target distribution
         p_t_min = self.target_quantile_points[indices].view(tensor.shape)
