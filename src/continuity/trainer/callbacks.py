@@ -202,6 +202,7 @@ class MLFlowLogger(Callback):
 
     def __init__(self, operator: Optional[Operator] = None):
         self.operator = operator
+        self.best_loss = math.inf
         super().__init__()
 
     def __call__(self, logs: Logs):
@@ -212,20 +213,25 @@ class MLFlowLogger(Callback):
             logs: Training logs.
         """
         mlflow.log_metric("loss/train", logs.loss_train, step=logs.epoch)
+        loss = logs.loss_train
         if logs.loss_test is not None:
             mlflow.log_metric("loss/test", logs.loss_test, step=logs.epoch)
+            loss = logs.loss_train
 
-        self._save_model(f"ckpt_{logs.epoch:06d}")
+        # Save best model
+        self.best_loss = min(self.best_loss, loss)
+        if self.best_loss == loss:
+            self._save_model("best")
 
     def on_train_begin(self):
         """Called at the beginning of training."""
         if not mlflow.active_run():
             mlflow.start_run()
-        self._save_model("ckpt_000000")
+        self._save_model("initial")
 
     def on_train_end(self):
         """Called at the end of training."""
-        self._save_model("operator")
+        self._save_model("final")
         mlflow.end_run()
 
     def _save_model(self, name: str):
