@@ -56,9 +56,6 @@ class Flame(Benchmark):
         train_dataset = FlameDataset(split="train", size=train_size, **kwargs)
         test_dataset = FlameDataset(split="val", size=val_size, **kwargs)
 
-        print(f"Train size: {len(train_dataset)}")
-        print(f"Test size: {len(test_dataset)}")
-
         super().__init__(train_dataset, test_dataset, [MSELoss()])
 
 

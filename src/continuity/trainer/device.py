@@ -27,7 +27,8 @@ def get_device() -> torch.device:
 
     if torch.cuda.is_available():
         if "RANK" in os.environ:
-            dist.init_process_group("nccl")
+            if not dist.is_initialized():
+                dist.init_process_group("nccl")
             rank = dist.get_rank()
             device = torch.device(f"cuda:{rank}")
         else:

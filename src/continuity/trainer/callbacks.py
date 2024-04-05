@@ -56,17 +56,9 @@ class PrintTrainingLoss(Callback):
     def __init__(self, epochs: Optional[int] = None, steps: Optional[int] = None):
         self.epochs = epochs
         self.steps = steps
+        self.steps_performed = 0
+        self.start_time = time()
         super().__init__()
-
-    def __call__(self, logs: Logs):
-        """Callback function.
-        Called at the end of each epoch.
-
-        Args:
-            logs: Training logs.
-        """
-        self.step(logs)
-        self.time = time()
 
     def step(self, logs: Logs):
         """Called after every gradient step.
@@ -74,7 +66,10 @@ class PrintTrainingLoss(Callback):
         Args:
             logs: Training logs.
         """
-        ms_per_step = (time() - self.time) / logs.step * 1000
+        self.steps_performed += 1
+
+        elapsed = time() - self.start_time
+        sec_per_step = elapsed / self.steps_performed
 
         s = ""
         s += f"Epoch {logs.epoch:2.0f}"
@@ -92,15 +87,24 @@ class PrintTrainingLoss(Callback):
             s += "  [" + "=" * done + " " * (n - done) + "]"
         s += "  "
 
-        s += f"{ms_per_step:.0f}ms/step"
+        if sec_per_step < 1:
+            s += f"{sec_per_step * 1000:.0f}ms/step"
+        else:
+            s += f"{sec_per_step:.2f}s/step"
+
+        def to_min(t):
+            min = t // 60
+            sec = math.floor(t) % 60
+            return f"{min:.0f}:{sec:02.0f}min"
+
+        s += f"  [{to_min(elapsed)}"
 
         if self.epochs is not None and self.steps is not None:
             remaining_steps = (self.epochs - logs.epoch) * self.steps
             remaining_steps += self.steps - logs.step
-            eta = remaining_steps * ms_per_step / 1000
-            eta_fmt = f"{eta/60:.0f}:{eta%60:02.0f}min"
-            s += f"  ETA {eta_fmt}"
-        s += " - "
+            eta = remaining_steps * sec_per_step
+            s += f"<{to_min(eta)}"
+        s += "] - "
 
         s += f"loss/train = {logs.loss_train:.4e}  "
 
@@ -111,7 +115,7 @@ class PrintTrainingLoss(Callback):
 
     def on_train_begin(self):
         """Called at the beginning of training."""
-        self.time = time()
+        self.start_time = time()
 
     def on_train_end(self):
         """Called at the end of training."""
@@ -191,10 +195,14 @@ class OptunaCallback(Callback):
 class MLFlowLogger(Callback):
     """
     Callback to log metrics to MLFlow.
+
+    Args:
+        operator: Operator to save snapshots. Default is None.
     """
 
     def __init__(self, operator: Optional[Operator] = None):
         self.operator = operator
+        self.best_loss = math.inf
         super().__init__()
 
     def __call__(self, logs: Logs):
@@ -205,21 +213,25 @@ class MLFlowLogger(Callback):
             logs: Training logs.
         """
         mlflow.log_metric("loss/train", logs.loss_train, step=logs.epoch)
+        loss = logs.loss_train
         if logs.loss_test is not None:
             mlflow.log_metric("loss/test", logs.loss_test, step=logs.epoch)
+            loss = logs.loss_train
 
-        if logs.epoch % 100 == 0:
-            self._save_model(f"ckpt_{logs.epoch:06d}")
+        # Save best model
+        self.best_loss = min(self.best_loss, loss)
+        if self.best_loss == loss:
+            self._save_model("best")
 
     def on_train_begin(self):
         """Called at the beginning of training."""
         if not mlflow.active_run():
             mlflow.start_run()
-        self._save_model("ckpt_000000")
+        self._save_model("initial")
 
     def on_train_end(self):
         """Called at the end of training."""
-        self._save_model("operator")
+        self._save_model("final")
         mlflow.end_run()
 
     def _save_model(self, name: str):

@@ -16,6 +16,7 @@ class FullyConnected(torch.nn.Module):
         output_size: Output dimension.
         width: Width of the hidden layer.
         act: Activation function.
+        device: Device.
     """
 
     def __init__(
@@ -24,10 +25,11 @@ class FullyConnected(torch.nn.Module):
         output_size: int,
         width: int,
         act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
         super().__init__()
-        self.inner_layer = torch.nn.Linear(input_size, width)
-        self.outer_layer = torch.nn.Linear(width, output_size)
+        self.inner_layer = torch.nn.Linear(input_size, width, device=device)
+        self.outer_layer = torch.nn.Linear(width, output_size, device=device)
         self.act = act or torch.nn.Tanh()
 
     def forward(self, x: torch.Tensor):
@@ -44,11 +46,17 @@ class ResidualLayer(torch.nn.Module):
     Args:
         width: Width of the layer.
         act: Activation function.
+        device: Device.
     """
 
-    def __init__(self, width: int, act: Optional[torch.nn.Module] = None):
+    def __init__(
+        self,
+        width: int,
+        act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
+    ):
         super().__init__()
-        self.layer = torch.nn.Linear(width, width)
+        self.layer = torch.nn.Linear(width, width, device=device)
         self.act = act or torch.nn.Tanh()
 
     def forward(self, x: torch.Tensor):
@@ -65,6 +73,7 @@ class DeepResidualNetwork(torch.nn.Module):
         width: Width of hidden layers
         depth: Number of hidden layers
         act: Activation function
+        device: Device.
     """
 
     def __init__(
@@ -74,16 +83,24 @@ class DeepResidualNetwork(torch.nn.Module):
         width: int,
         depth: int,
         act: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
         assert depth >= 1, "DeepResidualNetwork has at least depth 1."
         super().__init__()
 
         self.act = act or torch.nn.Tanh()
-        self.first_layer = torch.nn.Linear(input_size, width)
+        self.first_layer = torch.nn.Linear(input_size, width, device=device)
         self.hidden_layers = torch.nn.ModuleList(
-            [ResidualLayer(width, act=self.act) for _ in range(1, depth)]
+            [
+                ResidualLayer(
+                    width,
+                    act=self.act,
+                    device=device,
+                )
+                for _ in range(1, depth)
+            ]
         )
-        self.last_layer = torch.nn.Linear(width, output_size)
+        self.last_layer = torch.nn.Linear(width, output_size, device=device)
 
     def forward(self, x):
         """Forward pass."""

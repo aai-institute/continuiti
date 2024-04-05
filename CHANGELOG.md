@@ -19,10 +19,10 @@
 - Generalize `NeuralOperator` to take a list of operators.
 - The `data.DatasetShapes` class becomes `operators.OperatorShapes` without `num_observations` attribute.
 - Change `torch` dependency from "==2.1.0" to ">=2.1.0,<3.0.0".
-- Change `dataptation` dependency from "==3.1" to ">=3.1,<4.0".
 - Change `optuna` dependency from "3.5.0" to ">=3.5.0,<4.0.0".
 - Add `FourierLayer` and `FourierNeuralOperator` with example.
 - Add `benchmarks` infrastructure.
+- An `Operator` now takes a `device` argument.
 
 ## 0.0.0 (2024-02-22)
 

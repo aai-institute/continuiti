@@ -37,6 +37,7 @@ class BelNet(Operator):
         a_x: Activation function of projection networks. Default: Tanh
         a_u: Activation function applied after the projection. Default: Tanh
         a_y: Activation function of the construction network. Default: Tanh
+        device: Device.
     """
 
     def __init__(
@@ -50,10 +51,10 @@ class BelNet(Operator):
         a_x: Optional[torch.nn.Module] = None,
         a_u: Optional[torch.nn.Module] = None,
         a_y: Optional[torch.nn.Module] = None,
+        device: Optional[torch.device] = None,
     ):
-        super().__init__()
+        super().__init__(shapes, device)
 
-        self.shapes = shapes
         self.K = K
         self.a_x = a_x or torch.nn.Tanh()
         self.a_u = a_u or torch.nn.Tanh()
@@ -70,6 +71,7 @@ class BelNet(Operator):
             width=N_1,
             depth=D_1,
             act=self.a_x,
+            device=device,
         )
 
         # construction net
@@ -79,6 +81,7 @@ class BelNet(Operator):
             width=N_2,
             depth=D_2,
             act=self.a_y,
+            device=device,
         )
 
     def forward(

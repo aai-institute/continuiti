@@ -5,6 +5,7 @@ In Continuity, all models for operator learning are based on the `Operator` base
 """
 
 import torch
+from typing import Optional
 from abc import ABC, abstractmethod
 from continuity.operators.shape import OperatorShapes
 
@@ -15,11 +16,25 @@ class Operator(torch.nn.Module, ABC):
     An operator is a neural network model that maps functions by mapping an
     observation to the evaluations of the mapped function at given coordinates.
 
+    Args:
+        shapes: Operator shapes.
+        device: Device.
+
     Attributes:
         shapes: Operator shapes.
     """
 
+    device: Optional[torch.device]
     shapes: OperatorShapes
+
+    def __init__(
+        self,
+        shapes: Optional[OperatorShapes] = None,
+        device: Optional[torch.device] = None,
+    ):
+        super().__init__()
+        self.shapes = shapes
+        self.device = device
 
     @abstractmethod
     def forward(
