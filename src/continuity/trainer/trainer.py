@@ -60,7 +60,10 @@ class Trainer:
             else torch.optim.Adam(operator.parameters(), lr=lr)
         )
         self.loss_fn = loss_fn if loss_fn is not None else MSELoss()
-        self.device = device
+        if isinstance(device, torch.device):
+            self.device = device
+        else:
+            self.device = torch.device(device)
 
         # Verbosity
         if self.device.index is not None:
