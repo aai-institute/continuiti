@@ -120,7 +120,10 @@ class Trainer:
 
         # Print number of model parameters
         if self.verbose:
-            num_params = self.operator.num_params()
+            if hasattr(self.operator, "num_params"):
+                num_params = self.operator.num_params()
+            else:
+                num_params = sum(p.numel() for p in self.operator.parameters())
             print(f"Parameters: {num_params}", end="  ")
 
         # Move operator to device
@@ -194,13 +197,12 @@ class Trainer:
                 loss_test=loss_test,
             )
 
-            for x, u, y, v in data_loader:
-                x, u = x.to(self.device), u.to(self.device)
-                y, v = y.to(self.device), v.to(self.device)
+            for xuyv in data_loader:
+                xuyv = [t.to(self.device) for t in xuyv]
 
-                def closure(x=x, u=u, y=y, v=v):
+                def closure(xuyv=xuyv):
                     self.optimizer.zero_grad()
-                    loss = self.loss_fn(operator, x, u, y, v)
+                    loss = self.loss_fn(operator, *xuyv)
                     loss.backward(retain_graph=True)
                     return loss
 
@@ -221,10 +223,9 @@ class Trainer:
             # Compute test loss
             if test_dataset is not None:
                 loss_test = 0
-                for x, u, y, v in test_data_loader:
-                    x, u = x.to(self.device), u.to(self.device)
-                    y, v = y.to(self.device), v.to(self.device)
-                    loss = self.loss_fn(operator, x, u, y, v)
+                for xuyv in test_data_loader:
+                    xuyv = [t.to(self.device) for t in xuyv]
+                    loss = self.loss_fn(operator, *xuyv)
                     if is_distributed:
                         dist.all_reduce(loss)
                         loss /= dist.get_world_size()

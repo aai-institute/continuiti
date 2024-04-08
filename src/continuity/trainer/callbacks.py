@@ -60,14 +60,13 @@ class PrintTrainingLoss(Callback):
         self.start_time = time()
         super().__init__()
 
-    def step(self, logs: Logs):
-        """Called after every gradient step.
+    def __call__(self, logs: Logs):
+        """Callback function.
+        Called at the end of each epoch.
 
         Args:
             logs: Training logs.
         """
-        self.steps_performed += 1
-
         elapsed = time() - self.start_time
         sec_per_step = elapsed / self.steps_performed
 
@@ -112,6 +111,15 @@ class PrintTrainingLoss(Callback):
             s += f"loss/test = {logs.loss_test:.4e} "
 
         print("\r" + s, end="")
+
+    def step(self, logs: Logs):
+        """Called after every gradient step.
+
+        Args:
+            logs: Training logs.
+        """
+        self.steps_performed += 1
+        self.__call__(logs)
 
     def on_train_begin(self):
         """Called at the beginning of training."""

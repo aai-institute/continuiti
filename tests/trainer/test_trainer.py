@@ -1,5 +1,7 @@
 import pytest
+import torch
 from continuity.operators import DeepONet
+from continuity.operators.common import DeepResidualNetwork
 from continuity.benchmarks.sine import SineBenchmark
 from continuity.trainer import Trainer
 
@@ -17,8 +19,49 @@ def train():
 
 
 @pytest.mark.slow
-def test_trainer():
+def test_trainer_with_operator():
     train()
+
+
+@pytest.mark.slow
+def test_trainer_with_torch_model():
+    def f(x):
+        return torch.sin(2 * torch.pi * x)
+
+    x_train = torch.rand(128, 1)
+    x_test = torch.rand(32, 1)
+
+    y_train = f(x_train)
+    y_test = f(x_test)
+
+    train_dataset = torch.utils.data.TensorDataset(x_train, y_train)
+    test_dataset = torch.utils.data.TensorDataset(x_test, y_test)
+
+    # Create a model
+    model = DeepResidualNetwork(
+        input_size=1,
+        output_size=1,
+        width=32,
+        depth=3,
+    )
+
+    # Define loss function (in Continuity style)
+    mse = torch.nn.MSELoss()
+
+    def loss_fn(op, x, y):
+        y_pred = op(x)
+        return mse(y_pred, y)
+
+    # Train the model
+    trainer = Trainer(model, loss_fn=loss_fn)
+    logs = trainer.fit(
+        train_dataset,
+        tol=1e-3,
+        test_dataset=test_dataset,
+    )
+
+    # Test the model
+    assert logs.loss_test < 1e-3
 
 
 # Use ./run_parallel.sh to run test with CUDA
