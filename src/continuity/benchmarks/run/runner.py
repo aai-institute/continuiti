@@ -26,7 +26,7 @@ class BenchmarkRunner:
 
         """
         # Device
-        device = config.device or get_device()
+        device = torch.device(config.device) or get_device()
 
         # Rank
         rank = device.index or 0

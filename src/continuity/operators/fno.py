@@ -21,8 +21,9 @@ class FourierNeuralOperator(NeuralOperator):
         shapes: Shapes of the input and output data.
         depth: Number of Fourier layers.
         width: Latent dimension of the Fourier layers.
-        act: Activation function. Default is tanh.
+        act: Activation function.
         device: Device.
+        **kwargs: Additional arguments for the Fourier layers.
     """
 
     def __init__(
@@ -32,6 +33,7 @@ class FourierNeuralOperator(NeuralOperator):
         width: int = 3,
         act: Optional[torch.nn.Module] = None,
         device: Optional[torch.device] = None,
+        **kwargs,
     ):
         latent_shapes = OperatorShapes(
             x=shapes.x,
@@ -46,9 +48,11 @@ class FourierNeuralOperator(NeuralOperator):
             v=TensorShape(shapes.v.num, width),
         )
 
-        layers = [
-            FourierLayer(latent_shapes, device=device) for _ in range(depth - 1)
-        ] + [FourierLayer(output_shapes, device=device)]
+        layers = []
+        for _ in range(depth - 1):
+            layers += [FourierLayer(latent_shapes, device=device, **kwargs)]
+        layers += [FourierLayer(output_shapes, device=device, **kwargs)]
+
         layers = torch.nn.ModuleList(layers)
 
         super().__init__(shapes, layers, act, device)

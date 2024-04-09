@@ -182,7 +182,6 @@ class Trainer:
 
         # Train
         loss_train, loss_test, epoch = None, None, 0
-        operator.train()
         for epoch in range(epochs):
             loss_train = 0
 
@@ -197,6 +196,7 @@ class Trainer:
                 loss_test=loss_test,
             )
 
+            operator.train()
             for xuyv in data_loader:
                 xuyv = [t.to(self.device) for t in xuyv]
 
@@ -222,6 +222,7 @@ class Trainer:
 
             # Compute test loss
             if test_dataset is not None:
+                operator.eval()
                 loss_test = 0
                 for xuyv in test_data_loader:
                     xuyv = [t.to(self.device) for t in xuyv]

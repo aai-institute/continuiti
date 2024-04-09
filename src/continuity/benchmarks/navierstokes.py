@@ -41,12 +41,12 @@ class NavierStokes(Benchmark):
 
         # Create space-time grids (x_1, x_2, t)
         ls = torch.linspace(-1, 1, 64)
-        tx = torch.linspace(-1, 0, 10)
+        tx = torch.linspace(-0.9, 0.0, 10)
         grid_x = torch.meshgrid(ls, ls, tx, indexing="ij")
         x = torch.stack(grid_x, axis=3).reshape(1, -1, 3).repeat(1200, 1, 1)
         assert x.shape == (1200, 64 * 64 * 10, 3)
 
-        ty = torch.linspace(0, 1, 10)
+        ty = torch.linspace(0.1, 1.0, 10)
         grid_y = torch.meshgrid(ls, ls, ty, indexing="ij")
         y = torch.stack(grid_y, axis=3).reshape(1, -1, 3).repeat(1200, 1, 1)
         assert y.shape == (1200, 64 * 64 * 10, 3)
@@ -68,11 +68,9 @@ class NavierStokes(Benchmark):
         v = vort[:, :, :, 10:].reshape(1200, 64 * 64 * 10, 1)
 
         # Split train/test
-        test_indices = torch.randint(1200, (200,))
-        test_indices_set = set(test_indices)
-        train_indices = [
-            i.item() for i in torch.arange(1200) if i.item() not in test_indices_set
-        ]
+        random_indices = torch.randperm(1200)
+        train_indices = random_indices[:1000]
+        test_indices = random_indices[1000:]
 
         train_dataset = OperatorDataset(
             x=x[train_indices],

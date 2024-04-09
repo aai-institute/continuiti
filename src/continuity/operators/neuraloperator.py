@@ -25,7 +25,7 @@ class NeuralOperator(Operator):
     Args:
         shapes: Shapes of the input and output data.
         layers: List of operator layers.
-        act: Activation function. Default is tanh.
+        act: Activation function.
         device: Device.
     """
 
@@ -39,7 +39,7 @@ class NeuralOperator(Operator):
         super().__init__(shapes, device)
 
         self.layers = torch.nn.ModuleList(layers)
-        self.act = act or torch.nn.Tanh()
+        self.act = act or torch.nn.GELU()
 
         self.first_dim = layers[0].shapes.u.dim
         self.last_dim = layers[-1].shapes.v.dim
@@ -57,7 +57,13 @@ class NeuralOperator(Operator):
         self.W = torch.nn.ModuleList(
             [
                 torch.nn.Linear(layer.shapes.u.dim, layer.shapes.v.dim, device=device)
-                for layer in layers
+                for layer in layers[:-1]
+            ]
+        )
+        self.norms = torch.nn.ModuleList(
+            [
+                torch.nn.LayerNorm(layer.shapes.v.dim)
+                for layer in layers[:-1]
             ]
         )
 
@@ -82,8 +88,10 @@ class NeuralOperator(Operator):
         v = v.reshape(-1, self.shapes.u.num, self.first_dim)
 
         # Hidden layers
-        for i, layer in enumerate(self.layers[:-1]):
-            v = self.act(layer(x, v, x) + self.W[i](v))
+        for layer, W, norm in zip(self.layers[:-1], self.W, self.norms):
+            v = layer(x, v, x) + W(v)
+            v = self.act(v)
+            v = norm(v)
 
         # Last layer (evaluates y)
         v = self.layers[-1](x, v, y)
