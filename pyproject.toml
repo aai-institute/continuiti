@@ -84,6 +84,7 @@ benchmark = [
     "dvc-gdrive",
     "mlflow",
     "optuna>=3.5.0,<4.0.0",
+    "scipy",
 ]
 
 [tool.setuptools.dynamic]
