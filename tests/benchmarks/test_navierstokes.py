@@ -1,19 +1,30 @@
+import pytest
 import matplotlib.pyplot as plt
+from pathlib import Path
 from continuity.benchmarks import Benchmark, NavierStokes
 from continuity.data import OperatorDataset
 
 
+def check_data_exists():
+    path = Path.joinpath(Path("data"), "navierstokes")
+    if not path.exists():
+        pytest.skip("Data not available")
+
+
 def test_navierstokes_return_type_correct():
+    check_data_exists()
     benchmark = NavierStokes()
     assert isinstance(benchmark.train_dataset, OperatorDataset)
     assert isinstance(benchmark.test_dataset, OperatorDataset)
 
 
 def test_navierstokes_can_initialize_default():
+    check_data_exists()
     assert isinstance(NavierStokes(), Benchmark)
 
 
 def test_navierstokes_shapes_and_plot():
+    check_data_exists()
     benchmark = NavierStokes()
     assert len(benchmark.train_dataset) == 1000
     assert len(benchmark.test_dataset) == 200
