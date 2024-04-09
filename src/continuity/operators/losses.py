@@ -78,3 +78,42 @@ class MSELoss(Loss):
 
         # Return MSE
         return self.mse(v_pred, v)
+
+
+
+class RelativeL1Error(Loss):
+    """Computes the relative L1 error between the predicted and true labels.
+
+    ```python
+    loss = l1(v, op(x, u, y)) / l1(v, 0)
+    ```
+    """
+
+    def __init__(self):
+        self.l1 = torch.nn.L1Loss()
+
+    def __call__(
+        self,
+        op: "Operator",
+        x: torch.Tensor,
+        u: torch.Tensor,
+        y: torch.Tensor,
+        v: torch.Tensor,
+    ) -> torch.Tensor:
+        """Evaluate relative L1 error.
+
+        Args:
+            op: Operator object
+            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
+            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
+            y: Tensor of evaluation coordinates of shape (batch_size, x_size, coordinate_dim)
+            v: Tensor of labels of shape (batch_size, x_size, coordinate_dim)
+        """
+        # Call operator
+        v_pred = op(x, u, y)
+
+        # Align shapes
+        v_pred = v_pred.reshape(v.shape)
+
+        # Return relative L1 error
+        return self.l1(v, v_pred) / self.l1(v, torch.zeros_like(v))

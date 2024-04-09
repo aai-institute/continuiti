@@ -10,7 +10,7 @@ import pathlib
 import continuity
 from typing import Optional
 from continuity.benchmarks import Benchmark
-from continuity.operators.losses import MSELoss
+from continuity.operators.losses import RelativeL1Error
 from continuity.data.dataset import OperatorDataset
 
 
@@ -111,4 +111,4 @@ class NavierStokes(Benchmark):
             v=v[test_indices],
         )
 
-        super().__init__(train_dataset, test_dataset, [MSELoss()])
+        super().__init__(train_dataset, test_dataset, [RelativeL1Error()])
