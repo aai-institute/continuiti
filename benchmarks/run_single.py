@@ -1,20 +1,16 @@
-from functools import partial
 from continuity.benchmarks.run import BenchmarkRunner, RunConfig
-from continuity.benchmarks import NavierStokes
-from continuity.operators import FourierNeuralOperator
+from continuity.benchmarks import SineRegular
+from continuity.operators import DeepNeuralOperator
 
 config = RunConfig(
-    benchmark_factory=NavierStokes,
-    operator_factory=partial(
-        FourierNeuralOperator,
-        grid_shape=(64, 64, 10),
-        num_modes=(12, 12, 12),
-        width=32,
-        depth=4,
-    ),
+    benchmark_factory=SineRegular,
+    operator_factory=DeepNeuralOperator,
+    seed=0,
     lr=1e-3,
-    max_epochs=200,
-    batch_size=10,
+    tol=0,
+    max_epochs=100,
+    batch_size=32,
+    verbose=True,
 )
 
 if __name__ == "__main__":

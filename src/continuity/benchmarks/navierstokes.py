@@ -68,9 +68,8 @@ class NavierStokes(Benchmark):
         v = vort[:, :, :, 10:].reshape(1200, 64 * 64 * 10, 1)
 
         # Split train/test
-        random_indices = torch.randperm(1200)
-        train_indices = random_indices[:1000]
-        test_indices = random_indices[1000:]
+        train_indices = torch.arange(1000)
+        test_indices = torch.arange(1000, 1200)
 
         train_dataset = OperatorDataset(
             x=x[train_indices],
