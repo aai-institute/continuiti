@@ -23,6 +23,7 @@
 - Add `FourierLayer` and `FourierNeuralOperator` with example.
 - Add `benchmarks` infrastructure.
 - An `Operator` now takes a `device` argument.
+- Add `QuantileScaler` class.
 
 ## 0.0.0 (2024-02-22)
 
