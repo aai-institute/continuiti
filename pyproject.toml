@@ -81,6 +81,7 @@ docs = [
 ]
 benchmark = [
     "dvc",
+    "dvc-gdrive",
     "mlflow",
     "optuna>=3.5.0,<4.0.0",
 ]
