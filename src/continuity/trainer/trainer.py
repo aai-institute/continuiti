@@ -218,8 +218,6 @@ class Trainer:
                 for callback in callbacks:
                     callback.step(logs)
 
-            loss_train /= len(data_loader)
-
             # Compute test loss
             if test_dataset is not None:
                 operator.eval()

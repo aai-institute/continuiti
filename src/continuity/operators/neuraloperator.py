@@ -62,7 +62,7 @@ class NeuralOperator(Operator):
         )
         self.norms = torch.nn.ModuleList(
             [
-                torch.nn.LayerNorm(layer.shapes.v.dim)
+                torch.nn.LayerNorm(layer.shapes.v.dim, device=device)
                 for layer in layers[:-1]
             ]
         )
