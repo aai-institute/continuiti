@@ -27,7 +27,7 @@ class NavierStokes(Benchmark):
     The dataset loads the `NavierStokes_V1e-5_N1200_T20` file which contains
     1200 samples of Navier-Stokes flow simulations at a spatial resolution of
     64x64 and 20 time steps.
-    
+
     The benchmark exports operator datasets where both input and output function
     are defined on the space-time domain (periodic in space), i.e.,
     $(x, y, t) \in [-1, 1] \times [-1, 1] \times (-1, 0]$ for the input

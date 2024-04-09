@@ -80,7 +80,6 @@ class MSELoss(Loss):
         return self.mse(v_pred, v)
 
 
-
 class RelativeL1Error(Loss):
     """Computes the relative L1 error between the predicted and true labels.
 
