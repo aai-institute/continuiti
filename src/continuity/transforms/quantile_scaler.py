@@ -128,7 +128,7 @@ class QuantileScaler(Transform):
         )
 
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
-        """Transforms the input tensor to match the target distribution using quantile scaling .
+        """Transforms the input tensor to match the target distribution using quantile scaling.
 
         Args:
             tensor: The input tensor to transform.
