@@ -1,0 +1,6 @@
+outs:
+- md5: 0bb228674e976bab14e9493606e14a27.dir
+  size: 412877192
+  nfiles: 1
+  hash: md5
+  path: navierstokes
