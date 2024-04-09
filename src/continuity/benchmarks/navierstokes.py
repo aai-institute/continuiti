@@ -18,13 +18,39 @@ class NavierStokes(Benchmark):
     r"""Navier-Stokes benchmark.
 
     This benchmark contains a dataset of turbulent flow samples taken from
-    [neuraloperator/graph-pde](https://github.com/neuraloperator/graph-pde).
+    [neuraloperator/graph-pde](https://github.com/neuraloperator/graph-pde)
+    that was used as illustrative example in the FNO paper:
 
-    Reference: Li, Zongyi, et al. "Neural operator: Graph kernel network for
-    partial differential equations." arXiv preprint arXiv:2003.03485 (2020).
+    _Li, Zongyi, et al. "Fourier neural operator for parametric partial
+    differential equations." arXiv preprint arXiv:2010.08895 (2020)_.
 
     The dataset loads the `NavierStokes_V1e-5_N1200_T20` file which contains
-    of 1200 samples of 64x64 resolution with 20 time steps.
+    1200 samples of Navier-Stokes flow simulations at a spatial resolution of
+    64x64 and 20 time steps.
+    
+    The benchmark exports operator datasets where both input and output function
+    are defined on the space-time domain (periodic in space), i.e.,
+    $(x, y, t) \in [-1, 1] \times [-1, 1] \times (-1, 0]$ for the input
+    function and $(x, y, t) \in [-1, 1] \times [-1, 1] \times (0, 1]$ for
+    the output function.
+
+    The input function is given by the vorticity field at the first ten time
+    steps $(-0.9, -0.8, ..., 0.0)$ and the output function by the vorticity
+    field at the following ten time steps $(0.1, 0.2, ..., 1.0)$.
+
+    ![Visualization of first training sample.](/continuity/benchmarks/navierstokes.png)
+
+    The datasets have the following shapes:
+
+    ```
+        len(benchmark.train_dataset) == 1000
+        len(benchmark.test_dataset) == 200
+
+        x.shape == (64 * 64 * 10, 3)
+        u.shape == (64 * 64 * 10, 1)
+        y.shape == (64 * 64 * 10, 3)
+        v.shape == (64 * 64 * 10, 1)
+    ```
 
     Args:
         dir: Path to data set. Default is `data/navierstokes`
