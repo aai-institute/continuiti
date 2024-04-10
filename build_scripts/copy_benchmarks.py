@@ -44,3 +44,5 @@ def on_shutdown():
         file.unlink()
     for file in docs_benchmarks_dir.glob("*.png"):
         file.unlink()
+    for file in docs_benchmarks_dir.glob("*.svg"):
+        file.unlink()
