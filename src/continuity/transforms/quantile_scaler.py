@@ -5,6 +5,7 @@ Quantile Scaler class.
 """
 
 import torch
+import torch.nn as nn
 from continuity.transforms import Transform
 from typing import Union, Tuple
 
@@ -41,10 +42,13 @@ class QuantileScaler(Transform):
         assert eps <= 0.5
         assert eps >= 0
 
+        super().__init__()
+
         if isinstance(target_mean, float):
             target_mean = target_mean * torch.ones(1)
         if isinstance(target_std, float):
             target_std = target_std * torch.ones(1)
+
         self.target_mean = target_mean
         self.target_std = target_std
 
@@ -56,13 +60,14 @@ class QuantileScaler(Transform):
 
         # source "distribution"
         self.quantile_fractions = torch.linspace(0, 1, self.n_q_points)
-        self.quantile_points = torch.quantile(
+        quantile_points = torch.quantile(
             src.view(-1, self.n_dim),
             self.quantile_fractions,
             dim=0,
             interpolation="linear",
         )
-        self.deltas = self.quantile_points[1:] - self.quantile_points[:-1]
+        self.quantile_points = nn.Parameter(quantile_points)
+        self.deltas = nn.Parameter(quantile_points[1:] - quantile_points[:-1])
 
         # target distribution
         self.target_distribution = torch.distributions.normal.Normal(
@@ -74,14 +79,13 @@ class QuantileScaler(Transform):
         target_quantile_points = self.target_distribution.icdf(
             self.target_quantile_fractions
         )
-        self.target_quantile_points = target_quantile_points.unsqueeze(1).repeat(
+        target_quantile_points = target_quantile_points.unsqueeze(1).repeat(
             1, self.n_dim
         )
-        self.target_deltas = (
-            self.target_quantile_points[1:] - self.target_quantile_points[:-1]
+        self.target_quantile_points = nn.Parameter(target_quantile_points)
+        self.target_deltas = nn.Parameter(
+            target_quantile_points[1:] - target_quantile_points[:-1]
         )
-
-        super().__init__()
 
     def _get_scaling_indices(
         self, src: torch.Tensor, quantile_tensor: torch.Tensor
