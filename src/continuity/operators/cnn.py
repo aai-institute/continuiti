@@ -5,7 +5,7 @@ The ConvolutionalNeuralNetwork (CNN) architecture.
 """
 
 import torch
-from typing import Optional
+from typing import Optional, Tuple
 from continuity.operators import Operator
 from continuity.operators.shape import OperatorShapes
 
@@ -20,6 +20,8 @@ class ConvolutionalNeuralNetwork(Operator):
         width: The number hidden channels.
         depth: The number of hidden layers.
         kernel_size: The size of the convolutional kernel.
+        grid_shape: x and y have to be sampled on a grid. If grid dimensions
+            are not specified, a grid with equal sizes is assumed.
         act: Activation function.
         device: Device.
     """
@@ -30,13 +32,15 @@ class ConvolutionalNeuralNetwork(Operator):
         width: int = 16,
         depth: int = 3,
         kernel_size: int = 3,
+        grid_shape: Optional[Tuple[int]] = None,
         act: Optional[torch.nn.Module] = None,
         device: Optional[torch.device] = None,
     ):
-        assert depth > 1, "Depth is at least one."
+        assert depth >= 1, "Depth is at least one."
         super().__init__(shapes, device)
 
         self.act = torch.nn.Tanh() if act is None else act
+        self.grid_shape = grid_shape
         padding = kernel_size // 2
 
         assert shapes.x.dim in [1, 2, 3], "Only 1D, 2D, and 3D grids supported."
@@ -70,8 +74,11 @@ class ConvolutionalNeuralNetwork(Operator):
             The output of the operator, of shape (batch_size, #evaluations, v_dim).
         """
         # Transform input to (batch_size, u_dim, ux, uy, ...)
-        per_dim = int(self.shapes.u.num ** (1 / self.shapes.x.dim))
-        u = u.reshape([-1] + [per_dim] * self.shapes.x.dim + [self.shapes.u.dim])
+        if self.grid_shape is not None:
+            u = u.reshape(-1, *self.grid_shape, self.shapes.u.dim)
+        else:
+            per_dim = int(self.shapes.u.num ** (1 / self.shapes.x.dim))
+            u = u.reshape([-1] + [per_dim] * self.shapes.x.dim + [self.shapes.u.dim])
         u = u.swapaxes(1, -1)
 
         # Convolutional layers

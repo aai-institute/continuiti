@@ -28,7 +28,13 @@
     line-height: 1.2;
 }
 
-.benchmark-table td, table th {
+.benchmark-table td {
+    text-align: left;
+    vertical-align: middle;
+    min-width: 90px;
+}
+
+.benchmark-table th {
     text-align: left;
     vertical-align: middle;
 }

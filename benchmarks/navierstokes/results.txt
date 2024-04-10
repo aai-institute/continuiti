@@ -1,0 +1,16 @@
+rel. error train = 1.8508e-02
+min loss = 8.8748e-03 at index 237
+max loss = 3.1433e-02 at index 420
+rel. error test =  1.8408e-01
+min loss = 1.0220e-01 at index 144
+max loss = 4.4655e-01 at index 179
+
+--
+
+Reference: _Li, Zongyi, et al. "Fourier neural operator for parametric partial
+differential equations." arXiv preprint arXiv:2010.08895 (2020)_
+
+Table 1: nu=1e−5  T=20  N=1000
+FNO-3D: 0.1893
+
+(Ours: 1.8408e-01)

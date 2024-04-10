@@ -224,7 +224,7 @@ class MLFlowLogger(Callback):
         loss = logs.loss_train
         if logs.loss_test is not None:
             mlflow.log_metric("loss/test", logs.loss_test, step=logs.epoch)
-            loss = logs.loss_train
+            loss = logs.loss_test
 
         # Save best model
         self.best_loss = min(self.best_loss, loss)
