@@ -1,11 +1,11 @@
 import torch
 import pytest
 
-from continuity.operators import DeepONet
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.data import OperatorDataset
-from continuity.trainer import Trainer
-from continuity.operators.losses import MSELoss
+from continuiti.operators import DeepONet
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.data import OperatorDataset
+from continuiti.trainer import Trainer
+from continuiti.operators.losses import MSELoss
 from .util import get_shape_mismatches
 
 

@@ -1,13 +1,13 @@
-site_name: "Continuity"
+site_name: "continuiti"
 site_dir: "docs_build"
-site_url: "https://aai-institute.github.io/continuity/"
-repo_name: "aai-institute/continuity"
-repo_url: "https://github.com/aai-institute/continuity"
+site_url: "https://aai-institute.github.io/continuiti/"
+repo_name: "aai-institute/continuiti"
+repo_url: "https://github.com/aai-institute/continuiti"
 copyright: "Copyright &copy; appliedAI Institute for Europe gGmbH"
 remote_branch: gh-pages
 
 watch:
-  - src/continuity
+  - src/continuiti
   - examples
 
 hooks:
@@ -134,9 +134,9 @@ extra:
     default: stable
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/aai-institute/continuity
+      link: https://github.com/aai-institute/continuiti
     # - icon: fontawesome/brands/python
-    #   link: https://pypi.org/project/continuity/
+    #   link: https://pypi.org/project/continuiti/
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/appliedAI_gGmbH
     - icon: fontawesome/brands/linkedin
@@ -188,6 +188,6 @@ nav:
       - Self-supervised: examples/selfsupervised.ipynb
   - Benchmarks: benchmarks/index.md
   - Code:
-      - API: api/continuity/
+      - API: api/continuiti/
       - Changelog: CHANGELOG.md
       - Contributing: CONTRIBUTING.md

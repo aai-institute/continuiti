@@ -2,7 +2,7 @@ import pytest
 import torch
 from typing import List
 
-from continuity.discrete import UniformBoxSampler
+from continuiti.discrete import UniformBoxSampler
 
 
 @pytest.fixture(scope="module")

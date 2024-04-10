@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from continuity.transforms import Compose
+from continuiti.transforms import Compose
 
 
 @pytest.fixture

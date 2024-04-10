@@ -1,10 +1,10 @@
 import torch
 import pytest
 
-from continuity.operators.losses import MSELoss
-from continuity.trainer import Trainer
-from continuity.data import OperatorDataset
-from continuity.operators.fourierlayer import FourierLayer1d, FourierLayer
+from continuiti.operators.losses import MSELoss
+from continuiti.trainer import Trainer
+from continuiti.data import OperatorDataset
+from continuiti.operators.fourierlayer import FourierLayer1d, FourierLayer
 
 torch.manual_seed(0)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

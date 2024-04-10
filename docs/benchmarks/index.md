@@ -4,14 +4,14 @@ of different operator architectures on various problems.
 The benchmarks are implemented in the `benchmarks` directory and we refer to
 this directory for detailed information on how the benchmarks are run.
 
-## [NavierStokes](../api/continuity/benchmarks/#continuity.benchmarks.NavierStokes)
+## [NavierStokes](../api/continuiti/benchmarks/#continuiti.benchmarks.NavierStokes)
 
 Reference: _Li, Zongyi, et al. "Fourier neural operator for parametric partial
 differential equations." arXiv preprint arXiv:2010.08895 (2020)_ _Table 1 ($\nu$ = 1e−5  T=20  N=1000)_
 
 _reported for_ FNO-3D: __0.1893__ (rel. test error)
 
-[FourierNeuralOperator](../api/continuity/operators/#continuity.operators.FourierNeuralOperator):
+[FourierNeuralOperator](../api/continuiti/operators/#continuiti.operators.FourierNeuralOperator):
 0.0185 (rel. train error)  __0.1841__ (rel. test error)
 
 <table>

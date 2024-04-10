@@ -1,9 +1,9 @@
 import pytest
 from typing import List
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.trainer import Trainer
-from continuity.operators import DeepNeuralOperator
-from continuity.operators.losses import MSELoss
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.trainer import Trainer
+from continuiti.operators import DeepNeuralOperator
+from continuiti.operators.losses import MSELoss
 
 from .util import get_shape_mismatches
 

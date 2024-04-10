@@ -1,5 +1,5 @@
 import torch
-from continuity.pde.grad import grad, Grad, div, Div
+from continuiti.pde.grad import grad, Grad, div, Div
 
 
 def test_grad():

@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
-from continuity.benchmarks import NavierStokes
-from continuity.operators import FourierNeuralOperator
+from continuiti.benchmarks import NavierStokes
+from continuiti.operators import FourierNeuralOperator
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 

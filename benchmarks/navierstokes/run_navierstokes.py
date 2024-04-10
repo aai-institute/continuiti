@@ -1,7 +1,7 @@
 from functools import partial
-from continuity.benchmarks.run import BenchmarkRunner, RunConfig
-from continuity.benchmarks import NavierStokes
-from continuity.operators import FourierNeuralOperator
+from continuiti.benchmarks.run import BenchmarkRunner, RunConfig
+from continuiti.benchmarks import NavierStokes
+from continuiti.operators import FourierNeuralOperator
 
 config = RunConfig(
     benchmark_factory=NavierStokes,

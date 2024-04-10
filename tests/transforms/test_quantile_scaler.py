@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from continuity.transforms import QuantileScaler
+from continuiti.transforms import QuantileScaler
 
 
 @pytest.fixture(scope="module")

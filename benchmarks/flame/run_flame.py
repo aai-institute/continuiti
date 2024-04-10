@@ -1,7 +1,7 @@
 from functools import partial
-from continuity.benchmarks.run import BenchmarkRunner, RunConfig
-from continuity.benchmarks import Flame
-from continuity.operators import ConvolutionalNeuralNetwork
+from continuiti.benchmarks.run import BenchmarkRunner, RunConfig
+from continuiti.benchmarks import Flame
+from continuiti.operators import ConvolutionalNeuralNetwork
 
 
 def run():

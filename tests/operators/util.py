@@ -1,8 +1,8 @@
 from typing import List
 
-from continuity.data import OperatorDataset
-from continuity.operators.shape import OperatorShapes
-from continuity.operators import Operator
+from continuiti.data import OperatorDataset
+from continuiti.operators.shape import OperatorShapes
+from continuiti.operators import Operator
 
 
 def get_shape_mismatches(

@@ -1,9 +1,9 @@
 import pytest
 import torch
-from continuity.operators import DeepONet
-from continuity.operators.common import DeepResidualNetwork
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.trainer import Trainer
+from continuiti.operators import DeepONet
+from continuiti.operators.common import DeepResidualNetwork
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.trainer import Trainer
 
 
 def train():
@@ -45,7 +45,7 @@ def test_trainer_with_torch_model():
         depth=3,
     )
 
-    # Define loss function (in Continuity style)
+    # Define loss function (in continuiti style)
     mse = torch.nn.MSELoss()
 
     def loss_fn(op, x, y):

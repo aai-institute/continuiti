@@ -2,7 +2,7 @@ import pytest
 import torch
 from itertools import product
 from typing import List
-from continuity.data import OperatorDataset
+from continuiti.data import OperatorDataset
 
 
 @pytest.fixture(scope="session")

@@ -1,10 +1,10 @@
 import pytest
-from continuity.operators.shape import TensorShape, OperatorShapes
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
-from continuity.operators import NeuralOperator
-from continuity.trainer import Trainer
-from continuity.operators.losses import MSELoss
+from continuiti.operators.shape import TensorShape, OperatorShapes
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
+from continuiti.operators import NeuralOperator
+from continuiti.trainer import Trainer
+from continuiti.operators.losses import MSELoss
 from .util import get_shape_mismatches
 
 

@@ -1,8 +1,8 @@
 import torch
 
-from continuity.benchmarks import Benchmark
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.data import OperatorDataset
+from continuiti.benchmarks import Benchmark
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.data import OperatorDataset
 
 
 def test_return_type_correct():
