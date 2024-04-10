@@ -1,0 +1,38 @@
+name: Publish package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: "true"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: "pip"
+      - name: Install
+        run: |
+          pip install ".[dev]"
+      - name: Get Current Version
+        run: |
+          export CURRENT_VERSION=$(bump-my-version show current_version)
+          echo CURRENT_VERSION=$CURRENT_VERSION >> $GITHUB_ENV
+        shell: bash
+      - name: Build and publish to PyPI
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python3 -m pip install --upgrade build twine
+          python3 -m build
+          python3 -m twine upload --verbose --non-interactive dist/*
