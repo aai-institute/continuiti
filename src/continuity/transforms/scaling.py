@@ -3,6 +3,7 @@
 """
 
 import torch
+import torch.nn as nn
 from .transform import Transform
 
 
@@ -28,8 +29,8 @@ class Normalize(Transform):
 
     def __init__(self, mean: torch.Tensor, std: torch.Tensor):
         super().__init__()
-        self.mean = mean
-        self.std = std
+        self.mean = nn.Parameter(mean)
+        self.std = nn.Parameter(std)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         r"""Apply normalization to the input tensor.
