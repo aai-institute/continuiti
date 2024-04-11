@@ -1,7 +1,7 @@
 import pytest
 import torch
 from typing import List
-from continuity.data.function.function import Function
+from continuiti.data.function.function import Function
 
 
 @pytest.fixture(scope="module")

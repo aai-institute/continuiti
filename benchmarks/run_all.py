@@ -2,9 +2,9 @@ import optuna
 import torch
 from functools import partial
 from multiprocessing import Pool
-from continuity.benchmarks.run import BenchmarkRunner, RunConfig
-from continuity.benchmarks import SineRegular, SineUniform
-from continuity.operators import (
+from continuiti.benchmarks.run import BenchmarkRunner, RunConfig
+from continuiti.benchmarks import SineRegular, SineUniform
+from continuiti.operators import (
     DeepONet,
     BelNet,
     FourierNeuralOperator,

@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-from continuity.data.selfsupervised import SelfSupervisedOperatorDataset
+from continuiti.data.selfsupervised import SelfSupervisedOperatorDataset
 
 
 def test_dataset():

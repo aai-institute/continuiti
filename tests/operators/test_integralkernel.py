@@ -1,9 +1,9 @@
 import pytest
 import torch
 
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.operators.shape import OperatorShapes, TensorShape
-from continuity.operators.integralkernel import (
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.operators.shape import OperatorShapes, TensorShape
+from continuiti.operators.integralkernel import (
     NeuralNetworkKernel,
     NaiveIntegralKernel,
     Kernel,

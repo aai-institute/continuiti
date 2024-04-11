@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from continuity.discrete.box_sampler import BoxSampler
+from continuiti.discrete.box_sampler import BoxSampler
 
 
 @pytest.fixture(scope="module")

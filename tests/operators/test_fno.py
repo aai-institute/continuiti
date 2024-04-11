@@ -1,8 +1,8 @@
 import pytest
-from continuity.benchmarks.sine import SineBenchmark
-from continuity.trainer import Trainer
-from continuity.operators import FourierNeuralOperator
-from continuity.operators.losses import MSELoss
+from continuiti.benchmarks.sine import SineBenchmark
+from continuiti.trainer import Trainer
+from continuiti.operators import FourierNeuralOperator
+from continuiti.operators.losses import MSELoss
 
 
 @pytest.mark.slow

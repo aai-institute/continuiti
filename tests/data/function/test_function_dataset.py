@@ -1,7 +1,7 @@
 import pytest
 import torch
-from continuity.data.function import FunctionOperatorDataset, FunctionSet
-from continuity.discrete import RegularGridSampler
+from continuiti.data.function import FunctionOperatorDataset, FunctionSet
+from continuiti.discrete import RegularGridSampler
 
 
 @pytest.fixture(scope="module")

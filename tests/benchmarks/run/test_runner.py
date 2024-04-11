@@ -1,7 +1,7 @@
 import pytest
-from continuity.benchmarks.run import BenchmarkRunner, RunConfig
-from continuity.benchmarks import SineRegular
-from continuity.operators import DeepNeuralOperator
+from continuiti.benchmarks.run import BenchmarkRunner, RunConfig
+from continuiti.benchmarks import SineRegular
+from continuiti.operators import DeepNeuralOperator
 
 
 @pytest.mark.slow

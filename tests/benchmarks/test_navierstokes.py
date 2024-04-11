@@ -1,8 +1,8 @@
 import pytest
 import matplotlib.pyplot as plt
 from pathlib import Path
-from continuity.benchmarks import Benchmark, NavierStokes
-from continuity.data import OperatorDataset
+from continuiti.benchmarks import Benchmark, NavierStokes
+from continuiti.data import OperatorDataset
 
 
 def check_data_exists():

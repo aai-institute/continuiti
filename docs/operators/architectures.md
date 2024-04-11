@@ -7,14 +7,14 @@ alias:
 
 # Architectures
 
-Continuity implements the following neural operator architectures:
+**continuiti** implements the following neural operator architectures:
 
-- [DeepONet](../../api/continuity/operators/deeponet/)
-- [Fourier Neural Operator (FNO)](../../api/continuity/operators/fno/)
-- [BelNet](../../api/continuity/operators/belnet/)
+- [DeepONet](../../api/continuiti/operators/deeponet/)
+- [Fourier Neural Operator (FNO)](../../api/continuiti/operators/fno/)
+- [BelNet](../../api/continuiti/operators/belnet/)
 
-- [Deep Neural Operator (DNO)](../../api/continuity/operators/dno/)
-- [Convolutional Neural Network (CNN)](../../api/continuity/operators/cnn/)
-- a generic [NeuralOperator](../../api/continuity/operators/neuraloperator/) class
+- [Deep Neural Operator (DNO)](../../api/continuiti/operators/dno/)
+- [Convolutional Neural Network (CNN)](../../api/continuiti/operators/cnn/)
+- a generic [NeuralOperator](../../api/continuiti/operators/neuraloperator/) class
 
 and more to come...

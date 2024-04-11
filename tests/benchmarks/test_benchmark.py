@@ -1,7 +1,7 @@
 import torch
-from continuity.benchmarks import Benchmark
-from continuity.data import OperatorDataset
-from continuity.operators.losses import MSELoss
+from continuiti.benchmarks import Benchmark
+from continuiti.data import OperatorDataset
+from continuiti.operators.losses import MSELoss
 
 
 def test_can_initialize():

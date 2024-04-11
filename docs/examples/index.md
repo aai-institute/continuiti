@@ -3,7 +3,7 @@ title: Examples
 ---
 
 This is a collection of notebooks that showcase various applications of
-Continuity.
+continuiti.
 
 ::cards:: cols=2
 

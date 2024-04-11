@@ -1,4 +1,4 @@
-from continuity.benchmarks.run.table import BenchmarkTable
+from continuiti.benchmarks.run.table import BenchmarkTable
 
 
 if __name__ == "__main__":

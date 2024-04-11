@@ -1,6 +1,6 @@
 # Contributing
 
-Continuity aims to be a repository of architectures and benchmarks for
+**continuiti** aims to be a repository of architectures and benchmarks for
 operator learning with neural networks and its applications.
 
 Contributions are welcome from anyone in the form of pull requests,
@@ -86,7 +86,7 @@ during the test run.
 Because we want documentation to include the full dataset, we commit notebooks
 with their outputs running with full datasets to the repo. The notebooks are
 then added by CI to the section
-[Examples](https://aai-institute.github.io/continuity/examples.html) of the
+[Examples](https://aai-institute.github.io/continuiti/examples.html) of the
 documentation.
 
 ### Hiding cells in notebooks

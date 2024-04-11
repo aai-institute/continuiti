@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from continuity.transforms import Transform
+from continuiti.transforms import Transform
 
 
 @pytest.fixture(scope="module")

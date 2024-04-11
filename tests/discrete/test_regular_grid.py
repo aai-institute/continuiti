@@ -2,7 +2,7 @@ import pytest
 import torch
 from typing import List
 
-from continuity.discrete import RegularGridSampler
+from continuiti.discrete import RegularGridSampler
 
 
 @pytest.fixture(scope="module")

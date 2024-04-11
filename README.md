@@ -1,16 +1,16 @@
 <div align="center">
-<img alt="Continuity" src="https://aai-institute.github.io/continuity/img/icon.png" width="100">
+<img alt="continuiti" src="https://aai-institute.github.io/continuiti/img/icon.png" width="100">
 
-<h1>Continuity</h1>
+<h1>continuiti</h1>
 
 Learning function operators with neural networks.
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
-[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://aai-institute.github.io/continuity/)
-[![Test](https://github.com/aai-institute/continuity/actions/workflows/test.yml/badge.svg)](https://github.com/aai-institute/continuity/actions/workflows/test.yml)
+[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://aai-institute.github.io/continuiti/)
+[![Test](https://github.com/aai-institute/continuiti/actions/workflows/test.yml/badge.svg)](https://github.com/aai-institute/continuiti/actions/workflows/test.yml)
 </div>
 
-**Continuity** is a Python package for machine learning on function operators.
+**continuiti** is a Python package for machine learning on function operators.
 It implements various neural operator architectures (e.g., DeepONets),
 physics-informed loss functions to train based on PDEs, and a collection of
 examples and benchmarks.
@@ -18,23 +18,23 @@ examples and benchmarks.
 ## Installation
 Clone the repository and install the package using pip.
 ```
-git clone https://github.com/aai-institute/continuity.git
-cd continuity
+git clone https://github.com/aai-institute/continuiti.git
+cd continuiti
 pip install -e .
 ```
 
 ## Usage
-Our [Documentation](https://aai-institute.github.io/continuity/) contains a
+Our [Documentation](https://aai-institute.github.io/continuiti/) contains a
 verbose introduction to operator learning, a collection of examples using
-Continuity, and a class documentation.
+continuiti, and a class documentation.
 
-In general, the operator syntax in Continuity is
+In general, the operator syntax in **continuiti** is
 ```python
 v = operator(x, u(x), y)
 ```
 mapping a function `u` (evaluated at `x`) to function `v` (evaluated in `y`).
 For more details, see
-[Learning Operators](https://aai-institute.github.io/continuity/operators/index.html).
+[Learning Operators](https://aai-institute.github.io/continuiti/operators/index.html).
 
 ## Contributing
 Contributions are welcome from anyone in the form of pull requests, bug reports

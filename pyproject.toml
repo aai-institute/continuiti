@@ -3,7 +3,7 @@ requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "continuity"
+name = "continuiti"
 description = "Learning function operators with neural networks."
 authors = [{ name = "Samuel Burbulla", email = "s.burbulla@appliedai-institute.de" }]
 license = { file = "LICENSE.txt" }
@@ -88,15 +88,15 @@ benchmark = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "continuity.__version__"}
+version = {attr = "continuiti.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["continuity"]
+include = ["continuiti"]
 
 [project.urls]
-Repository = "https://github.com/aai-institute/continuity.git"
-Documentation = "https://aai-institute.github.io/continuity/"
+Repository = "https://github.com/aai-institute/continuiti.git"
+Documentation = "https://aai-institute.github.io/continuiti/"
 Organization = "https://www.appliedai-institute.de/en/"
 TransferLab = "https://transferlab.ai/"
 

@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from continuity.transforms import Normalize
+from continuiti.transforms import Normalize
 
 
 @pytest.fixture(scope="module")

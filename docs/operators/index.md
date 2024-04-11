@@ -55,7 +55,7 @@ We generally refer to such a neural network $G_\theta$ as a *neural operator*.
 
 ## Discretization
 
-In Continuity, we use the general approach of mapping function
+In continuiti, we use the general approach of mapping function
 evaluations to represent both input and output functions $u$ and $v$ in
 a discretized form.
 
@@ -100,6 +100,6 @@ applications to physics-informed training, super-resolution, and more.
 See our <a href="../examples">Examples</a> section for more on this.
 
 ## Further Reading
-Follow our introduction to <a href="../examples/functions">Functions</a> in Continuity
+Follow our introduction to <a href="../examples/functions">Functions</a> in continuiti
 and proceed with the <a href="../examples/training">Training</a> example to learn
-more about operator learning in Continuity.
+more about operator learning in continuiti.
