@@ -29,5 +29,5 @@ jobs:
           cache: "pip"
       - name: Install
         run: |
-          pip install ".[docs]"
+          pip install ".[dev]"
       - run: mkdocs gh-deploy --force

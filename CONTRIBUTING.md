@@ -8,16 +8,15 @@ bug reports and feature requests.
 
 ## Local development
 
-This project uses [black](https://github.com/psf/black) to format code and
-[pre-commit](https://pre-commit.com/) to invoke it as a git pre-commit hook.
+In order to contribute to the library, you will need to set up your local
+development environment. First, clone the repository:
 
-Run the following to set up the pre-commit git hook to run before pushes:
-
-```bash
-pre-commit install --hook-type pre-push
+```shell
+git clone https://github.com/aai-institute/continuiti.git
+cd continuiti
 ```
 
-## Setting up your environment
+### Setting up your environment
 
 We strongly suggest using some form of virtual environment for working with the
 library, e.g., with venv:
@@ -27,11 +26,27 @@ python3 -m venv ./venv
 source venv/bin/activate
 ```
 
+### Installing in editable mode
+
 A very convenient way of working with your library during development is to
-install it in editable mode into your environment by running
+install it in editable mode into your environment by running:
 
 ```shell
-pip install -e .
+pip install -e .[dev]
+```
+
+The `[dev]` extra installs all dependencies needed for development, including
+testing, documentation and benchmarking.
+
+### Pre-commit hooks
+
+This project uses [black](https://github.com/psf/black) to format code and
+[pre-commit](https://pre-commit.com/) to invoke it as a git pre-commit hook.
+
+Run the following to set up the pre-commit git hook to run before pushes:
+
+```bash
+pre-commit install
 ```
 
 ## Build documentation
@@ -39,12 +54,6 @@ pip install -e .
 API documentation and examples from notebooks are built with
 [mkdocs](https://www.mkdocs.org/).
 Notebooks are an integral part of the documentation as well.
-
-Install the documentation dependencies:
-
-```bash
-pip install -e ".[docs]"
-```
 
 You can use this command to continuously rebuild documentation
 on changes to the `docs` and `src` folder:
@@ -64,10 +73,14 @@ by [CI pipelines](#CI). Before pushing your changes to the remote we recommend
 to execute `pytest` locally in order to detect mistakes early on and to avoid
 failing pipelines.
 
-For testing, install the testing dependencies:
+To run all tests, use:
+```shell
+pytest
+```
 
-```bash
-pip install -e ".[testing]"
+To run specific tests, use:
+```shell
+pytest -k test_pattern
 ```
 
 Slow tests (> 5s) are marked by the `@pytest.mark.slow` decorator.

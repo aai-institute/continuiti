@@ -1,13 +1,5 @@
 # Benchmarks
 
-## Prerequisites
-
-The benchmarks require optional dependencies:
-
-```bash
-pip install -e ".[benchmark]"
-```
-
 ## Run
 
 Run the `run_all.py` script to run all benchmarks.

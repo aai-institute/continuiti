@@ -33,7 +33,7 @@ jobs:
           cache: "pip"
       - name: Install
         run: |
-          pip install ".[testing]"
+          pip install ".[dev]"
       - name: Run pytest
         run: |
           pytest -v
@@ -61,7 +61,7 @@ jobs:
           cache: "pip"
       - name: Install
         run: |
-          pip install ".[testing]"
+          pip install ".[dev]"
       - name: Install missing system dependencies
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -86,7 +86,7 @@ jobs:
           cache: "pip"
       - name: Install
         run: |
-          pip install ".[testing]"
+          pip install ".[dev]"
       - name: Run tests and collect coverage
         run: pytest --cov src
       - name: Upload coverage to Codecov

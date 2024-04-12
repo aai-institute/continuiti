@@ -27,13 +27,6 @@ dependencies = [
     "flake8",           # code analysis
     "isort",            # import sorting
 
-    # --------- loggers --------- #
-    # wandb
-    # neptune-client
-    # mlflow
-    # comet-ml
-    # tensorboard
-
     # --------- linters --------- #
     "pre-commit",       # hooks for applying linters on commit
     "pudb",             # debugger
@@ -43,25 +36,25 @@ dependencies = [
     "python-dotenv",    # loading env variables from .env file
     "rich",             # beautiful text formatting in terminal
     "sh",               # for running bash commands in some tests
-    # dvc               # data version control
 
     # --------- dependencies --------- #
     "torch>=2.1.0,<3.0.0",
     "matplotlib",
     "pandas",
     "numpy",
+    "scipy",
+    "dvc",
+    "dvc-gdrive",
+    "mlflow",
+    "optuna>=3.5.0,<4.0.0",
 ]
 
 [project.optional-dependencies]
-testing = [
+dev = [
     "setuptools",
     "pytest",
     "pytest-cov",
     "nbmake",
-    "gmsh",
-    "mlflow",
-]
-docs = [
     "markdown-captions",
     "mike",
     "mkdocs==1.5.2",
@@ -78,13 +71,7 @@ docs = [
     "mknotebooks>=0.8.0",
     "neoteroi-mkdocs",
     "pygments",
-]
-benchmark = [
-    "dvc",
-    "dvc-gdrive",
-    "mlflow",
-    "optuna>=3.5.0,<4.0.0",
-    "scipy",
+    "gmsh",
 ]
 
 [tool.setuptools.dynamic]
