@@ -45,9 +45,9 @@ class NeuralOperator(Operator):
         self.last_dim = layers[-1].shapes.v.dim
 
         assert self.shapes.x == layers[0].shapes.x
-        assert self.shapes.u.num == layers[0].shapes.u.num
+        assert self.shapes.u.size == layers[0].shapes.u.size
         assert self.shapes.y == layers[-1].shapes.y
-        assert self.shapes.v.num == layers[-1].shapes.v.num
+        assert self.shapes.v.size == layers[-1].shapes.v.size
 
         self.lifting = torch.nn.Linear(self.shapes.u.dim, self.first_dim, device=device)
         self.projection = torch.nn.Linear(
@@ -73,25 +73,30 @@ class NeuralOperator(Operator):
         """Forward pass through the operator.
 
         Args:
-            x: Sensor positions of shape (batch_size, num_sensors, coordinate_dim).
-            u: Input function values of shape (batch_size, num_sensors, num_channels).
-            y: Coordinates where the mapped function is evaluated of shape (batch_size, y_size, coordinate_dim)
+            x: Sensor positions of shape (batch_size, coordinate_dim, num_sensors, ...).
+            u: Input function values of shape (batch_size, num_channels, num_sensors, ...).
+            y: Coordinates where the mapped function is evaluated of shape (batch_size, coordinate_dim, y_size, ...)
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, y_size, num_channels)
+            Evaluations of the mapped function with shape (batch_size, num_channels, y_size, ...)
         """
-        assert u.shape[1:] == torch.Size([self.shapes.u.num, self.shapes.u.dim])
+        assert u.shape[1:] == torch.Size([self.shapes.u.dim, *self.shapes.u.size])
 
         # Lifting
         u = u.reshape(-1, self.shapes.u.dim)
         v = self.lifting(u)
-        v = v.reshape(-1, self.shapes.u.num, self.first_dim)
+        v = v.reshape(-1, self.first_dim, *self.shapes.u.size)
 
         # Hidden layers
         for layer, W, norm in zip(self.layers[:-1], self.W, self.norms):
-            v = layer(x, v, x) + W(v)
+            v1 = layer(x, v, x)
+
+            v = v1.transpose(1, -1) + W(v.transpose(1, -1))
+
             v = self.act(v)
             v = norm(v)
+
+            v = v.transpose(1, -1)
 
         # Last layer (evaluates y)
         v = self.layers[-1](x, v, y)
@@ -99,7 +104,7 @@ class NeuralOperator(Operator):
         # Projection
         v = v.reshape(-1, self.last_dim)
         v = self.projection(v)
-        w = v.reshape(-1, self.shapes.v.num, self.shapes.v.dim)
+        w = v.reshape(-1, self.shapes.v.dim, *self.shapes.v.size)
 
-        assert w.shape[1:] == torch.Size([y.size(1), self.shapes.v.dim])
+        assert w.shape[1:] == torch.Size([self.shapes.v.dim, *y.size()[2:]])
         return w
