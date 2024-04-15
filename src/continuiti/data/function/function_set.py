@@ -54,10 +54,15 @@ class FunctionSet:
             List of Function instances for the given parameters of this function set instance.
         """
         funcs = []
+
+        # parameters have shape (p_dim, num_parameters, ...)
+        parameters = parameters.flatten(1, -1).transpose(0, 1)
+
         for param in parameters:
 
             def mapping(x, p=param):
                 return self.parameterized_mapping(p)(x)
 
             funcs.append(Function(mapping))
+
         return funcs

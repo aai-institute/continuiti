@@ -7,9 +7,9 @@ Every data set is a list of `(x, u, y, v)` tuples.
 
 import torch
 import torch.utils.data as td
-from typing import Tuple
+from typing import Optional, Tuple
 from abc import ABC, abstractmethod
-
+from continuiti.transforms import Transform
 from continuiti.operators.shape import OperatorShapes, TensorShape
 
 
@@ -66,10 +66,10 @@ class OperatorDataset(OperatorDatasetBase):
         u: torch.Tensor,
         y: torch.Tensor,
         v: torch.Tensor,
-        x_transform=None,
-        u_transform=None,
-        y_transform=None,
-        v_transform=None,
+        x_transform: Optional[Transform] = None,
+        u_transform: Optional[Transform] = None,
+        y_transform: Optional[Transform] = None,
+        v_transform: Optional[Transform] = None,
     ):
         assert all([t.ndim >= 3 for t in [x, u, y, v]]), "Wrong number of dimensions."
         assert (
