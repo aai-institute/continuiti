@@ -20,7 +20,7 @@ class UniformBoxSampler(BoxSampler):
         ```
         Output:
         ```
-        torch.Size([100, 2])
+        torch.Size([2, 100])
         ```
 
     Note:
@@ -35,7 +35,8 @@ class UniformBoxSampler(BoxSampler):
             n: Number of samples to draw.
 
         Returns:
-            Samples as tensor of shape (n, dim).
+            Samples as tensor of shape (dim, n).
         """
         sample = torch.rand((n, self.ndim))
-        return sample * self.x_delta + self.x_min
+        x = sample * self.x_delta + self.x_min
+        return x.permute(1, 0)

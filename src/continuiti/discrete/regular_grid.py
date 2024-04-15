@@ -68,7 +68,7 @@ class RegularGridSampler(BoxSampler):
             n_samples: The number of samples to generate.
 
         Returns:
-            Tensor containing the samples of shape (~n_samples, ndim)
+            Tensor containing the samples of shape (ndim, ~n_samples, ...) as a grid.
         """
         samples_per_dim = self.__calculate_samples_per_dim(n_samples)
         samples_per_dim = self.__adjust_samples_to_fit(n_samples, samples_per_dim)
@@ -82,7 +82,7 @@ class RegularGridSampler(BoxSampler):
         ]
         mesh = torch.meshgrid(*grids, indexing="ij")
 
-        return torch.stack(mesh, dim=-1).reshape(-1, self.ndim)
+        return torch.stack(mesh, dim=-1).permute(-1, *range(self.ndim))
 
     def __calculate_samples_per_dim(self, n_samples: int) -> torch.Tensor:
         """Calculate the (floating point) number of samples in each dimension to
