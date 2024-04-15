@@ -35,10 +35,10 @@ class Loss:
 
         Args:
             op: Operator object
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of evaluation coordinates of shape (batch_size, x_size, coordinate_dim)
-            v: Tensor of labels of shape (batch_size, x_size, coordinate_dim)
+            x: Tensor of sensor positions of shape (batch_size, coordinate_dim, num_sensors...)
+            u: Tensor of sensor values of shape (batch_size, num_channels, num_sensors...)
+            y: Tensor of evaluation coordinates of shape (batch_size, coordinate_dim, x_size...)
+            v: Tensor of labels of shape (batch_size, coordinate_dim, x_size...)
         """
 
 
