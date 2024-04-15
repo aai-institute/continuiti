@@ -50,10 +50,10 @@ class OperatorDataset(OperatorDatasetBase):
     all loss functions and/or operators need access to all of these attributes.
 
     Args:
-        x: Tensor of shape (#observations, #sensors, x-dim) with sensor positions.
-        u: Tensor of shape (#observations, #sensors, u-dim) with evaluations of the input functions at sensor positions.
-        y: Tensor of shape (#observations, #evaluations, y-dim) with evaluation positions.
-        v: Tensor of shape (#observations, #evaluations, v-dim) with ground truth operator mappings.
+        x: Tensor of shape (#observations, x_dim, #sensors, ...) with sensor positions.
+        u: Tensor of shape (#observations, u_dim, #sensors, ...) with evaluations of the input functions at sensor positions.
+        y: Tensor of shape (#observations, y_dim, #evaluations, ...) with evaluation positions.
+        v: Tensor of shape (#observations, v_dim, #evaluations, ...) with ground truth operator mappings.
 
     Attributes:
         shapes (dataclass): Shape of all tensors.
@@ -71,12 +71,19 @@ class OperatorDataset(OperatorDatasetBase):
         y_transform=None,
         v_transform=None,
     ):
-        assert x.ndim == u.ndim == y.ndim == v.ndim == 3, "Wrong number of dimensions."
+        assert all([t.ndim >= 3 for t in [x, u, y, v]]), "Wrong number of dimensions."
         assert (
             x.size(0) == u.size(0) == y.size(0) == v.size(0)
         ), "Inconsistent number of observations."
-        assert x.size(1) == u.size(1), "Inconsistent number of sensors."
-        assert y.size(1) == v.size(1), "Inconsistent number of evaluations."
+
+        # get dimensions and sizes
+        x_dim, x_size = x.size(1), x.size()[2:]
+        u_dim, u_size = u.size(1), u.size()[2:]
+        y_dim, y_size = y.size(1), y.size()[2:]
+        v_dim, v_size = v.size(1), v.size()[2:]
+
+        assert x_size == u_size, "Inconsistent number of sensors."
+        assert y_size == v_size, "Inconsistent number of evaluations."
 
         super().__init__()
 
@@ -87,10 +94,10 @@ class OperatorDataset(OperatorDatasetBase):
 
         # used to initialize architectures
         self.shapes = OperatorShapes(
-            x=TensorShape(*x.size()[1:]),
-            u=TensorShape(*u.size()[1:]),
-            y=TensorShape(*y.size()[1:]),
-            v=TensorShape(*v.size()[1:]),
+            x=TensorShape(dim=x_dim, size=x_size),
+            u=TensorShape(dim=u_dim, size=u_size),
+            y=TensorShape(dim=y_dim, size=y_size),
+            v=TensorShape(dim=v_dim, size=v_size),
         )
 
         self.transform = {
