@@ -21,17 +21,16 @@ def test_can_initialize(sin_set_nested_lmbda, sin_set_nested_func):
 
 
 def test_eval_correct(sin_set_nested_lmbda, sin_set_nested_func):
-    n_observations = 10
-    x = torch.linspace(-1, 1, 300).repeat(n_observations, 1)
-
-    param = torch.tensor([-2.0, torch.pi, 1.0]).repeat(n_observations, 1)
+    x = torch.linspace(-1, 1, 300).unsqueeze(0)
+    param = torch.tensor([-2.0, torch.pi, 1.0]).unsqueeze(1).repeat(1, 7)
 
     for func in [sin_set_nested_func, sin_set_nested_lmbda]:
         functions = func(param)
         f = torch.stack([function(x) for function in functions])
         assert torch.allclose(
             f,
-            param[:, 0, None] * torch.sin(param[:, 1, None] * x + param[:, 2, None]),
+            param[0, :, None, None]
+            * torch.sin(param[1, :, None, None] * x + param[2, :, None, None]),
         )
 
 

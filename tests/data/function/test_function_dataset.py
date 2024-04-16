@@ -32,13 +32,13 @@ def test_correct_shapes(x2_set):
     shapes = x2_set.shapes
 
     assert shapes.x.dim == 1
-    assert shapes.x.num == 42
+    assert shapes.x.size == (42,)
     assert shapes.u.dim == 1
-    assert shapes.u.num == 42
+    assert shapes.u.size == (42,)
     assert shapes.y.dim == 1
-    assert shapes.y.num == 13
+    assert shapes.y.size == (13,)
     assert shapes.v.dim == 1
-    assert shapes.v.num == 13
+    assert shapes.v.size == (13,)
 
 
 def test_generate_in_distribution_observation_repr(x2_set):
@@ -58,10 +58,10 @@ def test_generate_in_distribution_observation(x2_set):
     )
 
     # shapes
-    assert x_s.shape == torch.Size([5, 2, 1])
-    assert u_s.shape == torch.Size([5, 2, 1])
-    assert y_s.shape == torch.Size([5, 3, 1])
-    assert v_s.shape == torch.Size([5, 3, 1])
+    assert x_s.shape == torch.Size([5, 1, 2])
+    assert u_s.shape == torch.Size([5, 1, 2])
+    assert y_s.shape == torch.Size([5, 1, 3])
+    assert v_s.shape == torch.Size([5, 1, 3])
 
     # in distribution
     assert torch.greater_equal(x_s, -1).all()
