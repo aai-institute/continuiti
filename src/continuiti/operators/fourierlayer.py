@@ -187,11 +187,8 @@ class FourierLayer(Operator):
         num_fft_dimensions = self.shapes.x.dim
         fft_dimensions = list(range(1, num_fft_dimensions + 1))
 
-        # match (batch_size, num_sensors, u_dim)
-        u = u.flatten(2, -1).transpose(1, -1)
-
-        # reshape input to prepare for FFT
-        u = self._reshape(u)
+        # prepare for FFT
+        u = u.transpose(1, -1)
         assert u.dim() == num_fft_dimensions + 2
 
         # compute n-dimensional real-valued fourier transform
@@ -240,10 +237,9 @@ class FourierLayer(Operator):
             norm="forward",
         )
 
-        out = out.reshape(batch_size, -1, self.shapes.v.dim)
-
-        # match (batch_size, v_dim, num_evaluations, ...)
-        out = out.transpose(1, 2).reshape(batch_size, self.shapes.v.dim, *y.size()[2:])
+        # match (batch_size, v_dim, num_evaluations...)
+        out = out.transpose(1, -1)
+        assert out.shape == (batch_size, self.shapes.v.dim, *y.size()[2:])
 
         return out
 
@@ -278,47 +274,6 @@ class FourierLayer(Operator):
         out_fft = torch.einsum(contraction_equation, kernel, fft_values)
 
         return out_fft
-
-    def _reshape(self, u: torch.Tensor) -> torch.Tensor:
-        """Reshape input function from flattened representation to
-        grid representation. The grid representation is required for
-        `torch.fft.fftn`.
-
-        If self.grid_shape is not consistent with the given input function,
-        the given input tensor is interpreted as scaled up or scaled down
-        version of the grid specified by self.grid_shape
-        (e.g. (10, 6) -> scaled down (5, 3) -> scaled up (30, 18)).
-        If this fails as well, an AssertionError is raised.
-
-        Args:
-            u: input function with shape (batch-size, u.num, u.dim).
-
-        Return:
-            u: with input function (batch-size, *grid_shape, u.dim)
-        """
-
-        # shapes that can change for different forward passes
-        batch_size, u_num = u.shape[0], u.shape[1]
-
-        # check if self.grid_shape is consistent with input function
-        if u_num == math.prod(self.grid_shape):
-            fft_shape = self.grid_shape
-        else:
-            # in case self.grid_shape is not consistent with the input function
-            # let's try to reshape the input such that the relations between the
-            # different dimensions is constant.
-            scaling_factor = (u_num / math.prod(self.grid_shape)) ** (
-                1 / len(self.grid_shape)
-            )
-            fft_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
-
-            assert u_num == math.prod(fft_shape), (
-                "Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter."
-                f"Given number of sensor points {u_num}. Given grid shape {self.grid_shape}. Tried to reshape as {fft_shape}"
-            )
-
-        shape = (batch_size, *fft_shape, self.shapes.u.dim)
-        return u.reshape(shape)
 
     def _remove_large_frequencies(
         self, fft_values: torch.Tensor, dim: Tuple[int], target_shape: List[int]
