@@ -28,13 +28,13 @@ class Kernel(torch.nn.Module, ABC):
     shapes of the input tensors are
 
     ```python
-        x: (batch_size, x_num, x_dim)
-        y: (batch_size, y_num, y_dim)
+        x: (batch_size, x_dim, x_num...)
+        y: (batch_size, y_dim, y_num...)
     ```
     and the kernel output is of shape
 
     ```python
-        (batch_size, x_num, y_num, u_dim, v_dim)
+        (batch_size, u_dim, v_dim, x_num..., y_num...)
     ```
 
     Args:
@@ -52,11 +52,11 @@ class Kernel(torch.nn.Module, ABC):
         """Forward pass.
 
         Args:
-            x: Tensor of coordinates of shape `(batch_size, shapes.x.dim, x_num)`.
-            y: Tensor of coordinates of shape `(batch_size, shapes.y.dim, y_num)`.
+            x: Tensor of coordinates of shape `(batch_size, shapes.x.dim, x_num...)`.
+            y: Tensor of coordinates of shape `(batch_size, shapes.y.dim, y_num...)`.
 
         Returns:
-            Tensor of shape `(batch_size, shapes.u.dim, shapes.v.dim, x_num, y_num)`.
+            Tensor of shape `(batch_size, shapes.u.dim, shapes.v.dim, x_num..., y_num...)`.
         """
 
 
@@ -99,7 +99,7 @@ class NeuralNetworkKernel(Kernel):
 
         Args:
             x: Tensor of coordinates of shape `(batch_size, shapes.x.dim, x_num...)`.
-            y: Tensor of coordinates of shape `(batch_size, shapes.y.dim, y_num..)`.
+            y: Tensor of coordinates of shape `(batch_size, shapes.y.dim, y_num...)`.
 
         Returns:
             Tensor of shape `(batch_size, shapes.u.dim, shapes.v.dim, x_num..., y_num...)`.
@@ -174,12 +174,12 @@ class NaiveIntegralKernel(Operator):
         """Forward pass.
 
         Args:
-            x: Sensor positions of shape (batch_size, x_dim, num_sensors, ...)
-            u: Input function values of shape (batch_size, u_dim, num_sensors, ...)
-            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations, ...)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations, ...)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
         # shapes that can change for different forward passes
         batch_size = x.shape[0]

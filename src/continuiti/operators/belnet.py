@@ -91,7 +91,7 @@ class BelNet(Operator):
         """Forward pass through the operator.
 
         Args:
-            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...)
             u: Input function values of shape (batch_size, u_dim, num_sensors...)
             y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...)
 

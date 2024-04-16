@@ -63,15 +63,15 @@ class DeepNeuralOperator(Operator):
 
 
         Args:
-            x: Input coordinates of shape (batch_size, x_dim, #sensors, ...), representing the points in space at
+            x: Input coordinates of shape (batch_size, x_dim, num_sensors...), representing the points in space at
                 which the input function values are probed.
-            u: Input function values of shape (batch_size, u_dim, #sensors, ...), representing the values of the input
+            u: Input function values of shape (batch_size, u_dim, num_sensors...), representing the values of the input
                 functions at different sensor locations.
-            y: Evaluation coordinates of shape (batch_size, y_dim, #evaluations, ...), representing the points in space at
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...), representing the points in space at
                 which the output function values are to be computed.
 
         Returns:
-            The output of the operator, of shape (batch_size, v_dim, #evaluations, ...), representing the computed function
+            The output of the operator, of shape (batch_size, v_dim, num_evaluations...), representing the computed function
                 values at the specified evaluation coordinates.
         """
         batch_size = u.size(0)

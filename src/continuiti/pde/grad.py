@@ -26,12 +26,12 @@ class Grad(Operator):
         """Forward pass through the operator.
 
         Args:
-            x: Tensor of sensor positions of shape (batch_size, input_coordinate_dim, size...)
-            u: Tensor of sensor values of shape (batch_size, input_channels, size...)
-            y: Tensor of evaluation positions of shape (batch_size, input_coordinate_dim, size...)
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation positions of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, output_channels, size...)
+            Tensor of evaluations of the mapped function of shape (batch_size, v_dim, num_evaluations...).
         """
         if y is not None:
             assert torch.equal(x, y), "x and y must be equal for gradient operator"
@@ -79,12 +79,12 @@ class Div(Operator):
         """Forward pass through the operator.
 
         Args:
-            x: Tensor of sensor positions of shape (batch_size, input_coordinate_dim, size...)
-            u: Tensor of sensor values of shape (batch_size, input_channels, size...)
-            y: Tensor of evaluation positions of shape (batch_size, input_coordinate_dim, size...)
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation positions of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Tensor of evaluations of the mapped function of shape (batch_size, output_channels, size...)
+            Tensor of evaluations of the mapped function of shape (batch_size, v_dim, num_evaluations...).
         """
         if y is not None:
             assert torch.equal(x, y), "x and y must be equal for divergence operator"

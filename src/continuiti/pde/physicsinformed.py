@@ -39,10 +39,10 @@ class PDE:
         Usually, we have `v = op(x, u, y)`, e.g., in the physics-informed loss.
 
         Args:
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of evaluation coordinates of shape (batch_size, num_evaluations, coordinate_dim)
-            v: Tensor of predicted values of shape (batch_size, num_evaluations, num_channels)
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
+            v: Tensor of _predicted_ values of shape (batch_size, v_dim, num_evaluations...).
 
         """
 
@@ -72,11 +72,11 @@ class PhysicsInformedLoss:
         """Evaluate loss.
 
         Args:
-            op: Operator object
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of evaluation coordinates of shape (batch_size, num_evaluations, coordinate_dim)
-            v: Ignored
+            op: Operator object.
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
+            v: Ignored.
         """
         # Call operator
         v_pred = op(x, u, y)

@@ -72,11 +72,11 @@ class DeepONet(Operator):
 
         Args:
             _: Ignored.
-            u: Input function values of shape (batch_size, u_dim, #sensors, ...)
-            y: Evaluation coordinates of shape (batch_size, y_dim, #evaluations, ...)
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Operator output (batch_size, v_dim, #evaluations)
+            Operator output (batch_size, v_dim, num_evaluations...).
         """
         assert u.size(0) == y.size(0)
         y_num = y.shape[2:]

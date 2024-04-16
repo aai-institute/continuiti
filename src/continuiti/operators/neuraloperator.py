@@ -73,12 +73,12 @@ class NeuralOperator(Operator):
         """Forward pass through the operator.
 
         Args:
-            x: Sensor positions of shape (batch_size, coordinate_dim, num_sensors, ...).
-            u: Input function values of shape (batch_size, num_channels, num_sensors, ...).
-            y: Coordinates where the mapped function is evaluated of shape (batch_size, coordinate_dim, y_size, ...)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Coordinates where the mapped function is evaluated of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, num_channels, y_size, ...)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
         assert u.shape[1:] == torch.Size([self.shapes.u.dim, *self.shapes.u.size])
 

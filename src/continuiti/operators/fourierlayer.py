@@ -64,12 +64,12 @@ class FourierLayer1d(Operator):
         """Forward pass.
 
         Args:
-            x: Sensor positions of shape (batch_size, x_dim, num_sensors)
-            u: Input function values of shape (batch_size, u_dim, num_sensors)
-            y: Evaluation coordinates of shape (batch_size, y_dim, num_sensors)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_sensors...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, v_dim, num_sensors)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_sensors...).
         """
 
         u_fourier = rfft(u, axis=2, norm="forward")
@@ -171,12 +171,12 @@ class FourierLayer(Operator):
                 assumed.
 
         Args:
-            x: Sensor positions of shape (batch_size, x_dim, num_sensors, ...)
-            u: Input function values of shape (batch_size, u_dim, num_sensors, ...)
-            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations, ...)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations, ...)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
 
         # shapes which can change for different forward passes

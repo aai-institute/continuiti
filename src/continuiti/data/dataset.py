@@ -50,14 +50,14 @@ class OperatorDataset(OperatorDatasetBase):
     all loss functions and/or operators need access to all of these attributes.
 
     Args:
-        x: Tensor of shape (#observations, x_dim, #sensors, ...) with sensor positions.
-        u: Tensor of shape (#observations, u_dim, #sensors, ...) with evaluations of the input functions at sensor positions.
-        y: Tensor of shape (#observations, y_dim, #evaluations, ...) with evaluation positions.
-        v: Tensor of shape (#observations, v_dim, #evaluations, ...) with ground truth operator mappings.
+        x: Tensor of shape (num_observations, x_dim, num_sensors...) with sensor positions.
+        u: Tensor of shape (num_observations, u_dim, num_sensors...) with evaluations of the input functions at sensor positions.
+        y: Tensor of shape (num_observations, y_dim, num_evaluations...) with evaluation positions.
+        v: Tensor of shape (num_observations, v_dim, num_evaluations...) with ground truth operator mappings.
 
     Attributes:
-        shapes (dataclass): Shape of all tensors.
-        transform (dict): Transformations for each tensor.
+        shapes: Shape of all tensors.
+        transform: Transformations for each tensor.
     """
 
     def __init__(
@@ -115,17 +115,18 @@ class OperatorDataset(OperatorDatasetBase):
         """Return the number of samples.
 
         Returns:
-            number of samples in the entire set.
+            Number of samples in the entire set.
         """
         return self.x.size(0)
 
     def __getitem__(
-        self, idx
+        self,
+        idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Retrieves the input-output pair at the specified index and applies transformations.
 
         Parameters:
-            - idx: The index of the sample to retrieve.
+            idx: The index of the sample to retrieve.
 
         Returns:
             A tuple containing the three input tensors and the output tensor for the given index.
@@ -140,10 +141,10 @@ class OperatorDataset(OperatorDatasetBase):
         """Applies class transformations to four tensors.
 
         Args:
-            x: Tensor of shape (#samples, #sensors, x-dim) with sensor positions.
-            u: Tensor of shape (#samples, #sensors, u-dim) with evaluations of the input functions at sensor positions.
-            y: Tensor of shape (#samples, #evaluations, y-dim) with evaluation positions.
-            v: Tensor of shape (#samples, #evaluations, v-dim) with ground truth operator mappings.
+            x: Tensor of shape (num_observations, x_dim, num_sensors...) with sensor positions.
+            u: Tensor of shape (num_observations, u_dim, num_sensors...) with evaluations of the input functions at sensor positions.
+            y: Tensor of shape (num_observations, y_dim, num_evaluations...) with evaluation positions.
+            v: Tensor of shape (num_observations, v_dim, num_evaluations...) with ground truth operator mappings.
 
         Returns:
             Input samples with class transformations applied.
