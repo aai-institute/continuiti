@@ -4,6 +4,7 @@
 Self-supervised data set.
 """
 
+import math
 import torch
 
 from .dataset import OperatorDataset
@@ -19,32 +20,35 @@ class SelfSupervisedOperatorDataset(OperatorDataset):
     the label's coordinate its value for all `i`.
 
     Args:
-        x: Sensor positions of shape (num_observations, num_sensors, coordinate_dim)
-        u: Sensor values of shape (num_observations, num_sensors, num_channels)
+        x: Sensor positions of shape (num_observations, coordinate_dim, num_sensors...)
+        u: Sensor values of shape (num_observations, num_channels, num_sensors...)
     """
 
     def __init__(self, x: torch.Tensor, u: torch.Tensor):
         self.num_observations = u.shape[0]
-        self.num_sensors = u.shape[1]
-        self.coordinate_dim = x.shape[-1]
-        self.num_channels = u.shape[-1]
+        self.coordinate_dim = x.shape[1]
+        self.num_channels = u.shape[1]
 
         # Check consistency across observations
         for i in range(self.num_observations):
             assert (
-                x[i].shape[-1] == self.coordinate_dim
+                x[i].shape[0] == self.coordinate_dim
             ), "Inconsistent coordinate dimension."
             assert (
-                u[i].shape[-1] == self.num_channels
+                u[i].shape[0] == self.num_channels
             ), "Inconsistent number of channels."
 
         xs, us, ys, vs = [], [], [], []
 
+        x_flat = x.view(self.num_observations, self.coordinate_dim, -1)
+        u_flat = u.view(self.num_observations, self.num_channels, -1)
+        self.num_sensors = math.prod(u.shape[2:])
+
         for i in range(self.num_observations):
             # Add one data point for every sensor
             for j in range(self.num_sensors):
-                y = x[i][j].unsqueeze(0)
-                v = u[i][j].unsqueeze(0)
+                y = x_flat[i, :, j].unsqueeze(0)
+                v = u_flat[i, :, j].unsqueeze(0)
 
                 xs.append(x[i])
                 us.append(u[i])

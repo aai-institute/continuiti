@@ -101,12 +101,12 @@ class FlameDataset(OperatorDatasetBase):
 
         self.upsample_layer = torch.nn.Upsample(scale_factor=8, mode="bilinear")
 
-        numx = 16 * 16 if not upsample else 128 * 128
+        size = (16, 16) if not upsample else (128, 128)
         self.shapes = OperatorShapes(
-            x=TensorShape(num=numx, dim=2),
-            u=TensorShape(num=numx, dim=len(channels)),
-            y=TensorShape(num=128 * 128, dim=2),
-            v=TensorShape(num=128 * 128, dim=len(channels)),
+            x=TensorShape(dim=2, size=size),
+            u=TensorShape(dim=len(channels), size=size),
+            y=TensorShape(dim=2, size=(128, 128)),
+            v=TensorShape(dim=len(channels), size=(128, 128)),
         )
 
     def __len__(self) -> int:
@@ -184,20 +184,21 @@ class FlameDataset(OperatorDatasetBase):
         data_frame = pd.read_csv(csv_file)
         data_path = self.path + f"flowfields/{res}/{self.split}/"
 
-        xy = 16 * 16 if res == "LR" else 128 * 128
+        xy = (16, 16) if res == "LR" else (128, 128)
         num_channels = len(self.channels)
-        flow_fields = torch.zeros(xy, num_channels)
+        flow_fields = torch.zeros(*xy, num_channels)
 
         # Load data
         for i in range(num_channels):
             c = self.channels[i]
             filename = data_frame[f"{c}_filename"][index]
-            flow_field = np.fromfile(data_path + filename, dtype="<f4")
-            flow_fields[:, i] = torch.tensor(flow_field)
+            flow_field = np.fromfile(data_path + filename, dtype="<f4").reshape(xy)
+            flow_fields[:, :, i] = torch.tensor(flow_field)
 
         return flow_fields
 
     def _create_position_grid(self, size: int) -> torch.Tensor:
         """Create a flattened grid of positions in $[-1, 1]^d$."""
         ls = torch.linspace(-1, 1, size)
-        return torch.stack(torch.meshgrid(ls, ls, indexing="ij"), axis=2).reshape(-1, 2)
+        mg = torch.stack(torch.meshgrid(ls, ls, indexing="ij"), axis=2)
+        return mg.swapaxes(0, -1).reshape(2, size, size)

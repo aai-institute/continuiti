@@ -53,6 +53,7 @@ class Gmsh:
         """Get vertices (nodes) as tensor."""
         v = torch.tensor(self.nodes[1], dtype=torch.get_default_dtype())
         v = v.reshape(-1, 3)  # Gmsh vertices are always 3D
+        v = v.transpose(0, 1)
         return v
 
     def get_cells(self) -> torch.Tensor:
