@@ -69,12 +69,12 @@ class NavierStokes(Benchmark):
         ls = torch.linspace(-1, 1, 64)
         tx = torch.linspace(-0.9, 0.0, 10)
         grid_x = torch.meshgrid(ls, ls, tx, indexing="ij")
-        x = torch.stack(grid_x, axis=3).reshape(1, -1, 3).repeat(1200, 1, 1)
+        x = torch.stack(grid_x, axis=0).unsqueeze(0).expand(1200, -1, -1, -1, -1)
         x = x.reshape(1200, 3, 64, 64, 10)
 
         ty = torch.linspace(0.1, 1.0, 10)
         grid_y = torch.meshgrid(ls, ls, ty, indexing="ij")
-        y = torch.stack(grid_y, axis=3).reshape(1, -1, 3).repeat(1200, 1, 1)
+        y = torch.stack(grid_y, axis=0).unsqueeze(0).expand(1200, -1, -1, -1, -1)
         y = y.reshape(1200, 3, 64, 64, 10)
 
         # Load vorticity
