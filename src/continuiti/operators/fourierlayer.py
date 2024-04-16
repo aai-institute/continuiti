@@ -96,8 +96,7 @@ class FourierLayer(Operator):
         shapes: Shape of dataset
         num_modes: List with number of modes per fft dimension. The number of
             fft-dimensions is equal to shapes.x.dim. If num_modes is None,
-            the maximum number of modes is assumed which is given by
-            either grid_shape or if grid_shape is not specified by the number
+            the maximum number of modes is assumed which is given by the number
             of points per dimension.
         device: Device.
 
@@ -165,10 +164,7 @@ class FourierLayer(Operator):
 
         Note:
             * `x.dim == y.dim` is a necessary condition for the FourierLayer.
-            * `x` and `y` have to be sampled on a regular grid! The dimensions of
-                `x` and `y` have to be consistent with the `grid_shape` parameter. If the
-                `grid_shape` parameter was not specified, a grid with equal sizes is
-                assumed.
+            * `x` and `y` have to be sampled on a regular grid.
 
         Args:
             x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
@@ -178,10 +174,8 @@ class FourierLayer(Operator):
         Returns:
             Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
-
         # shapes which can change for different forward passes
         batch_size = y.shape[0]
-        num_evaluations = math.prod(y.shape[2:])
 
         # fft related parameters
         num_fft_dimensions = self.shapes.x.dim
@@ -205,17 +199,8 @@ class FourierLayer(Operator):
         # perform kernel integral operation in Fourier space
         out_fft = self._contract_with_kernel(u_fft, dim=fft_dimensions)
 
-        # the output shape is determined by y.shape[1] (num_evaluations) and not x.shape[1]
-        scaling_factor = (num_evaluations / math.prod(self.grid_shape)) ** (
-            1 / len(self.grid_shape)
-        )
-        target_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
-
-        assert num_evaluations == math.prod(target_shape), (
-            f"Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter. "
-            f"Given number of sensor points {num_evaluations}. Given grid shape {self.grid_shape}. "
-            f"Tried to reshape as {target_shape}. "
-        )
+        # the output shape is determined by y.shape[2:] (num_evaluations...) and not x.shape[2:] (num_sensors...)
+        target_shape = list(y.shape[2:])
 
         # fft_shape is the same except last dimension, we only need half the frequencies for the last dimension
         fft_shape = target_shape.copy()
@@ -238,7 +223,7 @@ class FourierLayer(Operator):
         )
 
         # match (batch_size, v_dim, num_evaluations...)
-        out = out.transpose(1, -1)
+        out = out.permute(0, -1, *range(1, out.dim() - 1))
         assert out.shape == (batch_size, self.shapes.v.dim, *y.size()[2:])
 
         return out

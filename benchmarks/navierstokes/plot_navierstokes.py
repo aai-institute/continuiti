@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 from continuiti.benchmarks import NavierStokes
 from continuiti.operators import FourierNeuralOperator
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# FFT not available on MPS
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 ns = NavierStokes()
 
 operator = FourierNeuralOperator(
     ns.train_dataset.shapes,
-    grid_shape=(64, 64, 10),
     width=32,
     depth=4,
     device=device,
