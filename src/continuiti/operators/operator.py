@@ -43,12 +43,12 @@ class Operator(torch.nn.Module, ABC):
         """Forward pass through the operator.
 
         Args:
-            x: Sensor positions of shape (batch_size, num_sensors, x_dim)
-            u: Input function values of shape (batch_size, num_sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, num_evaluations, y_dim)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, num_evaluations, v_dim)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
 
     def save(self, path: str):

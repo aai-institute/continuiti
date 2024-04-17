@@ -48,16 +48,22 @@ class FunctionSet:
 
         Args:
             parameters: Parameters for which the mapping class argument will be evaluated of shape
-                (n_observations, n_parameters) or list with n_observation elements with n_parameters each.
-
+                (n_parameters, n_functions).
         Returns:
             List of Function instances for the given parameters of this function set instance.
         """
         funcs = []
-        for param in parameters:
+
+        if not isinstance(parameters, torch.Tensor):
+            parameters = torch.tensor(parameters)
+
+        n_functions = parameters.size(1)
+        for i in range(n_functions):
+            param = parameters[:, i]
 
             def mapping(x, p=param):
                 return self.parameterized_mapping(p)(x)
 
             funcs.append(Function(mapping))
+
         return funcs

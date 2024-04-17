@@ -2,13 +2,14 @@
 `continuiti.operators.shape`
 """
 
+import torch
 from dataclasses import dataclass
 
 
 @dataclass
 class TensorShape:
-    num: int  # number of separate instances
     dim: int  # dimensionality of a single instance (needs to be flat)
+    size: torch.Size  # size of separate instances, e.g., `100` or `(64, 64)`
 
 
 @dataclass

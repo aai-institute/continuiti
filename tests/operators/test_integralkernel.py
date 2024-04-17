@@ -15,14 +15,14 @@ from .util import get_shape_mismatches
 def dirac_kernel():
     class Dirac(Kernel):
         def forward(self, x, y):
-            x_reshaped, y_reshaped = x.unsqueeze(2), y.unsqueeze(1)
-            dist = ((x_reshaped - y_reshaped) ** 2).sum(dim=-1)
+            x_reshaped, y_reshaped = x.unsqueeze(2), y.unsqueeze(3)
+            dist = ((x_reshaped - y_reshaped) ** 2).sum(dim=1)
             dist = dist.reshape(
                 -1,
-                self.shapes.x.num,
-                self.shapes.y.num,
                 self.shapes.u.dim,
                 self.shapes.v.dim,
+                *self.shapes.x.size,
+                *self.shapes.y.size,
             )
             zero = torch.zeros(1)
             return torch.isclose(dist, zero).to(torch.get_default_dtype())
@@ -46,14 +46,14 @@ def test_neuralnetworkkernel():
     y_num, y_dim = 20, 3
     u_dim = 4
     v_dim = 1
-    x = torch.rand(n_obs, x_num, x_dim)
-    y = torch.rand(n_obs, y_num, y_dim)
+    x = torch.rand(n_obs, x_dim, x_num)
+    y = torch.rand(n_obs, y_dim, y_num)
 
     shapes = OperatorShapes(
-        x=TensorShape(num=x_num, dim=x_dim),
-        u=TensorShape(num=x_num, dim=u_dim),
-        y=TensorShape(num=y_num, dim=y_dim),
-        v=TensorShape(num=y_num, dim=v_dim),
+        x=TensorShape(dim=x_dim, size=x_num),
+        u=TensorShape(dim=u_dim, size=x_num),
+        y=TensorShape(dim=y_dim, size=y_num),
+        v=TensorShape(dim=v_dim, size=y_num),
     )
 
     # Kernel
@@ -64,7 +64,7 @@ def test_neuralnetworkkernel():
     )
 
     k = kernel(x, y)
-    assert k.shape == (n_obs, x_num, y_num, u_dim, v_dim)
+    assert k.shape == (n_obs, u_dim, v_dim, x_num, y_num)
 
 
 def test_naiveintegralkernel(dirac_kernel):
@@ -80,10 +80,10 @@ def test_naiveintegralkernel(dirac_kernel):
     operator = NaiveIntegralKernel(kernel=dirac)
 
     # Create tensors
-    y = torch.linspace(-1, 1, 32).reshape(1, -1, 1)
+    y = torch.linspace(-1, 1, 32)
 
     # Apply operator
-    v = operator(x.reshape((1, -1, 1)), u.reshape((1, -1, 1)), y.reshape((1, -1, 1)))
+    v = operator(x.reshape((1, 1, -1)), u.reshape((1, 1, -1)), y.reshape((1, 1, -1)))
 
     # For num_sensors == num_evals, we get v = u / num_sensors.
 

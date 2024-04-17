@@ -46,10 +46,10 @@ class NavierStokes(Benchmark):
         len(benchmark.train_dataset) == 1000
         len(benchmark.test_dataset) == 200
 
-        x.shape == (64 * 64 * 10, 3)
-        u.shape == (64 * 64 * 10, 1)
-        y.shape == (64 * 64 * 10, 3)
-        v.shape == (64 * 64 * 10, 1)
+        x.shape == (3, 64, 64, 10)
+        u.shape == (1, 64, 64, 10)
+        y.shape == (3, 64. 64, 10)
+        v.shape == (1, 64, 64, 10)
     ```
 
     Args:
@@ -69,13 +69,13 @@ class NavierStokes(Benchmark):
         ls = torch.linspace(-1, 1, 64)
         tx = torch.linspace(-0.9, 0.0, 10)
         grid_x = torch.meshgrid(ls, ls, tx, indexing="ij")
-        x = torch.stack(grid_x, axis=3).reshape(1, -1, 3).repeat(1200, 1, 1)
-        assert x.shape == (1200, 64 * 64 * 10, 3)
+        x = torch.stack(grid_x, axis=0).unsqueeze(0).expand(1200, -1, -1, -1, -1)
+        x = x.reshape(1200, 3, 64, 64, 10)
 
         ty = torch.linspace(0.1, 1.0, 10)
         grid_y = torch.meshgrid(ls, ls, ty, indexing="ij")
-        y = torch.stack(grid_y, axis=3).reshape(1, -1, 3).repeat(1200, 1, 1)
-        assert y.shape == (1200, 64 * 64 * 10, 3)
+        y = torch.stack(grid_y, axis=0).unsqueeze(0).expand(1200, -1, -1, -1, -1)
+        y = y.reshape(1200, 3, 64, 64, 10)
 
         # Load vorticity
         data = scipy.io.loadmat(dir / "NavierStokes_V1e-5_N1200_T20.mat")
@@ -88,10 +88,10 @@ class NavierStokes(Benchmark):
         u = torch.cat(
             (vort0.reshape(-1, 64, 64, 1), vort[:, :, :, :9]),
             axis=3,
-        ).reshape(1200, 64 * 64 * 10, 1)
+        ).reshape(1200, 1, 64, 64, 10)
 
         # Output is vorticity for t \in [10, 20]
-        v = vort[:, :, :, 10:].reshape(1200, 64 * 64 * 10, 1)
+        v = vort[:, :, :, 10:].reshape(1200, 1, 64, 64, 10)
 
         # Split train/test
         train_indices = torch.arange(1000)

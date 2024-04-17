@@ -9,6 +9,6 @@ def test_runner():
     config = RunConfig(
         benchmark_factory=SineRegular,
         operator_factory=DeepNeuralOperator,
-        max_epochs=100,
+        max_epochs=2,
     )
     BenchmarkRunner.run(config)

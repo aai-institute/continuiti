@@ -4,6 +4,7 @@
 The BelNet architecture.
 """
 
+import math
 import torch
 from typing import Optional
 from continuiti.operators import Operator
@@ -60,8 +61,8 @@ class BelNet(Operator):
         self.a_u = a_u or torch.nn.Tanh()
         self.a_y = a_y or torch.nn.Tanh()
 
-        self.Nx = self.shapes.x.num * self.shapes.x.dim
-        self.Nu = self.shapes.u.num * self.shapes.u.dim
+        self.Nx = math.prod(self.shapes.x.size) * self.shapes.x.dim
+        self.Nu = math.prod(self.shapes.u.size) * self.shapes.u.dim
         self.Kv = K * self.shapes.v.dim
 
         # K projection nets
@@ -90,15 +91,16 @@ class BelNet(Operator):
         """Forward pass through the operator.
 
         Args:
-            x: Sensor positions of shape (batch_size, #sensors, x_dim).
-            u: Input function values of shape (batch_size, #sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, #evaluations, y_dim)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...)
+            u: Input function values of shape (batch_size, u_dim, num_sensors...)
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...)
 
         Returns:
-            Operator output (batch_size, #evaluations, v_dim)
+            Operator output (batch_size, v_dim, num_evaluations...)
         """
         assert x.size(0) == u.size(0) == y.size(0)
-        num_evaluations = y.size(1)
+        y_size = y.size()[2:]
+        num_evaluations = math.prod(y.size()[2:])
 
         # flatten inputs
         x = x.reshape(-1, self.Nx)
@@ -119,7 +121,7 @@ class BelNet(Operator):
 
         # dot product
         Q = Q.reshape(-1, num_evaluations, self.K, self.shapes.v.dim)
-        output = torch.einsum("bk,bckv->bcv", aPu, Q)
-        assert output.shape[1:] == torch.Size([num_evaluations, self.shapes.v.dim])
+        output = torch.einsum("bk,bckv->bvc", aPu, Q)
+        output = output.reshape(-1, self.shapes.v.dim, *y_size)
 
         return output

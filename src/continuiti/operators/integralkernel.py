@@ -4,6 +4,7 @@
 Integral kernel operations.
 """
 
+import math
 import torch
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -27,13 +28,13 @@ class Kernel(torch.nn.Module, ABC):
     shapes of the input tensors are
 
     ```python
-        x: (batch_size, x_num, x_dim)
-        y: (batch_size, y_num, y_dim)
+        x: (batch_size, x_dim, x_num...)
+        y: (batch_size, y_dim, y_num...)
     ```
     and the kernel output is of shape
 
     ```python
-        (batch_size, x_num, y_num, u_dim, v_dim)
+        (batch_size, u_dim, v_dim, x_num..., y_num...)
     ```
 
     Args:
@@ -51,11 +52,11 @@ class Kernel(torch.nn.Module, ABC):
         """Forward pass.
 
         Args:
-            x: Tensor of coordinates of shape `(batch_size, x_num, shapes.x.dim)`.
-            y: Tensor of coordinates of shape `(batch_size, y_num, shapes.y.dim)`.
+            x: Tensor of coordinates of shape `(batch_size, shapes.x.dim, x_num...)`.
+            y: Tensor of coordinates of shape `(batch_size, shapes.y.dim, y_num...)`.
 
         Returns:
-            Tensor of shape `(batch_size, x_num, y_num, shapes.u.dim, shapes.v.dim)`.
+            Tensor of shape `(batch_size, shapes.u.dim, shapes.v.dim, x_num..., y_num...)`.
         """
 
 
@@ -97,27 +98,31 @@ class NeuralNetworkKernel(Kernel):
         """Forward pass.
 
         Args:
-            x: Tensor of coordinates of shape `(batch_size, x_num, shapes.x.dim)`.
-            y: Tensor of coordinates of shape `(batch_size, y_num, shapes.y.dim)`.
+            x: Tensor of coordinates of shape `(batch_size, shapes.x.dim, x_num...)`.
+            y: Tensor of coordinates of shape `(batch_size, shapes.y.dim, y_num...)`.
 
         Returns:
-            Tensor of shape `(batch_size, x_num, y_num, shapes.u.dim, shapes.v.dim)`.
+            Tensor of shape `(batch_size, shapes.u.dim, shapes.v.dim, x_num..., y_num...)`.
         """
 
         # shapes that can change for different forward passes
         batch_size = x.shape[0]
         assert batch_size == y.shape[0]
-        x_num, y_num = x.shape[1], y.shape[1]
+        x_num, y_num = math.prod(x.shape[2:]), math.prod(y.shape[2:])
 
         # shapes that are fixed
         x_dim, y_dim = self.shapes.x.dim, self.shapes.y.dim
         u_dim, v_dim = self.shapes.u.dim, self.shapes.v.dim
 
+        # flatten the spatial dimensions and move coordinate to the last dimension
+        x_flatten = x.flatten(2, -1).permute(0, 2, 1)
+        y_flatten = y.flatten(2, -1).permute(0, 2, 1)
+
         # In order to evaluate all kernel values k(x_i, y_j), we need every x_i and y_j combination.
         network_input = torch.concat(
             [
-                x.unsqueeze(2).repeat(1, 1, y_num, 1),  # repeat tensor in dim=2
-                y.unsqueeze(1).repeat(1, x_num, 1, 1),  # repeat tensor in dim=1
+                x_flatten.unsqueeze(2).repeat(1, 1, y_num, 1),  # repeat tensor in dim=2
+                y_flatten.unsqueeze(1).repeat(1, x_num, 1, 1),  # repeat tensor in dim=1
             ],
             dim=-1,
         )
@@ -128,7 +133,8 @@ class NeuralNetworkKernel(Kernel):
         output = self.net(network_input)
         assert output.shape == torch.Size([batch_size, x_num, y_num, u_dim * v_dim])
 
-        output = output.reshape(batch_size, x_num, y_num, u_dim, v_dim)
+        output = output.permute(0, 3, 1, 2)
+        output = output.reshape(batch_size, u_dim, v_dim, *x.shape[2:], *y.shape[2:])
 
         return output
 
@@ -168,28 +174,33 @@ class NaiveIntegralKernel(Operator):
         """Forward pass.
 
         Args:
-            x: Sensor positions of shape (batch_size, num_sensors, x_dim)
-            u: Input function values of shape (batch_size, num_sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, num_evaluations, y_dim)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, num_evaluations, v_dim)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
         # shapes that can change for different forward passes
         batch_size = x.shape[0]
         assert batch_size == y.shape[0]
-        x_num, y_num = x.shape[1], y.shape[1]
+        x_num, y_num = math.prod(x.shape[2:]), math.prod(y.shape[2:])
 
         # shapes that are fixed
         u_dim, v_dim = self.shapes.u.dim, self.shapes.v.dim
 
         # Apply the kernel function
         k = self.kernel(x, y)
-        assert k.shape == torch.Size([batch_size, x_num, y_num, u_dim, v_dim])
+        assert k.shape == torch.Size(
+            [batch_size, u_dim, v_dim, *x.shape[2:], *y.shape[2:]]
+        )
+        k = k.reshape(batch_size, u_dim, v_dim, x_num, y_num)
 
         # Compute integral
-        assert u.shape == torch.Size([batch_size, x_num, u_dim])
-        integral = torch.einsum("bxyuv,bxu->byv", k, u) / x_num
-        assert integral.shape == torch.Size([batch_size, y_num, v_dim])
+        u = u.reshape(batch_size, u_dim, x_num)
+        integral = torch.einsum("buvxy,bux->bvy", k, u) / x_num
+        assert integral.shape == torch.Size([batch_size, v_dim, y_num])
+
+        integral = integral.reshape(batch_size, v_dim, *y.shape[2:])
 
         return integral

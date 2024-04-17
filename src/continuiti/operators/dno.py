@@ -4,6 +4,7 @@
 The Deep Neural Operator (DNO) architecture.
 """
 
+import math
 import torch
 from typing import Optional
 from continuiti.operators import Operator
@@ -36,10 +37,14 @@ class DeepNeuralOperator(Operator):
         self.width = width
         self.depth = depth
 
+        self.x_num = math.prod(shapes.x.size)
+        self.u_num = math.prod(shapes.u.size)
+        self.net_input_size = (
+            shapes.x.dim * self.x_num + shapes.u.dim * self.u_num + shapes.y.dim
+        )
+
         self.net = DeepResidualNetwork(
-            input_size=(
-                shapes.x.dim * shapes.x.num + shapes.u.dim * shapes.u.num + shapes.y.dim
-            ),
+            input_size=self.net_input_size,
             output_size=shapes.v.dim,
             width=width,
             depth=depth,
@@ -58,22 +63,38 @@ class DeepNeuralOperator(Operator):
 
 
         Args:
-            x: Input coordinates of shape (batch_size, #sensors, x_dim), representing the points in space at
+            x: Input coordinates of shape (batch_size, x_dim, num_sensors...), representing the points in space at
                 which the input function values are probed.
-            u: Input function values of shape (batch_size, #sensors, u_dim), representing the values of the input
+            u: Input function values of shape (batch_size, u_dim, num_sensors...), representing the values of the input
                 functions at different sensor locations.
-            y: Evaluation coordinates of shape (batch_size, #evaluations, y_dim), representing the points in space at
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...), representing the points in space at
                 which the output function values are to be computed.
 
         Returns:
-            The output of the operator, of shape (batch_size, #evaluations, v_dim), representing the computed function
+            The output of the operator, of shape (batch_size, v_dim, num_evaluations...), representing the computed function
                 values at the specified evaluation coordinates.
         """
-        # u repeated shape (batch_size, #evaluations, #sensors * u_dim)
-        u_repeated = u.flatten(1, 2).unsqueeze(1).expand(-1, y.size(1), -1)
-        # x repeated shape (batch_size, #evaluations, #sensors * x_dim)
-        x_repeated = x.flatten(1, 2).unsqueeze(1).expand(-1, y.size(1), -1)
+        batch_size = u.size(0)
+        y_num = math.prod(y.size()[2:])
 
-        net_input = torch.cat([x_repeated, u_repeated, y], dim=-1)
+        u_repeated = u.flatten(1, -1).unsqueeze(1).expand(-1, y_num, -1)
+        assert u_repeated.shape == (batch_size, y_num, self.shapes.u.dim * self.u_num)
 
-        return self.net(net_input)
+        x_repeated = x.flatten(1, -1).unsqueeze(1).expand(-1, y_num, -1)
+        assert x_repeated.shape == (batch_size, y_num, self.shapes.x.dim * self.x_num)
+
+        y_flatten = y.flatten(2, -1).transpose(1, 2)
+        assert y_flatten.shape == (batch_size, y_num, self.shapes.y.dim)
+
+        net_input = torch.cat([x_repeated, u_repeated, y_flatten], dim=-1)
+        assert net_input.shape == (batch_size, y_num, self.net_input_size)
+
+        net_output = self.net(net_input)
+        assert net_output.shape == (batch_size, y_num, self.shapes.v.dim)
+
+        net_output = net_output.transpose(1, 2)
+        assert net_output.shape == (batch_size, self.shapes.v.dim, y_num)
+
+        net_output = net_output.reshape(batch_size, self.shapes.v.dim, *y.size()[2:])
+
+        return net_output

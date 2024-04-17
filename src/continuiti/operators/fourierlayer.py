@@ -34,12 +34,13 @@ class FourierLayer1d(Operator):
             shapes.x.dim == 1
         ), f"This is the implementation of a 1d Fourier operator. However given dimensionality is x.dim = {shapes.x.dim}"
 
+        x_num = math.prod(shapes.x.size)
         self.num_frequencies = (
-            shapes.x.num // 2 + 1 if num_frequencies is None else num_frequencies
+            x_num // 2 + 1 if num_frequencies is None else num_frequencies
         )
 
         assert (
-            self.num_frequencies <= shapes.x.num // 2 + 1
+            self.num_frequencies <= x_num // 2 + 1
         ), "num_frequencies is too large. The fft of a real valued function has only (shapes.x.num // 2 + 1) unique frequencies."
 
         assert shapes.u.dim == shapes.v.dim
@@ -63,22 +64,23 @@ class FourierLayer1d(Operator):
         """Forward pass.
 
         Args:
-            x: Sensor positions of shape (batch_size, num_sensors, x_dim)
-            u: Input function values of shape (batch_size, num_sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, num_sensors, y_dim)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_sensors...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, num_sensors, v_dim)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_sensors...).
         """
 
-        u_fourier = rfft(u, axis=1, norm="forward")
+        u_fourier = rfft(u, axis=2, norm="forward")
 
         kernel = torch.view_as_complex(self.kernel)
+
         out_fourier = torch.einsum(
-            "nds,bns->bnd", kernel, u_fourier[:, : self.num_frequencies, :]
+            "nds,bsn->bdn", kernel, u_fourier[:, : self.num_frequencies, :]
         )
 
-        out = irfft(out_fourier, axis=1, n=y.shape[1], norm="forward")
+        out = irfft(out_fourier, axis=2, n=y.shape[2], norm="forward")
 
         return out
 
@@ -92,12 +94,9 @@ class FourierLayer(Operator):
 
     Args:
         shapes: Shape of dataset
-        grid_shape: x and y have to be sampled on a grid. If grid dimensions
-            are not specified, a grid with equal sizes is assumed.
         num_modes: List with number of modes per fft dimension. The number of
             fft-dimensions is equal to shapes.x.dim. If num_modes is None,
-            the maximum number of modes is assumed which is given by
-            either grid_shape or if grid_shape is not specified by the number
+            the maximum number of modes is assumed which is given by the number
             of points per dimension.
         device: Device.
 
@@ -117,40 +116,17 @@ class FourierLayer(Operator):
     def __init__(
         self,
         shapes: OperatorShapes,
-        grid_shape: Optional[Tuple[int]] = None,
         num_modes: Optional[Tuple[int]] = None,
         device: Optional[torch.device] = None,
     ):
         super().__init__(shapes, device)
 
-        self.grid_shape = grid_shape
-
         assert (
             self.shapes.y.dim == self.shapes.x.dim
         ), f"x.dim == y.dim is a necessary requirement for the FourierLayer. Given y.dim={self.shapes.y.dim} x.dim={self.shapes.x.dim}"
 
-        # if grid_shape is not specified, assume grid with same number of points per dimension
-        if grid_shape is None:
-            points_per_dimension = shapes.x.num ** (1 / shapes.x.dim)
-            assert points_per_dimension.is_integer(), (
-                "Reshaping can't be performed. The sensor points need to be sampled on a grid with equal sizes."
-                "Please specify the grid_shape parameter if the grid dimensions have different sizes."
-            )
-
-            self.grid_shape = [int(points_per_dimension)] * self.shapes.x.dim
-
         # make sure self.grid_shape is list
-        self.grid_shape = list(self.grid_shape)
-
-        # check for consistency
-        assert math.prod(self.grid_shape) == shapes.x.num, (
-            "The specified grid_shape parameter is inconsistent with the number of sensor points."
-            f"Given grid_shape = {self.grid_shape} -> Total = {math.prod(self.grid_shape)}, number of points = {shapes.x.num}"
-        )
-
-        assert (
-            len(self.grid_shape) == shapes.x.dim
-        ), "The number of dimensions specified by 'grid_shape' is inconsistent with x.dim."
+        self.grid_shape = list(self.shapes.u.size)
 
         self.num_modes = (
             self.grid_shape.copy() if num_modes is None else list(num_modes)
@@ -188,30 +164,25 @@ class FourierLayer(Operator):
 
         Note:
             * `x.dim == y.dim` is a necessary condition for the FourierLayer.
-            * `x` and `y` have to be sampled on a regular grid! The dimensions of
-                `x` and `y` have to be consistent with the `grid_shape` parameter. If the
-                `grid_shape` parameter was not specified, a grid with equal sizes is
-                assumed.
+            * `x` and `y` have to be sampled on a regular grid.
 
         Args:
-            x: Sensor positions of shape (batch_size, num_sensors, x_dim)
-            u: Input function values of shape (batch_size, num_sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, num_evaluations, y_dim)
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Evaluations of the mapped function with shape (batch_size, num_evaluations, v_dim)
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
         """
-
         # shapes which can change for different forward passes
         batch_size = y.shape[0]
-        num_evaluations = y.shape[1]
 
         # fft related parameters
         num_fft_dimensions = self.shapes.x.dim
         fft_dimensions = list(range(1, num_fft_dimensions + 1))
 
-        # reshape input to prepare for FFT
-        u = self._reshape(u)
+        # prepare for FFT
+        u = u.transpose(1, -1)
         assert u.dim() == num_fft_dimensions + 2
 
         # compute n-dimensional real-valued fourier transform
@@ -228,17 +199,8 @@ class FourierLayer(Operator):
         # perform kernel integral operation in Fourier space
         out_fft = self._contract_with_kernel(u_fft, dim=fft_dimensions)
 
-        # the output shape is determined by y.shape[1] (num_evaluations) and not x.shape[1]
-        scaling_factor = (num_evaluations / math.prod(self.grid_shape)) ** (
-            1 / len(self.grid_shape)
-        )
-        target_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
-
-        assert num_evaluations == math.prod(target_shape), (
-            f"Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter. "
-            f"Given number of sensor points {num_evaluations}. Given grid shape {self.grid_shape}. "
-            f"Tried to reshape as {target_shape}. "
-        )
+        # the output shape is determined by y.shape[2:] (num_evaluations...) and not x.shape[2:] (num_sensors...)
+        target_shape = list(y.shape[2:])
 
         # fft_shape is the same except last dimension, we only need half the frequencies for the last dimension
         fft_shape = target_shape.copy()
@@ -260,7 +222,9 @@ class FourierLayer(Operator):
             norm="forward",
         )
 
-        out = out.reshape(batch_size, -1, self.shapes.v.dim)
+        # match (batch_size, v_dim, num_evaluations...)
+        out = out.permute(0, -1, *range(1, out.dim() - 1))
+        assert out.shape == (batch_size, self.shapes.v.dim, *y.size()[2:])
 
         return out
 
@@ -295,47 +259,6 @@ class FourierLayer(Operator):
         out_fft = torch.einsum(contraction_equation, kernel, fft_values)
 
         return out_fft
-
-    def _reshape(self, u: torch.Tensor) -> torch.Tensor:
-        """Reshape input function from flattened representation to
-        grid representation. The grid representation is required for
-        `torch.fft.fftn`.
-
-        If self.grid_shape is not consistent with the given input function,
-        the given input tensor is interpreted as scaled up or scaled down
-        version of the grid specified by self.grid_shape
-        (e.g. (10, 6) -> scaled down (5, 3) -> scaled up (30, 18)).
-        If this fails as well, an AssertionError is raised.
-
-        Args:
-            u: input function with shape (batch-size, u.num, u.dim).
-
-        Return:
-            u: with input function (batch-size, *grid_shape, u.dim)
-        """
-
-        # shapes that can change for different forward passes
-        batch_size, u_num = u.shape[0], u.shape[1]
-
-        # check if self.grid_shape is consistent with input function
-        if u_num == math.prod(self.grid_shape):
-            fft_shape = self.grid_shape
-        else:
-            # in case self.grid_shape is not consistent with the input function
-            # let's try to reshape the input such that the relations between the
-            # different dimensions is constant.
-            scaling_factor = (u_num / math.prod(self.grid_shape)) ** (
-                1 / len(self.grid_shape)
-            )
-            fft_shape = [int(scaling_factor * grid_dim) for grid_dim in self.grid_shape]
-
-            assert u_num == math.prod(fft_shape), (
-                "Failed to reshape input tensor. Shape of input function has to be consistent with grid_shape parameter."
-                f"Given number of sensor points {u_num}. Given grid shape {self.grid_shape}. Tried to reshape as {fft_shape}"
-            )
-
-        shape = (batch_size, *fft_shape, self.shapes.u.dim)
-        return u.reshape(shape)
 
     def _remove_large_frequencies(
         self, fft_values: torch.Tensor, dim: Tuple[int], target_shape: List[int]

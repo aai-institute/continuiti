@@ -31,10 +31,10 @@ def dataset() -> OperatorDataset:
     n_observations = 1
     u_dim = x_dim = y_dim = v_dim = 1
     dataset = OperatorDataset(
-        x=x.reshape(n_observations, num_sensors, x_dim),
-        u=u(x).reshape(n_observations, num_sensors, u_dim),
-        y=y.reshape(n_observations, num_evaluations, y_dim),
-        v=v(y).reshape(n_observations, num_evaluations, v_dim),
+        x=x.reshape(n_observations, x_dim, num_sensors),
+        u=u(x).reshape(n_observations, u_dim, num_sensors),
+        y=y.reshape(n_observations, y_dim, num_evaluations),
+        v=v(y).reshape(n_observations, v_dim, num_evaluations),
     )
     return dataset
 
@@ -42,10 +42,10 @@ def dataset() -> OperatorDataset:
 @pytest.fixture(scope="module")
 def dataset2d() -> OperatorDataset:
     # Input function
-    u = lambda x1, x2: torch.sin(x1) * torch.cos(x2)
+    u = lambda x: torch.sin(x[0]) * torch.cos(x[1])
 
     # Target function
-    v = lambda x1, x2: torch.sin(x1) * torch.cos(x2)
+    v = lambda x: torch.sin(x[0]) * torch.cos(x[1])
 
     # Size parameters
     num_sensors_per_dimension = 32
@@ -59,22 +59,22 @@ def dataset2d() -> OperatorDataset:
     y2 = half_linspace(num_evaluations_per_dimensions)
 
     xx1, xx2 = torch.meshgrid(x1, x2, indexing="xy")
-    x = torch.stack([xx1.flatten(), xx2.flatten()], axis=1)
+    x = torch.stack([xx1, xx2], axis=-1).permute(2, 0, 1)
 
     yy1, yy2 = torch.meshgrid(y1, y2, indexing="xy")
-    y = torch.stack([yy1.flatten(), yy2.flatten()], axis=1)
+    y = torch.stack([yy1, yy2], axis=-1).permute(2, 0, 1)
 
     # This dataset contains only a single sample (first dimension of all tensors)
     n_observations = 1
     u_dim = v_dim = 1
     x_dim = y_dim = 2
-    num_sensors = num_sensors_per_dimension**2
-    num_evaluations = num_evaluations_per_dimensions**2
+    size_sensors = (num_sensors_per_dimension,) * 2
+    size_evaluations = (num_evaluations_per_dimensions,) * 2
     dataset = OperatorDataset(
-        x=x.reshape(n_observations, num_sensors, x_dim),
-        u=u(x[:, 0], x[:, 1]).reshape(n_observations, num_sensors, u_dim),
-        y=y.reshape(n_observations, num_evaluations, y_dim),
-        v=v(y[:, 0], y[:, 1]).reshape(n_observations, num_evaluations, v_dim),
+        x=x.reshape(n_observations, x_dim, *size_sensors),
+        u=u(x).reshape(n_observations, u_dim, *size_sensors),
+        y=y.reshape(n_observations, y_dim, *size_evaluations),
+        v=v(y).reshape(n_observations, v_dim, *size_evaluations),
     )
     return dataset
 

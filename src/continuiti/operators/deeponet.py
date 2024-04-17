@@ -4,6 +4,7 @@
 The DeepONet architecture.
 """
 
+import math
 import torch
 from typing import Optional
 from continuiti.operators import Operator
@@ -55,9 +56,9 @@ class DeepONet(Operator):
             device=device,
         )
         # branch network
-        branch_input_dim = shapes.u.num * shapes.u.dim
+        self.branch_input_dim = math.prod(shapes.u.size) * shapes.u.dim
         self.branch = DeepResidualNetwork(
-            input_size=branch_input_dim,
+            input_size=self.branch_input_dim,
             output_size=self.dot_dim,
             width=branch_width,
             depth=branch_depth,
@@ -71,19 +72,20 @@ class DeepONet(Operator):
 
         Args:
             _: Ignored.
-            u: Input function values of shape (batch_size, #sensors, u_dim)
-            y: Evaluation coordinates of shape (batch_size, #evaluations, y_dim)
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
 
         Returns:
-            Operator output (batch_size, #evaluations, v_dim)
+            Operator output (batch_size, v_dim, num_evaluations...).
         """
         assert u.size(0) == y.size(0)
+        y_num = y.shape[2:]
 
         # flatten inputs for both trunk and branch network
         u = u.flatten(1, -1)
-        assert u.shape[1:] == torch.Size([self.shapes.u.num * self.shapes.u.dim])
+        assert u.shape[1:] == torch.Size([self.branch_input_dim])
 
-        y = y.flatten(0, 1)
+        y = y.swapaxes(1, -1).flatten(0, -2)
         assert y.shape[-1:] == torch.Size([self.shapes.y.dim])
 
         # Pass through branch and trunk networks
@@ -98,6 +100,7 @@ class DeepONet(Operator):
             self.shapes.v.dim,
             self.basis_functions,
         )
-        dot_prod = torch.einsum("abcd,acd->abc", t, b)
+        dot_prod = torch.einsum("abcd,acd->acb", t, b)
+        dot_prod = dot_prod.reshape(-1, self.shapes.v.dim, *y_num)
 
         return dot_prod

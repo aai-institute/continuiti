@@ -29,10 +29,20 @@ def random_shape_operator_datasets() -> List[OperatorDataset]:
     datasets = []
 
     for x_dim, u_dim, y_dim, v_dim in product(x_dims, u_dims, y_dims, v_dims):
-        x_samples = torch.rand(n_observations, n_sensors, x_dim)
-        u_samples = torch.rand(n_observations, n_sensors, u_dim)
-        y_samples = torch.rand(n_observations, n_evaluations, y_dim)
-        v_samples = torch.rand(n_observations, n_evaluations, v_dim)
+        x_samples = torch.rand(n_observations, x_dim, n_sensors)
+        u_samples = torch.rand(n_observations, u_dim, n_sensors)
+        y_samples = torch.rand(n_observations, y_dim, n_evaluations)
+        v_samples = torch.rand(n_observations, v_dim, n_evaluations)
+        datasets.append(
+            OperatorDataset(x=x_samples, u=u_samples, y=y_samples, v=v_samples)
+        )
+
+    # 2D grids
+    for x_dim, u_dim, y_dim, v_dim in product(x_dims, u_dims, y_dims, v_dims):
+        x_samples = torch.rand(n_observations, x_dim, n_sensors, n_sensors)
+        u_samples = torch.rand(n_observations, u_dim, n_sensors, n_sensors)
+        y_samples = torch.rand(n_observations, y_dim, n_evaluations, n_evaluations)
+        v_samples = torch.rand(n_observations, v_dim, n_evaluations, n_evaluations)
         datasets.append(
             OperatorDataset(x=x_samples, u=u_samples, y=y_samples, v=v_samples)
         )

@@ -4,7 +4,6 @@ from continuiti.benchmarks.sine import SineBenchmark
 from continuiti.operators.integralkernel import NaiveIntegralKernel, NeuralNetworkKernel
 from continuiti.operators import NeuralOperator
 from continuiti.trainer import Trainer
-from continuiti.operators.losses import MSELoss
 from .util import get_shape_mismatches
 
 
@@ -13,7 +12,7 @@ def test_shapes(random_shape_operator_datasets):
     operators = []
     for dataset in random_shape_operator_datasets:
         shapes = dataset.shapes
-        hidden_shape = TensorShape(shapes.u.num, latent_channels)
+        hidden_shape = TensorShape(dim=latent_channels, size=shapes.u.size)
 
         shapes = [
             OperatorShapes(x=shapes.x, u=hidden_shape, y=shapes.x, v=hidden_shape),
@@ -22,7 +21,7 @@ def test_shapes(random_shape_operator_datasets):
                 x=shapes.x,
                 u=hidden_shape,
                 y=shapes.y,
-                v=TensorShape(shapes.v.num, latent_channels),
+                v=TensorShape(dim=latent_channels, size=shapes.v.size),
             ),
         ]
         layers = [
@@ -44,9 +43,9 @@ def test_neuraloperator():
     width, depth = 7, 9
     latent_shape = OperatorShapes(
         x=shapes.x,
-        u=TensorShape(shapes.u.num, width),
+        u=TensorShape(dim=width, size=shapes.u.size),
         y=shapes.y,
-        v=TensorShape(shapes.u.num, width),
+        v=TensorShape(dim=width, size=shapes.u.size),
     )
     layers = [
         NaiveIntegralKernel(NeuralNetworkKernel(latent_shape, 32, 3))
@@ -55,8 +54,7 @@ def test_neuraloperator():
     operator = NeuralOperator(dataset.shapes, layers)
 
     # Train
-    Trainer(operator).fit(dataset, tol=1e-2)
+    logs = Trainer(operator).fit(dataset, tol=1e-2)
 
     # Check solution
-    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
-    assert MSELoss()(operator, x, u, y, v) < 1e-2
+    logs.loss_train < 1e-2

@@ -34,11 +34,11 @@ class Loss:
         """Evaluate loss.
 
         Args:
-            op: Operator object
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of evaluation coordinates of shape (batch_size, x_size, coordinate_dim)
-            v: Tensor of labels of shape (batch_size, x_size, coordinate_dim)
+            op: Operator object.
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
+            v: Tensor of labels of shape (batch_size, v_dim, num_evaluations...).
         """
 
 
@@ -64,11 +64,11 @@ class MSELoss(Loss):
         """Evaluate MSE loss.
 
         Args:
-            op: Operator object
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of evaluation coordinates of shape (batch_size, x_size, coordinate_dim)
-            v: Tensor of labels of shape (batch_size, x_size, coordinate_dim)
+            op: Operator object.
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
+            v: Tensor of labels of shape (batch_size, v_dim, num_evaluations...).
         """
         # Call operator
         v_pred = op(x, u, y)
@@ -102,11 +102,11 @@ class RelativeL1Error(Loss):
         """Evaluate relative L1 error.
 
         Args:
-            op: Operator object
-            x: Tensor of sensor positions of shape (batch_size, num_sensors, coordinate_dim)
-            u: Tensor of sensor values of shape (batch_size, num_sensors, num_channels)
-            y: Tensor of evaluation coordinates of shape (batch_size, x_size, coordinate_dim)
-            v: Tensor of labels of shape (batch_size, x_size, coordinate_dim)
+            op: Operator object.
+            x: Tensor of sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Tensor of sensor values of shape (batch_size, u_dim, num_sensors...).
+            y: Tensor of evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
+            v: Tensor of labels of shape (batch_size, v_dim, num_evaluations...).
         """
         # Call operator
         v_pred = op(x, u, y)

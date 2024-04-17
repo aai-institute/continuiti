@@ -37,15 +37,15 @@ class FourierNeuralOperator(NeuralOperator):
     ):
         latent_shapes = OperatorShapes(
             x=shapes.x,
-            u=TensorShape(shapes.u.num, width),
+            u=TensorShape(width, shapes.u.size),
             y=shapes.x,
-            v=TensorShape(shapes.u.num, width),
+            v=TensorShape(width, shapes.u.size),
         )
         output_shapes = OperatorShapes(
             x=shapes.x,
-            u=TensorShape(shapes.u.num, width),
+            u=TensorShape(width, shapes.u.size),
             y=shapes.y,
-            v=TensorShape(shapes.v.num, width),
+            v=TensorShape(width, shapes.v.size),
         )
 
         layers = []

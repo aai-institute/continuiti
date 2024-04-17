@@ -4,11 +4,13 @@
 Function data set implementation.
 """
 
+import math
 import torch
 from typing import Optional, Tuple
 from continuiti.discrete.sampler import Sampler
 from continuiti.data import OperatorDataset
 from .function_set import FunctionSet
+from continuiti.transforms import Transform
 
 
 class FunctionOperatorDataset(OperatorDataset):
@@ -46,10 +48,10 @@ class FunctionOperatorDataset(OperatorDataset):
         n_evaluations: int,
         parameter_sampler: Sampler,
         n_observations: int,
-        x_transform: Optional = None,
-        u_transform: Optional = None,
-        y_transform: Optional = None,
-        v_transform: Optional = None,
+        x_transform: Optional[Transform] = None,
+        u_transform: Optional[Transform] = None,
+        y_transform: Optional[Transform] = None,
+        v_transform: Optional[Transform] = None,
     ):
         self.input_function_set = input_function_set
         self.x_sampler = x_sampler
@@ -104,19 +106,19 @@ class FunctionOperatorDataset(OperatorDataset):
         if p_sampler is None:
             p_sampler = self.p_sampler
         if n_evaluations == -1:
-            n_evaluations = self.shapes.y.num
+            n_evaluations = math.prod(self.shapes.y.size)
         if n_sensors == -1:
-            n_sensors = self.shapes.x.num
+            n_sensors = math.prod(self.shapes.x.size)
 
         # sample the parameter space
         p_samples = p_sampler(n_observations)
 
         # sample physical spaces (sorted for consistency)
         x = torch.stack(
-            [x_sampler(n_sensors).sort(dim=0).values for _ in range(n_observations)]
+            [x_sampler(n_sensors).sort(dim=1).values for _ in range(n_observations)]
         )
         y = torch.stack(
-            [y_sampler(n_evaluations).sort(dim=0).values for _ in range(n_observations)]
+            [y_sampler(n_evaluations).sort(dim=1).values for _ in range(n_observations)]
         )
 
         # input set discretization

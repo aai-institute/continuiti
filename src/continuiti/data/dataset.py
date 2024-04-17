@@ -7,9 +7,9 @@ Every data set is a list of `(x, u, y, v)` tuples.
 
 import torch
 import torch.utils.data as td
-from typing import Tuple
+from typing import Optional, Tuple
 from abc import ABC, abstractmethod
-
+from continuiti.transforms import Transform
 from continuiti.operators.shape import OperatorShapes, TensorShape
 
 
@@ -50,14 +50,14 @@ class OperatorDataset(OperatorDatasetBase):
     all loss functions and/or operators need access to all of these attributes.
 
     Args:
-        x: Tensor of shape (#observations, #sensors, x-dim) with sensor positions.
-        u: Tensor of shape (#observations, #sensors, u-dim) with evaluations of the input functions at sensor positions.
-        y: Tensor of shape (#observations, #evaluations, y-dim) with evaluation positions.
-        v: Tensor of shape (#observations, #evaluations, v-dim) with ground truth operator mappings.
+        x: Tensor of shape (num_observations, x_dim, num_sensors...) with sensor positions.
+        u: Tensor of shape (num_observations, u_dim, num_sensors...) with evaluations of the input functions at sensor positions.
+        y: Tensor of shape (num_observations, y_dim, num_evaluations...) with evaluation positions.
+        v: Tensor of shape (num_observations, v_dim, num_evaluations...) with ground truth operator mappings.
 
     Attributes:
-        shapes (dataclass): Shape of all tensors.
-        transform (dict): Transformations for each tensor.
+        shapes: Shape of all tensors.
+        transform: Transformations for each tensor.
     """
 
     def __init__(
@@ -66,17 +66,24 @@ class OperatorDataset(OperatorDatasetBase):
         u: torch.Tensor,
         y: torch.Tensor,
         v: torch.Tensor,
-        x_transform=None,
-        u_transform=None,
-        y_transform=None,
-        v_transform=None,
+        x_transform: Optional[Transform] = None,
+        u_transform: Optional[Transform] = None,
+        y_transform: Optional[Transform] = None,
+        v_transform: Optional[Transform] = None,
     ):
-        assert x.ndim == u.ndim == y.ndim == v.ndim == 3, "Wrong number of dimensions."
+        assert all([t.ndim >= 3 for t in [x, u, y, v]]), "Wrong number of dimensions."
         assert (
             x.size(0) == u.size(0) == y.size(0) == v.size(0)
         ), "Inconsistent number of observations."
-        assert x.size(1) == u.size(1), "Inconsistent number of sensors."
-        assert y.size(1) == v.size(1), "Inconsistent number of evaluations."
+
+        # get dimensions and sizes
+        x_dim, x_size = x.size(1), x.size()[2:]
+        u_dim, u_size = u.size(1), u.size()[2:]
+        y_dim, y_size = y.size(1), y.size()[2:]
+        v_dim, v_size = v.size(1), v.size()[2:]
+
+        assert x_size == u_size, "Inconsistent number of sensors."
+        assert y_size == v_size, "Inconsistent number of evaluations."
 
         super().__init__()
 
@@ -87,10 +94,10 @@ class OperatorDataset(OperatorDatasetBase):
 
         # used to initialize architectures
         self.shapes = OperatorShapes(
-            x=TensorShape(*x.size()[1:]),
-            u=TensorShape(*u.size()[1:]),
-            y=TensorShape(*y.size()[1:]),
-            v=TensorShape(*v.size()[1:]),
+            x=TensorShape(dim=x_dim, size=x_size),
+            u=TensorShape(dim=u_dim, size=u_size),
+            y=TensorShape(dim=y_dim, size=y_size),
+            v=TensorShape(dim=v_dim, size=v_size),
         )
 
         self.transform = {
@@ -108,17 +115,18 @@ class OperatorDataset(OperatorDatasetBase):
         """Return the number of samples.
 
         Returns:
-            number of samples in the entire set.
+            Number of samples in the entire set.
         """
         return self.x.size(0)
 
     def __getitem__(
-        self, idx
+        self,
+        idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Retrieves the input-output pair at the specified index and applies transformations.
 
         Parameters:
-            - idx: The index of the sample to retrieve.
+            idx: The index of the sample to retrieve.
 
         Returns:
             A tuple containing the three input tensors and the output tensor for the given index.
@@ -133,10 +141,10 @@ class OperatorDataset(OperatorDatasetBase):
         """Applies class transformations to four tensors.
 
         Args:
-            x: Tensor of shape (#samples, #sensors, x-dim) with sensor positions.
-            u: Tensor of shape (#samples, #sensors, u-dim) with evaluations of the input functions at sensor positions.
-            y: Tensor of shape (#samples, #evaluations, y-dim) with evaluation positions.
-            v: Tensor of shape (#samples, #evaluations, v-dim) with ground truth operator mappings.
+            x: Tensor of shape (num_observations, x_dim, num_sensors...) with sensor positions.
+            u: Tensor of shape (num_observations, u_dim, num_sensors...) with evaluations of the input functions at sensor positions.
+            y: Tensor of shape (num_observations, y_dim, num_evaluations...) with evaluation positions.
+            v: Tensor of shape (num_observations, v_dim, num_evaluations...) with ground truth operator mappings.
 
         Returns:
             Input samples with class transformations applied.

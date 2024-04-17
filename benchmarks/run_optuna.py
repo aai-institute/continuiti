@@ -1,4 +1,5 @@
 import optuna
+import torch
 from functools import partial
 from continuiti.benchmarks.run import BenchmarkRunner, RunConfig
 from continuiti.benchmarks import SineRegular
@@ -6,6 +7,8 @@ from continuiti.operators import (
     FourierNeuralOperator,
 )
 
+# FFT not available on MPS
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 if __name__ == "__main__":
 
@@ -19,6 +22,7 @@ if __name__ == "__main__":
             partial(FourierNeuralOperator, width=width, depth=depth),
             max_epochs=100,
             seed=seed,
+            device=device,
         )
 
         test_loss = BenchmarkRunner.run(config, trial.params)

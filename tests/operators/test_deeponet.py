@@ -25,10 +25,10 @@ def test_output_shape():
     set_size = 19
 
     dset = OperatorDataset(
-        x=torch.rand((set_size, n_sensors, x_dim)),
-        u=torch.rand((set_size, n_sensors, u_dim)),
-        y=torch.rand((set_size, n_evals, y_dim)),
-        v=torch.rand((set_size, n_evals, v_dim)),
+        x=torch.rand((set_size, x_dim, n_sensors)),
+        u=torch.rand((set_size, u_dim, n_sensors)),
+        y=torch.rand((set_size, y_dim, n_evals)),
+        v=torch.rand((set_size, v_dim, n_evals)),
     )
 
     model = DeepONet(dset.shapes)
@@ -39,8 +39,8 @@ def test_output_shape():
 
     assert v_pred.shape == v.shape
 
-    y_other = torch.rand((batch_size, n_evals * 5, y_dim))
-    v_other = torch.rand((batch_size, n_evals * 5, v_dim))
+    y_other = torch.rand((batch_size, y_dim, n_evals * 5))
+    v_other = torch.rand((batch_size, v_dim, n_evals * 5))
 
     v_other_pred = model(x, u, y_other)
 
