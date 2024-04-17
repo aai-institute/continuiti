@@ -12,11 +12,12 @@ title: Home
 
 </div>
 
-
-**continuiti** is a Python package for machine learning on function operators.
-It implements various neural operator architectures (e.g., DeepONets),
-physics-informed loss functions to train based on PDEs, and a collection of
-examples and benchmarks.
+**continuiti** is a Python package for deep learning on function operators with
+a focus on elegance and generality. It provides a _unified interface_ for neural
+operators (such as DeepONet or FNO) to be used in a plug and play fashion. As
+operator learning is particularly useful in scientific machine learning,
+**continuiti** also includes physics-informed loss functions and a collection of
+relevant benchmarks.
 
 ::cards:: cols=2
 
