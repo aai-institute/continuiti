@@ -1,0 +1,98 @@
+{
+  "SineRegular": [
+    {
+      "operator": "FourierNeuralOperator",
+      "num_params": "305",
+      "loss/train": "3.43e-15",
+      "loss/test": "3.61e-15",
+      "params": {
+        "depth": "1",
+        "width": "4"
+      }
+    },
+    {
+      "operator": "DeepNeuralOperator",
+      "num_params": "133249",
+      "loss/train": "6.95e-07",
+      "loss/test": "7.36e-07",
+      "params": {
+        "depth": "32",
+        "width": "64"
+      }
+    },
+    {
+      "operator": "BelNet",
+      "num_params": "7768",
+      "loss/train": "1.77e-05",
+      "loss/test": "1.81e-05",
+      "params": {
+        "D_1": "4",
+        "D_2": "8",
+        "K": "8",
+        "N_1": "16",
+        "N_2": "16"
+      }
+    },
+    {
+      "operator": "DeepONet",
+      "num_params": "18016",
+      "loss/train": "2.50e-05",
+      "loss/test": "2.57e-05",
+      "params": {
+        "basis_functions": "32",
+        "branch_depth": "8",
+        "branch_width": "32",
+        "trunk_depth": "8",
+        "trunk_width": "32"
+      }
+    }
+  ],
+  "SineUniform": [
+    {
+      "operator": "DeepNeuralOperator",
+      "num_params": "33409",
+      "loss/train": "0.000239",
+      "loss/test": "0.000397",
+      "params": {
+        "depth": "8",
+        "width": "64"
+      }
+    },
+    {
+      "operator": "BelNet",
+      "num_params": "11512",
+      "loss/train": "0.000317",
+      "loss/test": "0.000572",
+      "params": {
+        "D_1": "8",
+        "D_2": "4",
+        "K": "16",
+        "N_1": "16",
+        "N_2": "8"
+      }
+    },
+    {
+      "operator": "DeepONet",
+      "num_params": "18016",
+      "loss/train": "0.00313",
+      "loss/test": "0.00533",
+      "params": {
+        "basis_functions": "32",
+        "branch_depth": "8",
+        "branch_width": "32",
+        "trunk_depth": "8",
+        "trunk_width": "32"
+      }
+    },
+    {
+      "operator": "FourierNeuralOperator",
+      "num_params": "889",
+      "loss/train": "0.199",
+      "loss/test": "0.207",
+      "params": {
+        "depth": "3",
+        "width": "4"
+      }
+    }
+  ]
+}

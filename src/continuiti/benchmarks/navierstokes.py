@@ -38,7 +38,7 @@ class NavierStokes(Benchmark):
     steps $(-0.9, -0.8, ..., 0.0)$ and the output function by the vorticity
     field at the following ten time steps $(0.1, 0.2, ..., 1.0)$.
 
-    ![Visualization of first training sample.](/continuiti/benchmarks/navierstokes.png)
+    ![Visualization of first training sample.](/continuiti/benchmarks/img/navierstokes.png)
 
     The datasets have the following shapes:
 

@@ -83,7 +83,7 @@ class SineRegular(SineBenchmark):
     - `n_test` is 1024.
     - `uniform` is `False`.
 
-    ![Visualizations of a few samples.](/continuiti/benchmarks/SineRegular.svg)
+    ![Visualizations of a few samples.](/continuiti/benchmarks/img/SineRegular.svg)
 
     """
 
@@ -109,7 +109,7 @@ class SineUniform(SineBenchmark):
     - `n_test` is 4096.
     - `uniform` is `True`.
 
-    ![Visualizations of a few samples.](/continuiti/benchmarks/SineUniform.svg)
+    ![Visualizations of a few samples.](/continuiti/benchmarks/img/SineUniform.svg)
 
     """
 

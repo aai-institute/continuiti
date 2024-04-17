@@ -47,6 +47,6 @@ def test_navierstokes_shapes_and_plot():
     axs[1].set_title("Output")
 
     try:
-        fig.savefig("docs/benchmarks/navierstokes.png", dpi=500)
+        fig.savefig("docs/benchmarks/img/navierstokes.png", dpi=500)
     except FileNotFoundError:
         pass
