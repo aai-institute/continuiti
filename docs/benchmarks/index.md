@@ -39,4 +39,4 @@ rel. error = 4.4655e-01
 </tr>
 </table>
 
-{% include 'benchmarks/table.html' %}
+{% include 'benchmarks/tables.html' %}

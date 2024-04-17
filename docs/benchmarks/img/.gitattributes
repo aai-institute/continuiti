@@ -1,0 +1,5 @@
+navierstokes.png filter=lfs diff=lfs merge=lfs -text
+ns_test_144.png filter=lfs diff=lfs merge=lfs -text
+ns_test_179.png filter=lfs diff=lfs merge=lfs -text
+ns_train_237.png filter=lfs diff=lfs merge=lfs -text
+ns_train_420.png filter=lfs diff=lfs merge=lfs -text

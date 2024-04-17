@@ -7,15 +7,15 @@ import mkdocs.plugins
 logger = logging.getLogger(__name__)
 
 root_dir = Path(__file__).parent.parent
+benchmarks_dir = root_dir / "benchmarks" / "results"
 docs_benchmarks_dir = root_dir / "docs" / "benchmarks"
-benchmarks_dir = root_dir / "benchmarks" / "html"
 
 
 @mkdocs.plugins.event_priority(100)
 def on_pre_build(config):
     logger.info("Temporarily copying benchmark results to docs directory")
     docs_benchmarks_dir.mkdir(parents=True, exist_ok=True)
-    filepaths = list(benchmarks_dir.glob("*"))
+    filepaths = list(benchmarks_dir.glob("*.json"))
 
     for file in filepaths:
         target_filepath = docs_benchmarks_dir / file.name
@@ -38,11 +38,5 @@ def on_pre_build(config):
 @mkdocs.plugins.event_priority(-100)
 def on_shutdown():
     logger.info("Removing temporary examples directory")
-    for file in docs_benchmarks_dir.glob("*.html"):
-        file.unlink()
-    for file in docs_benchmarks_dir.glob("*.css"):
-        file.unlink()
-    for file in docs_benchmarks_dir.glob("*.png"):
-        file.unlink()
-    for file in docs_benchmarks_dir.glob("*.svg"):
+    for file in docs_benchmarks_dir.glob("*.json"):
         file.unlink()
