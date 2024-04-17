@@ -16,7 +16,7 @@ operator = FourierNeuralOperator(
 )
 
 operator.load(
-    "mlruns/271016623891034109/8755b17d3af9494db843e3a8d0c42ad6/artifacts/final.pt"
+    "mlruns/949079562496325102/ae8779c648d941caa0304b2e0a5c4ee4/artifacts/final.pt"
 )
 operator.eval()
 
@@ -73,7 +73,9 @@ def plot_sample(split, sample):
     for t in range(10):
         axs[t][0].imshow(v[0, :, :, t, 0], cmap="jet")
         axs[t][1].imshow(v_pred[0, :, :, t, 0], cmap="jet")
-        im = axs[t][2].imshow((v - v_pred)[0, :, :, t, 0], cmap="jet")
+        e = v - v_pred
+        elim = max(abs(e.min()), abs(e.max()))
+        im = axs[t][2].imshow(e[0, :, :, t, 0], cmap="jet", clim=(-elim, elim))
         fig.colorbar(im, ax=axs[t][2])
         axs[t][0].axis("off")
         axs[t][1].axis("off")
