@@ -35,8 +35,19 @@ In general, the operator syntax in **continuiti** is
 v = operator(x, u(x), y)
 ```
 mapping a function `u` (evaluated at `x`) to function `v` (evaluated in `y`).
+
 For more details, see
 [Learning Operators](https://aai-institute.github.io/continuiti/operators/index.html).
+
+## Examples
+
+<div style="text-align: center;">
+<a href="https://aai-institute.github.io/continuiti/benchmarks/#navierstokes">
+<img alt="navierstokes" src="https://aai-institute.github.io/continuiti/img/ns.png" width="100"><br>
+Fourier Neural Operator (FNO) for Navier-Stokes flow.<br>
+Ground truth vs. prediction.
+</a>
+</div>
 
 ## Contributing
 Contributions are welcome from anyone in the form of pull requests, bug reports
