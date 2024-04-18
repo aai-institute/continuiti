@@ -83,28 +83,27 @@ class NeuralOperator(Operator):
         assert u.shape[1:] == torch.Size([self.shapes.u.dim, *self.shapes.u.size])
 
         # Lifting
-        u = u.reshape(-1, self.shapes.u.dim)
+        u = u.permute(0, *range(2, u.dim()), 1)
         v = self.lifting(u)
-        v = v.reshape(-1, self.first_dim, *self.shapes.u.size)
 
         # Hidden layers
         for layer, W, norm in zip(self.layers[:-1], self.W, self.norms):
-            v1 = layer(x, v, x)
+            v1 = v.permute(0, -1, *range(1, v.dim() - 1))
+            v1 = layer(x, v1, x)
+            v1 = v1.permute(0, *range(2, v1.dim()), 1)
 
-            v = v1.transpose(1, -1) + W(v.transpose(1, -1))
-
+            v = v1 + W(v)
             v = self.act(v)
             v = norm(v)
 
-            v = v.transpose(1, -1)
-
         # Last layer (evaluates y)
+        v = v.permute(0, -1, *range(1, v.dim() - 1))
         v = self.layers[-1](x, v, y)
+        v = v.permute(0, *range(2, v.dim()), 1)
 
         # Projection
-        v = v.reshape(-1, self.last_dim)
-        v = self.projection(v)
-        w = v.reshape(-1, self.shapes.v.dim, *self.shapes.v.size)
+        w = self.projection(v)
+        w = w.permute(0, -1, *range(1, w.dim() - 1))
 
         assert w.shape[1:] == torch.Size([self.shapes.v.dim, *y.size()[2:]])
         return w

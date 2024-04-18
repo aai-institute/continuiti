@@ -18,23 +18,23 @@ _reported for_ FNO-3D: __0.1893__ (rel. test error)
 <tr>
 <td>
 Best training sample<br>
-<img src="img/ns_train_237.png" alt="Best training sample"/>
-rel. error = 8.8748e-03
+<img src="img/ns_train_587.png" alt="Best training sample"/>
+rel. error = 2.3351e-03
 </td>
 <td>
 Worst training sample<br>
-<img src="img/ns_train_420.png" alt="Worst training sample"/>
-rel. error = 3.1433e-02
+<img src="img/ns_train_648.png" alt="Worst training sample"/>
+rel. error = 1.0090e-02
 </td>
 <td>
 Best test sample<br>
 <img src="img/ns_test_144.png" alt="Best test sample"/>
-rel. error = 1.0220e-01
+rel. error = 1.0219e-01
 </td>
 <td>
 Worst test sample<br>
 <img src="img/ns_test_179.png" alt="Worst test sample"/>
-rel. error = 4.4655e-01
+rel. error = 4.4294e-01
 </td>
 </tr>
 </table>
