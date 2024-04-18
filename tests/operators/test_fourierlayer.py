@@ -48,15 +48,15 @@ def dataset2d() -> OperatorDataset:
     v = lambda x: torch.sin(x[0]) * torch.cos(x[1])
 
     # Size parameters
-    num_sensors_per_dimension = 32
-    num_evaluations_per_dimensions = 100
+    sensors = (32, 16)
+    evaluations = (32, 16)
 
     # Domain parameters
     half_linspace = lambda N: 2 * torch.pi * torch.arange(N) / N
-    x1 = half_linspace(num_sensors_per_dimension)
-    x2 = half_linspace(num_sensors_per_dimension)
-    y1 = half_linspace(num_evaluations_per_dimensions)
-    y2 = half_linspace(num_evaluations_per_dimensions)
+    x1 = half_linspace(sensors[0])
+    x2 = half_linspace(sensors[1])
+    y1 = half_linspace(evaluations[0])
+    y2 = half_linspace(evaluations[1])
 
     xx1, xx2 = torch.meshgrid(x1, x2, indexing="xy")
     x = torch.stack([xx1, xx2], axis=-1).permute(2, 0, 1)
@@ -68,13 +68,11 @@ def dataset2d() -> OperatorDataset:
     n_observations = 1
     u_dim = v_dim = 1
     x_dim = y_dim = 2
-    size_sensors = (num_sensors_per_dimension,) * 2
-    size_evaluations = (num_evaluations_per_dimensions,) * 2
     dataset = OperatorDataset(
-        x=x.reshape(n_observations, x_dim, *size_sensors),
-        u=u(x).reshape(n_observations, u_dim, *size_sensors),
-        y=y.reshape(n_observations, y_dim, *size_evaluations),
-        v=v(y).reshape(n_observations, v_dim, *size_evaluations),
+        x=x.reshape(n_observations, x_dim, *sensors),
+        u=u(x).reshape(n_observations, u_dim, *sensors),
+        y=y.reshape(n_observations, y_dim, *evaluations),
+        v=v(y).reshape(n_observations, v_dim, *evaluations),
     )
     return dataset
 
@@ -84,7 +82,7 @@ def test_fourierlayer1d(dataset):
     operator = FourierLayer1d(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-10, epochs=10_000)
 
-    x, u, y, v = dataset[:1]
+    x, u, y, v = dataset[:]
     assert MSELoss()(operator, x, u, y, v) < 1e-10
 
 
@@ -93,7 +91,7 @@ def test_fourierlayer_1d(dataset):
     operator = FourierLayer(dataset.shapes)
     Trainer(operator, device=device).fit(dataset, tol=1e-10, epochs=10_000)
 
-    x, u, y, v = dataset[:1]
+    x, u, y, v = dataset[:]
     assert MSELoss()(operator, x, u, y, v) < 1e-10
 
 
@@ -102,7 +100,7 @@ def test_fourierlayer_2d(dataset2d):
     operator = FourierLayer(dataset2d.shapes)
     Trainer(operator, device=device).fit(dataset2d, tol=1e-10, epochs=10_000)
 
-    x, u, y, v = dataset2d[:1]
+    x, u, y, v = dataset2d[:]
     assert MSELoss()(operator, x, u, y, v) < 1e-10
 
 

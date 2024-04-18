@@ -182,7 +182,7 @@ class FourierLayer(Operator):
         fft_dimensions = list(range(1, num_fft_dimensions + 1))
 
         # prepare for FFT
-        u = u.transpose(1, -1)
+        u = u.permute(0, *range(2, u.dim()), 1)
         assert u.dim() == num_fft_dimensions + 2
 
         # compute n-dimensional real-valued fourier transform
