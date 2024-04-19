@@ -43,9 +43,8 @@ For more details, see
 
 <div style="text-align: center;">
 <a href="https://aai-institute.github.io/continuiti/benchmarks/#navierstokes">
-<img alt="navierstokes" src="https://aai-institute.github.io/continuiti/img/ns.png" width="100"><br>
-Fourier Neural Operator (FNO) for Navier-Stokes flow.<br>
-Ground truth vs. prediction.
+<img alt="navierstokes" src="https://aai-institute.github.io/continuiti/img/ns.png" width="80%"><br>
+Fourier Neural Operator (FNO) for Navier-Stokes flow
 </a>
 </div>
 

@@ -7,13 +7,20 @@ this directory for detailed information on how the benchmarks are run.
 ## [NavierStokes](../api/continuiti/benchmarks/#continuiti.benchmarks.NavierStokes)
 
 Reference: _Li, Zongyi, et al. "Fourier neural operator for parametric partial
-differential equations." arXiv preprint arXiv:2010.08895 (2020)_ _Table 1 ($\nu$ = 1e−5  T=20  N=1000)_
+differential equations." arXiv preprint [arXiv:2010.08895](https://arxiv.org/abs/2010.08895) (2020)_
+_Table 1_ ($\nu$ = 1e−5  T=20  N=1000)
 
 _reported for_ FNO-3D: __0.1893__ (rel. test error)
 
-[FourierNeuralOperator](../api/continuiti/operators/#continuiti.operators.FourierNeuralOperator):
-0.0185 (rel. train error)  __0.1841__ (rel. test error)
+[FourierNeuralOperator](../api/continuiti/operators/#continuiti.operators.FourierNeuralOperator)
 
+| Depth | Parameters | Training Time (V100) | rel. train error | rel. test error |
+|-------|------------|----------------------|------------------|-----------------|
+|     4 |       201M |                91min |         4.94e-03 |      __0.1862__ |
+|    16 |       805M |               181min |         1.84e-04 |          0.1486 |
+
+<div style="text-align:center;">
+Visualization of best and worst training and test samples for FNO with depth 4 (as in paper).
 <table>
 <tr>
 <td>
@@ -38,5 +45,6 @@ rel. error = 4.4294e-01
 </td>
 </tr>
 </table>
+</div>
 
 {% include 'benchmarks/tables.html' %}

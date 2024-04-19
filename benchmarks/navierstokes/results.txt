@@ -1,9 +1,24 @@
+
+Depth 4 (201M parameters)
+=========================
+
 rel. error train = 4.9422e-03
 min loss = 2.3351e-03 at index 587
 max loss = 1.0090e-02 at index 648
 rel. error test =  1.8622e-01
 min loss = 1.0219e-01 at index 144
 max loss = 4.4294e-01 at index 179
+
+
+Depth 16 (805M parameters)
+==========================
+
+rel. error train = 1.8400e-04
+min loss = 1.0007e-04 at index 2
+max loss = 4.5649e-04 at index 707
+rel. error test =  1.4862e-01
+min loss = 7.2528e-02 at index 59
+max loss = 4.2331e-01 at index 179
 
 --
 
