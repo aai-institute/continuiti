@@ -37,3 +37,24 @@ The package is structured into the following modules:
 
 """
 __version__ = "0.0.0"
+
+__all__ = [
+    "benchmarks",
+    "data",
+    "discrete",
+    "operators",
+    "pde",
+    "trainer",
+    "transforms",
+    "Trainer",
+]
+
+from . import benchmarks
+from . import data
+from . import discrete
+from . import operators
+from . import pde
+from . import trainer
+from . import transforms
+
+from .trainer import Trainer
