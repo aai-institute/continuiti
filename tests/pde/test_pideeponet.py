@@ -77,11 +77,9 @@ def test_pideeponet():
     # operator = cti.operators.DeepNeuralOperator(dataset.shapes)
 
     # Define and train model
-    trainer = cti.Trainer(
-        operator,
-        loss_fn=cti.pde.PhysicsInformedLoss(equation),
-    )
-    trainer.fit(dataset)
+    loss_fn = cti.pde.PhysicsInformedLoss(equation)
+    trainer = cti.Trainer(operator, loss_fn=loss_fn)
+    trainer.fit(dataset, epochs=100)
 
     # Plot realizations of f(x)
     n = 3
@@ -115,7 +113,7 @@ def test_pideeponet():
         plt.plot(y, v[i].T, "-")
     plt.xlabel("x")
 
-    plt.show()
+    plt.savefig("pideeponet.png", dpi=500)
 
 
 if __name__ == "__main__":

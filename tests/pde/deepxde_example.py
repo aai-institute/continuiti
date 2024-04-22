@@ -6,7 +6,7 @@ import numpy as np
 torch.manual_seed(0)
 
 
-def test_deepxde():
+def deepxde_example():
     """Physics-informed DeepONet for Poisson equation in 1D.
     Example from DeepXDE.
     https://deepxde.readthedocs.io/en/latest/demos/operator/poisson.1d.pideeponet.html
@@ -96,4 +96,4 @@ def test_deepxde():
 
 
 if __name__ == "__main__":
-    test_deepxde()
+    deepxde_example()
