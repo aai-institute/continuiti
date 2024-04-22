@@ -34,7 +34,7 @@ def test_does_converge():
     operator = DeepNeuralOperator(dataset.shapes)
 
     # Train
-    Trainer(operator, lr=1e-2).fit(dataset, tol=1e-3)
+    Trainer(operator).fit(dataset, tol=1e-3)
 
     # Check solution
     x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v

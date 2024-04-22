@@ -93,7 +93,6 @@ class DeepResidualNetwork(torch.nn.Module):
 
         self.act = act or torch.nn.GELU()
         self.first_layer = torch.nn.Linear(input_size, width, device=device)
-        self.norm = torch.nn.LayerNorm(width, device=device)
         self.hidden_layers = torch.nn.ModuleList(
             [
                 ResidualLayer(
@@ -110,7 +109,6 @@ class DeepResidualNetwork(torch.nn.Module):
         """Forward pass."""
         x = self.first_layer(x)
         x = self.act(x)
-        x = self.norm(x)
         for layer in self.hidden_layers:
             x = layer(x)
         return self.last_layer(x)
