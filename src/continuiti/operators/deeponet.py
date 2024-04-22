@@ -25,11 +25,12 @@ class DeepONet(Operator):
 
     Args:
         shapes: Shapes of the operator.
-        branch_width: Width of branch network
-        branch_depth: Depth of branch network
-        trunk_width: Width of trunk network
-        trunk_depth: Depth of trunk network
-        basis_functions: Number of basis functions
+        branch_width: Width of branch network.
+        branch_depth: Depth of branch network.
+        trunk_width: Width of trunk network.
+        trunk_depth: Depth of trunk network.
+        basis_functions: Number of basis functions.
+        act: Activation function.
         device: Device.
     """
 
@@ -41,6 +42,7 @@ class DeepONet(Operator):
         trunk_width: int = 32,
         trunk_depth: int = 3,
         basis_functions: int = 8,
+        act: Optional[torch.nn.Module] = None,
         device: Optional[torch.device] = None,
     ):
         super().__init__(shapes, device)
@@ -53,6 +55,7 @@ class DeepONet(Operator):
             output_size=self.dot_dim,
             width=trunk_width,
             depth=trunk_depth,
+            act=act,
             device=device,
         )
         # branch network
@@ -62,6 +65,7 @@ class DeepONet(Operator):
             output_size=self.dot_dim,
             width=branch_width,
             depth=branch_depth,
+            act=act,
             device=device,
         )
 

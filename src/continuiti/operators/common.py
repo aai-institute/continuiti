@@ -30,12 +30,14 @@ class FullyConnected(torch.nn.Module):
         super().__init__()
         self.inner_layer = torch.nn.Linear(input_size, width, device=device)
         self.outer_layer = torch.nn.Linear(width, output_size, device=device)
-        self.act = act or torch.nn.Tanh()
+        self.act = act or torch.nn.GELU()
+        self.norm = torch.nn.LayerNorm(width, device=device)
 
     def forward(self, x: torch.Tensor):
         """Forward pass."""
         x = self.inner_layer(x)
         x = self.act(x)
+        x = self.norm(x)
         x = self.outer_layer(x)
         return x
 
@@ -57,11 +59,12 @@ class ResidualLayer(torch.nn.Module):
     ):
         super().__init__()
         self.layer = torch.nn.Linear(width, width, device=device)
-        self.act = act or torch.nn.Tanh()
+        self.act = act or torch.nn.GELU()
+        self.norm = torch.nn.LayerNorm(width, device=device)
 
     def forward(self, x: torch.Tensor):
         """Forward pass."""
-        return self.act(self.layer(x)) + x
+        return self.norm(self.act(self.layer(x))) + x
 
 
 class DeepResidualNetwork(torch.nn.Module):
@@ -88,7 +91,7 @@ class DeepResidualNetwork(torch.nn.Module):
         assert depth >= 1, "DeepResidualNetwork has at least depth 1."
         super().__init__()
 
-        self.act = act or torch.nn.Tanh()
+        self.act = act or torch.nn.GELU()
         self.first_layer = torch.nn.Linear(input_size, width, device=device)
         self.hidden_layers = torch.nn.ModuleList(
             [
