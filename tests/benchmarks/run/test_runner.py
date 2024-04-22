@@ -10,5 +10,6 @@ def test_runner():
         benchmark_factory=SineRegular,
         operator_factory=DeepNeuralOperator,
         max_epochs=2,
+        batch_size=128,
     )
     BenchmarkRunner.run(config)

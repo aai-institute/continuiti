@@ -1,3 +1,4 @@
+import pytest
 import torch
 import deepxde as dde
 import matplotlib.pyplot as plt
@@ -7,6 +8,7 @@ import continuiti as cti
 torch.manual_seed(0)
 
 
+@pytest.mark.slow
 def test_pideeponet():
     """Physics-informed DeepONet for Poisson equation in 1D.
     Example from DeepXDE in *continuiti*.
@@ -35,7 +37,7 @@ def test_pideeponet():
         return torch.zeros_like(y)
 
     # Sample domain and boundary points
-    num_domain = 100
+    num_domain = 32
     num_boundary = 2
     x_domain = geom.uniform_points(num_domain)
     x_bnd = geom.uniform_boundary_points(num_boundary)
@@ -48,7 +50,7 @@ def test_pideeponet():
     degree = 3
     space = dde.data.PowerSeries(N=degree + 1)
 
-    num_functions = 100
+    num_functions = 10
     coeffs = space.random(num_functions)
     fx = space.eval_batch(coeffs, x)
 

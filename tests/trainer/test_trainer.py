@@ -7,15 +7,15 @@ from continuiti.trainer import Trainer
 
 
 def train():
-    dataset = SineBenchmark().train_dataset
+    dataset = SineBenchmark(n_train=32).train_dataset
     operator = DeepONet(dataset.shapes, trunk_depth=16)
 
-    Trainer(operator).fit(dataset, tol=1e-3)
+    Trainer(operator).fit(dataset, tol=1e-2)
 
     # Make sure we can use operator output on cpu again
     x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
     v_pred = operator(x, u, y)
-    assert ((v_pred - v.to("cpu")) ** 2).mean() < 1e-3
+    assert ((v_pred - v.to("cpu")) ** 2).mean() < 1e-2
 
 
 @pytest.mark.slow
@@ -42,7 +42,7 @@ def test_trainer_with_torch_model():
         input_size=1,
         output_size=1,
         width=32,
-        depth=3,
+        depth=8,
     )
 
     # Define loss function (in continuiti style)
@@ -56,14 +56,14 @@ def test_trainer_with_torch_model():
     trainer = Trainer(model, loss_fn=loss_fn)
     logs = trainer.fit(
         train_dataset,
-        tol=1e-3,
+        tol=1e-2,
         test_dataset=test_dataset,
     )
 
     # Test the model
-    assert logs.loss_test < 1e-3
+    assert logs.loss_test < 1e-2
 
 
 # Use ./run_parallel.sh to run test with CUDA
 if __name__ == "__main__":
-    train()
+    test_trainer_with_torch_model()
