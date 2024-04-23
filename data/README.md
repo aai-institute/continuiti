@@ -2,26 +2,30 @@
 
 ## Prerequisites
 
-We use `dvc` to manage the data. You can install the required packages by
-installing the benchmarks requirements.
+We use `dvc` to manage the data. Install the required packages by:
 
 ```
-pip install -e .[benchmarks]
+pip install dvc dvc-gdrive
 ```
 
 ## Downloading the data
 
-The data is stored in a remote storage on GDrive.
-To download the data, you can run:
+The data is stored in a remote storage on GDrive, so you need to authenticate
+with the GDrive.
+
+To download, e.g., the `navierstokes` data, run within the `data` directory:
 
 ```
-cd data
-dvc pull <NAME>
+dvc pull navierstokes
 ```
 
-where `<NAME>` is the name of the data set you want to download,
-e.g., `flame` or `navierstokes`, or empty.
+To download all data sets, run:
 
+```
+dvc pull
+```
+
+Below, you can find a list of available data sets.
 
 ## Data sets
 
