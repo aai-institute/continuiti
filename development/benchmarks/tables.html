@@ -1,0 +1,83 @@
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+<script>
+let operatorsPath = "../api/continuiti/operators/#continuiti.operators";
+let benchmarksPath = "../api/continuiti/benchmarks/#continuiti.benchmarks";
+
+fetch("data.json").then((response) => response.json()).then((data) => {
+    for (let [benchmark, results] of Object.entries(data)) {
+
+        let gridOptions = {
+            rowData: results,
+            columnDefs: [
+                {
+                    field: "operator",
+                    cellRenderer: function(params) {
+                        let op = params.data.operator;
+                        return `<a href="${operatorsPath}.${op}">${op}</a>`;
+                    }
+                },
+                {
+                    headerName: "Parameters",
+                    children: [
+                        {
+                            columnGroupShow: "closed",
+                            field: "Number",
+                            cellRenderer: function(params) {
+                                return params.data["num_params"];
+                            }
+                        },
+                        {
+                            columnGroupShow: "open",
+                            field: "Args",
+                            cellRenderer: function(params) {
+                                let p = params.data["params"];
+                                if (p === undefined) {
+                                    return "";
+                                }
+                                let pStr = ``;
+                                for (let [key, value] of Object.entries(p)) {
+                                    pStr += `${key}=${value} `;
+                                }
+                                return pStr;
+                            }
+                        },
+                    ]
+                },
+                {
+                    field: "Training Loss",
+                    cellRenderer: function(params) {
+                        return params.data["loss/train"];
+                    }
+                },
+                {
+                    field: "Test Loss",
+                    cellRenderer: function(params) {
+                        return params.data["loss/test"];
+                    }
+                },
+            ]
+        };
+
+        let tablesObj = document.querySelector(`#tables`)
+
+        let h2 = document.createElement("h2");
+        let a = document.createElement("a");
+        a.href = `${benchmarksPath}.${benchmark}`;
+        a.textContent = `${benchmark}`;
+        h2.appendChild(a);
+        tablesObj.appendChild(h2);
+
+        let div = document.createElement("div");
+        div.id = `ag-grid-${benchmark}`;
+        div.style.width = "100%";
+        div.style.height = "300px";
+        div.className = "ag-theme-quartz";
+        tablesObj.appendChild(div);
+
+        let divObj = document.querySelector(`#ag-grid-${benchmark}`)
+        let gridApi = agGrid.createGrid(divObj, gridOptions);
+        gridApi.sizeColumnsToFit();
+    }
+});
+</script>
+<div id="tables"></div>
