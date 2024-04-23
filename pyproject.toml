@@ -5,7 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "continuiti"
 description = "Learning function operators with neural networks."
-authors = [{ name = "Samuel Burbulla", email = "s.burbulla@appliedai-institute.de" }]
+authors = [{ name = "appliedAI Institute gGmbH" }]
+maintainers = [
+  { name = "Samuel Burbulla", email = "s.burbulla@appliedai-institute.de" },
+  { name = "Miguel de Benito Delgado", email = "m.debenito@appliedai-institute.de" }
+]
 license = { file = "LICENSE.txt" }
 readme = "README.md"
 requires-python = ">=3.9"
