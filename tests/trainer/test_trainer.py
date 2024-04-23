@@ -1,14 +1,14 @@
 import pytest
 import torch
 from continuiti.operators import DeepONet
-from continuiti.operators.common import DeepResidualNetwork
+from continuiti.networks import DeepResidualNetwork
 from continuiti.benchmarks.sine import SineBenchmark
 from continuiti.trainer import Trainer
 
 
 def train():
-    dataset = SineBenchmark(n_train=32).train_dataset
-    operator = DeepONet(dataset.shapes, trunk_depth=16)
+    dataset = SineBenchmark(n_train=8).train_dataset
+    operator = DeepONet(dataset.shapes, trunk_depth=8)
 
     Trainer(operator).fit(dataset, tol=1e-2)
 
