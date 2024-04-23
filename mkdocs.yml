@@ -33,11 +33,10 @@ plugins:
       caption_position: bottom
   - macros
   - mike:
-      canonical_version: stable
+      canonical_version: latest
   - search
   - section-index
   - alias:
-      use_relative_link: true
       verbose: true
   - gen-files:
       scripts:
@@ -131,12 +130,12 @@ extra:
   copyright_link: https://appliedai-institute.de
   version:
     provider: mike
-    default: stable
+    default: latest
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/aai-institute/continuiti
-    # - icon: fontawesome/brands/python
-    #   link: https://pypi.org/project/continuiti/
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/continuiti/
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/appliedAI_gGmbH
     - icon: fontawesome/brands/linkedin

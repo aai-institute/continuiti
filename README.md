@@ -18,11 +18,17 @@ operator learning is particularly useful in scientific machine learning,
 relevant benchmarks.
 
 ## Installation
-Clone the repository and install the package using pip.
+Install the package using pip:
+```shell
+pip install continuiti
+```
+
+Or install the latest development version from the repository:
+
 ```
 git clone https://github.com/aai-institute/continuiti.git
 cd continuiti
-pip install -e .
+pip install -e .[dev]
 ```
 
 ## Usage

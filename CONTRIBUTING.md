@@ -145,3 +145,20 @@ dark mode, add the tag *invertible-output*, i.e.
 ]
 ```
 This applies a simple CSS-filter to the output image of the cell.
+
+
+## Release process
+
+In order to create a new release, make sure that the project's venv is active
+and the repository is clean and on the main branch.
+
+Create a new release using the script `build_scripts/release.sh`.
+This script will create a release tag on the repository and bump
+the version number:
+
+```shell
+./build_scripts/release.sh
+```
+
+Afterwards, create a GitHub release for that tag. That will a trigger a CI
+pipeline that will automatically create a package and publish it from CI to PyPI.

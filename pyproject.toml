@@ -21,7 +21,7 @@ keywords = [
     "Artificial Intelligence", "Machine Learning", "Mathematics", "Physics",
     "Operator Learning", "Physics-Informed ML", "Neural Operator", "DeepONet",
 ]
-dynamic = ["version"]
+version = "0.1.0"
 dependencies = [
     "setuptools",
     "numpy",
@@ -68,14 +68,14 @@ dev = [
     "mknotebooks>=0.8.0",
     "neoteroi-mkdocs",
     "pygments",
-]
 
-[tool.setuptools.dynamic]
-version = {attr = "continuiti.__version__"}
+    # === Releasing ===
+    "bump-my-version",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["continuiti"]
+include = ["continuiti*"]
 
 [project.urls]
 Repository = "https://github.com/aai-institute/continuiti.git"

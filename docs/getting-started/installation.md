@@ -7,12 +7,11 @@ alias:
 
 # Installing continuiti
 
-To install the latest development version use:
+Install the latest version of **continuiti** using pip:
 ```
-git clone https://github.com/aai-institute/continuiti.git
-cd continuiti
-pip install -e .
+pip install continuiti
 ```
+
 
 ## Dependencies
 
