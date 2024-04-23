@@ -23,38 +23,35 @@ keywords = [
 ]
 dynamic = ["version"]
 dependencies = [
-    "black",            # code formatting
-    "flake8",           # code analysis
-    "isort",            # import sorting
-
-    # --------- linters --------- #
-    "pre-commit",       # hooks for applying linters on commit
-    "pudb",             # debugger
-    "pytest",           # tests
-
-    # --------- others --------- #
-    "python-dotenv",    # loading env variables from .env file
-    "rich",             # beautiful text formatting in terminal
-    "sh",               # for running bash commands in some tests
-
-    # --------- dependencies --------- #
-    "torch>=2.1.0,<3.0.0",
-    "matplotlib",
-    "pandas",
+    "setuptools",
     "numpy",
+    "matplotlib",
     "scipy",
-    "dvc",
-    "dvc-gdrive",
+    "pandas",
+    "torch>=2.1.0,<3.0.0",
     "mlflow",
-    "optuna>=3.5.0,<4.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "setuptools",
+    # === Optional dependencies for tests ===
+    "optuna>=3.5.0,<4.0.0",
+    "gmsh",
+    "deepxde",
+
+    # === Code quality ===
+    "black",
+    "flake8",
+    "isort",
+    "pre-commit",
+    "pudb",
+
+    # === Testing ===
     "pytest",
     "pytest-cov",
     "nbmake",
+
+    # === Documentation ===
     "markdown-captions",
     "mike",
     "mkdocs==1.5.2",
@@ -71,8 +68,6 @@ dev = [
     "mknotebooks>=0.8.0",
     "neoteroi-mkdocs",
     "pygments",
-    "gmsh",
-    "deepxde",
 ]
 
 [tool.setuptools.dynamic]
