@@ -8,7 +8,7 @@ import math
 import torch
 from typing import Optional
 from continuiti.operators import Operator
-from continuiti.operators.common import DeepResidualNetwork
+from continuiti.networks import DeepResidualNetwork
 from continuiti.operators.shape import OperatorShapes
 
 
