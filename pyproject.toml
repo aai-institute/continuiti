@@ -38,6 +38,7 @@ dev = [
     "optuna>=3.5.0,<4.0.0",
     "gmsh",
     "deepxde",
+    "scikit-learn<=1.4.2",
 
     # === Code quality ===
     "black",
