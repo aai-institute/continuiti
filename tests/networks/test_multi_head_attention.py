@@ -22,16 +22,22 @@ class TestMultiHeadAttention:
 
     def test_output_shape(self, some_multi_head_attn):
         batch_size = 3
-        hidden_dim = 32
         query_size = 5
         key_val_size = 7
 
-        query = torch.rand(batch_size, query_size, hidden_dim)
-        key = torch.rand(batch_size, key_val_size, hidden_dim)
-        val = torch.rand(batch_size, key_val_size, hidden_dim)
+        query = torch.rand(batch_size, query_size, some_multi_head_attn.hidden_dim)
+        key = torch.rand(batch_size, key_val_size, some_multi_head_attn.hidden_dim)
+        val = torch.rand(batch_size, key_val_size, some_multi_head_attn.hidden_dim)
 
         out = some_multi_head_attn(query, key, val)
-        correct_out = nn.functional.scaled_dot_product_attention(query, key, val)
+
+        gt_attn = nn.MultiheadAttention(
+            embed_dim=some_multi_head_attn.hidden_dim,
+            num_heads=some_multi_head_attn.n_heads,
+            batch_first=True,
+            bias=True
+        )
+        correct_out, _ = gt_attn(query, key, val)
 
         assert out.shape == correct_out.shape
 
@@ -66,3 +72,43 @@ class TestMultiHeadAttention:
         assert query.grad is not None, "Gradients not flowing to query"
         assert key.grad is not None, "Gradients not flowing to key"
         assert value.grad is not None, "Gradients not flowing to value"
+
+    def test_equal_to_torch(self):
+        heads = 2
+        batch_size = 3
+        target_length = 5
+        source_length = 7
+        embedding_dim = 8
+
+        q = torch.rand(batch_size, target_length, embedding_dim)
+        k = torch.rand(batch_size, source_length, embedding_dim)
+        v = torch.rand(batch_size, source_length, embedding_dim)
+
+        gt_attn = nn.MultiheadAttention(embedding_dim, heads, batch_first=True)
+        attn = MultiHeadAttention(
+            hidden_dim=embedding_dim,
+            n_heads=heads,
+            attention=nn.functional.scaled_dot_product_attention,
+            dropout_p=0.,
+            bias=True,
+        )
+
+        # align in projection
+        attn.key_project.weight = nn.Parameter(gt_attn.in_proj_weight[embedding_dim:2 * embedding_dim, :])
+        attn.key_project.bias = nn.Parameter(gt_attn.in_proj_bias[embedding_dim:2 * embedding_dim])
+
+        attn.value_project.weight = nn.Parameter(gt_attn.in_proj_weight[2 * embedding_dim:, :])
+        attn.value_project.bias = nn.Parameter(gt_attn.in_proj_bias[2 * embedding_dim:])
+
+        attn.query_project.weight = nn.Parameter(gt_attn.in_proj_weight[:embedding_dim, :])
+        attn.query_project.bias = nn.Parameter(gt_attn.in_proj_bias[:embedding_dim])
+
+        # align out projection
+        attn.out_project.weight = nn.Parameter(gt_attn.out_proj.weight)
+        attn.out_project.bias = nn.Parameter(gt_attn.out_proj.bias)
+
+        # forward pass
+        out = attn(q, k, v)
+        ground_truth, _ = gt_attn(q, k, v, need_weights=False)
+
+        assert torch.allclose(out, ground_truth)
