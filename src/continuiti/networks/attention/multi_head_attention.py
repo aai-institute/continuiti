@@ -8,8 +8,10 @@ from typing import Callable
 import torch
 import torch.nn as nn
 
+from .attention import Attention
 
-class MultiHeadAttention(nn.Module):
+
+class MultiHeadAttention(Attention):
     r"""Multi-Head Attention module.
 
     Module as described in the paper [Attention is All you Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
@@ -31,12 +33,12 @@ class MultiHeadAttention(nn.Module):
     """
 
     def __init__(
-        self,
-        hidden_dim: int,
-        n_heads: int,
-        attention: Callable = nn.functional.scaled_dot_product_attention,
-        dropout_p: float = 0,
-        bias: bool = True,
+            self,
+            hidden_dim: int,
+            n_heads: int,
+            attention: Callable = nn.functional.scaled_dot_product_attention,
+            dropout_p: float = 0,
+            bias: bool = True,
     ):
         super().__init__()
 
@@ -48,7 +50,7 @@ class MultiHeadAttention(nn.Module):
 
         self.head_dim = hidden_dim // n_heads
         assert (
-            self.head_dim * n_heads == hidden_dim
+                self.head_dim * n_heads == hidden_dim
         ), "hidden_dim must be divisible by n_heads"
 
         # projection networks
@@ -58,12 +60,16 @@ class MultiHeadAttention(nn.Module):
         self.out_project = nn.Linear(hidden_dim, hidden_dim, bias=bias)
 
     def forward(
-        self,
-        query: torch.Tensor,
-        key: torch.Tensor,
-        value: torch,
-        attn_mask: torch.Tensor = None,
+            self,
+            query: torch.Tensor,
+            key: torch.Tensor,
+            value: torch,
+            attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
+        assert query.ndim == 3
+        assert key.ndim == 3
+        assert value.ndim == 3
+
         batch_size = query.size(0)
 
         # project values
@@ -72,12 +78,11 @@ class MultiHeadAttention(nn.Module):
         value = self.value_project(value)
 
         # form individual heads
-        query = query.view(batch_size, self.n_heads, -1, self.head_dim)
-        key = key.view(batch_size, self.n_heads, -1, self.head_dim)
-        value = value.view(batch_size, self.n_heads, -1, self.head_dim)
+        query = query.view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        key = key.view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        value = value.view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
 
         # perform attention
-        print(query.tolist(), key.tolist(), value.tolist())
         attn_out = self.attention(
             query=query,
             key=key,
@@ -85,7 +90,7 @@ class MultiHeadAttention(nn.Module):
             attn_mask=attn_mask,
             dropout_p=self.dropout_p,
         )
-        attn_out = attn_out.reshape(batch_size, -1, self.hidden_dim)
+        attn_out = attn_out.transpose(1, 2).reshape(batch_size, -1, self.hidden_dim)
 
         # output projection
         return self.out_project(attn_out)
