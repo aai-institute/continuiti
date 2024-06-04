@@ -35,7 +35,7 @@ class TestMultiHeadAttention:
             embed_dim=some_multi_head_attn.hidden_dim,
             num_heads=some_multi_head_attn.n_heads,
             batch_first=True,
-            bias=True
+            bias=True,
         )
         correct_out, _ = gt_attn(query, key, val)
 
@@ -89,18 +89,28 @@ class TestMultiHeadAttention:
             hidden_dim=embedding_dim,
             n_heads=heads,
             attention=nn.functional.scaled_dot_product_attention,
-            dropout_p=0.,
+            dropout_p=0.0,
             bias=True,
         )
 
         # align in projection
-        attn.key_project.weight = nn.Parameter(gt_attn.in_proj_weight[embedding_dim:2 * embedding_dim, :])
-        attn.key_project.bias = nn.Parameter(gt_attn.in_proj_bias[embedding_dim:2 * embedding_dim])
+        attn.key_project.weight = nn.Parameter(
+            gt_attn.in_proj_weight[embedding_dim : 2 * embedding_dim, :]
+        )
+        attn.key_project.bias = nn.Parameter(
+            gt_attn.in_proj_bias[embedding_dim : 2 * embedding_dim]
+        )
 
-        attn.value_project.weight = nn.Parameter(gt_attn.in_proj_weight[2 * embedding_dim:, :])
-        attn.value_project.bias = nn.Parameter(gt_attn.in_proj_bias[2 * embedding_dim:])
+        attn.value_project.weight = nn.Parameter(
+            gt_attn.in_proj_weight[2 * embedding_dim :, :]
+        )
+        attn.value_project.bias = nn.Parameter(
+            gt_attn.in_proj_bias[2 * embedding_dim :]
+        )
 
-        attn.query_project.weight = nn.Parameter(gt_attn.in_proj_weight[:embedding_dim, :])
+        attn.query_project.weight = nn.Parameter(
+            gt_attn.in_proj_weight[:embedding_dim, :]
+        )
         attn.query_project.bias = nn.Parameter(gt_attn.in_proj_bias[:embedding_dim])
 
         # align out projection

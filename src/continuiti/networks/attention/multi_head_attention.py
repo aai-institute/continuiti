@@ -33,12 +33,12 @@ class MultiHeadAttention(Attention):
     """
 
     def __init__(
-            self,
-            hidden_dim: int,
-            n_heads: int,
-            attention: Callable = nn.functional.scaled_dot_product_attention,
-            dropout_p: float = 0,
-            bias: bool = True,
+        self,
+        hidden_dim: int,
+        n_heads: int,
+        attention: Callable = nn.functional.scaled_dot_product_attention,
+        dropout_p: float = 0,
+        bias: bool = True,
     ):
         super().__init__()
 
@@ -50,7 +50,7 @@ class MultiHeadAttention(Attention):
 
         self.head_dim = hidden_dim // n_heads
         assert (
-                self.head_dim * n_heads == hidden_dim
+            self.head_dim * n_heads == hidden_dim
         ), "hidden_dim must be divisible by n_heads"
 
         # projection networks
@@ -60,11 +60,11 @@ class MultiHeadAttention(Attention):
         self.out_project = nn.Linear(hidden_dim, hidden_dim, bias=bias)
 
     def forward(
-            self,
-            query: torch.Tensor,
-            key: torch.Tensor,
-            value: torch,
-            attn_mask: torch.Tensor = None,
+        self,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch,
+        attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
         assert query.ndim == 3
         assert key.ndim == 3

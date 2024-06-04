@@ -20,8 +20,12 @@ class Attention(nn.Module):
 
     @abstractmethod
     def forward(
-            self, query: torch.Tensor, key: torch.Tensor, value: torch,
-            attn_mask: torch.Tensor = None, ) -> torch.Tensor:
+        self,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch,
+        attn_mask: torch.Tensor = None,
+    ) -> torch.Tensor:
         """Calculates the attention scores.
 
         Args:
