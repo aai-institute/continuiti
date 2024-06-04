@@ -72,11 +72,12 @@ class MultiHeadAttention(nn.Module):
         value = self.value_project(value)
 
         # form individual heads
-        query = query.reshape(batch_size, self.n_heads, -1, self.head_dim)
-        key = key.reshape(batch_size, self.n_heads, -1, self.head_dim)
-        value = value.reshape(batch_size, self.n_heads, -1, self.head_dim)
+        query = query.view(batch_size, self.n_heads, -1, self.head_dim)
+        key = key.view(batch_size, self.n_heads, -1, self.head_dim)
+        value = value.view(batch_size, self.n_heads, -1, self.head_dim)
 
         # perform attention
+        print(query.tolist(), key.tolist(), value.tolist())
         attn_out = self.attention(
             query=query,
             key=key,
