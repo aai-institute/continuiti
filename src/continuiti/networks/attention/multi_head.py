@@ -1,17 +1,17 @@
 """
-`continuiti.networks.multi_head_attention`
+`continuiti.networks.multi_head`
 
 Multi-Head-Attention in continuiti.
 """
 
-from typing import Callable
 import torch
 import torch.nn as nn
 
 from .attention import Attention
+from .scaled_dot_product import ScaledDotProduct
 
 
-class MultiHeadAttention(Attention):
+class MultiHead(Attention):
     r"""Multi-Head Attention module.
 
     Module as described in the paper [Attention is All you Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
@@ -33,24 +33,27 @@ class MultiHeadAttention(Attention):
     """
 
     def __init__(
-        self,
-        hidden_dim: int,
-        n_heads: int,
-        attention: Callable = nn.functional.scaled_dot_product_attention,
-        dropout_p: float = 0,
-        bias: bool = True,
+            self,
+            hidden_dim: int,
+            n_heads: int,
+            attention: Attention = None,
+            dropout_p: float = 0,
+            bias: bool = True,
     ):
         super().__init__()
 
         self.hidden_dim = hidden_dim
         self.n_heads = n_heads
-        self.attention = attention
         self.dropout_p = dropout_p
         self.bias = bias
 
+        if attention is None:
+            attention = ScaledDotProduct()
+        self.attention = attention
+
         self.head_dim = hidden_dim // n_heads
         assert (
-            self.head_dim * n_heads == hidden_dim
+                self.head_dim * n_heads == hidden_dim
         ), "hidden_dim must be divisible by n_heads"
 
         # projection networks
@@ -60,11 +63,12 @@ class MultiHeadAttention(Attention):
         self.out_project = nn.Linear(hidden_dim, hidden_dim, bias=bias)
 
     def forward(
-        self,
-        query: torch.Tensor,
-        key: torch.Tensor,
-        value: torch,
-        attn_mask: torch.Tensor = None,
+            self,
+            query: torch.Tensor,
+            key: torch.Tensor,
+            value: torch,
+            attn_mask: torch.Tensor = None,
+            dropout_p: float = 0.
     ) -> torch.Tensor:
         assert query.ndim == 3
         assert key.ndim == 3

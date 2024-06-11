@@ -25,10 +25,12 @@ class Attention(nn.Module):
         key: torch.Tensor,
         value: torch,
         attn_mask: torch.Tensor = None,
+        dropout_p: float = 0.
     ) -> torch.Tensor:
         """Calculates the attention scores.
 
         Args:
+            dropout_p:
             query: query tensor; shape (batch_size, target_seq_length, hidden_dim)
             key: key tensor; shape (batch_size, source_seq_length, hidden_dim)
             value: value tensor; shape (batch_size, source_seq_length, hidden_dim)
