@@ -1,5 +1,5 @@
 """
-`continuiti.networks.attention`
+`continuiti.networks.attention.attention`
 
 Attention base class in continuiti.
 """
