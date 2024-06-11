@@ -2,15 +2,16 @@ import pytest
 import torch
 import torch.nn as nn
 
-from continuiti.networks import MultiHeadAttention
+from continuiti.networks import MultiHead, ScaledDotProduct
 
 
 @pytest.fixture(scope="session")
 def some_multi_head_attn():
-    return MultiHeadAttention(
+    attn = ScaledDotProduct()
+    return MultiHead(
         hidden_dim=32,
         n_heads=4,
-        attention=nn.functional.scaled_dot_product_attention,
+        attention=attn,
         dropout_p=0.25,
         bias=True,
     )
@@ -18,7 +19,7 @@ def some_multi_head_attn():
 
 class TestMultiHeadAttention:
     def test_can_initialize(self, some_multi_head_attn):
-        assert isinstance(some_multi_head_attn, MultiHeadAttention)
+        assert isinstance(some_multi_head_attn, MultiHead)
 
     def test_output_shape(self, some_multi_head_attn):
         batch_size = 3
@@ -43,7 +44,7 @@ class TestMultiHeadAttention:
 
     def test_attention_correct(self):
         """Edge case testing for correctness."""
-        m_attn = MultiHeadAttention(4, 4, bias=False)
+        m_attn = MultiHead(4, 4, bias=False)
 
         batch_size = 3
         hidden_dim = 4
@@ -85,7 +86,7 @@ class TestMultiHeadAttention:
         v = torch.rand(batch_size, source_length, embedding_dim)
 
         gt_attn = nn.MultiheadAttention(embedding_dim, heads, batch_first=True)
-        attn = MultiHeadAttention(
+        attn = MultiHead(
             hidden_dim=embedding_dim,
             n_heads=heads,
             attention=nn.functional.scaled_dot_product_attention,
