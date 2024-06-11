@@ -67,8 +67,7 @@ class MultiHead(Attention):
             query: torch.Tensor,
             key: torch.Tensor,
             value: torch,
-            attn_mask: torch.Tensor = None,
-            dropout_p: float = 0.
+            attn_mask: torch.Tensor = None
     ) -> torch.Tensor:
         assert query.ndim == 3
         assert key.ndim == 3

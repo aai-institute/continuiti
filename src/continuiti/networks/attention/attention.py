@@ -16,21 +16,25 @@ class Attention(nn.Module):
     components is designated using "soft" weights. These weights are assigned according to specific algorithms (e.g.
     scaled-dot-product attention).
 
+    Args:
+        dropout_p: dropout probability.
     """
+
+    def __init__(self, dropout_p: float = 0.):
+        super().__init__()
+        self.dropout_p = dropout_p
 
     @abstractmethod
     def forward(
-        self,
-        query: torch.Tensor,
-        key: torch.Tensor,
-        value: torch,
-        attn_mask: torch.Tensor = None,
-        dropout_p: float = 0.
+            self,
+            query: torch.Tensor,
+            key: torch.Tensor,
+            value: torch,
+            attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
         """Calculates the attention scores.
 
         Args:
-            dropout_p:
             query: query tensor; shape (batch_size, target_seq_length, hidden_dim)
             key: key tensor; shape (batch_size, source_seq_length, hidden_dim)
             value: value tensor; shape (batch_size, source_seq_length, hidden_dim)
