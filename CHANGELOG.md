@@ -24,7 +24,7 @@
 - Add `benchmarks` infrastructure.
 - An `Operator` now takes a `device` argument.
 - Add `QuantileScaler` class.
-- Add `MultiHeadAttention` class.
+- Add `Attention` base class, `MultiHead` attention, and `ScaledDotProduct` attention classes.
 
 ## 0.0.0 (2024-02-22)
 
