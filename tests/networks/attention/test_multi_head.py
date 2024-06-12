@@ -7,12 +7,10 @@ from continuiti.networks import MultiHead, ScaledDotProduct
 
 @pytest.fixture(scope="session")
 def some_multi_head_attn():
-    attn = ScaledDotProduct()
     return MultiHead(
         hidden_dim=32,
         n_heads=4,
-        attention=attn,
-        dropout_p=0.25,
+        attention=ScaledDotProduct(dropout_p=0.25),
         bias=True,
     )
 
@@ -89,8 +87,7 @@ class TestMultiHeadAttention:
         attn = MultiHead(
             hidden_dim=embedding_dim,
             n_heads=heads,
-            attention=nn.functional.scaled_dot_product_attention,
-            dropout_p=0.0,
+            attention=ScaledDotProduct(dropout_p=0.0),
             bias=True,
         )
 

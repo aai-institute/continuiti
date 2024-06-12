@@ -91,7 +91,6 @@ class MultiHead(Attention):
             key=key,
             value=value,
             attn_mask=attn_mask,
-            dropout_p=self.dropout_p,
         )
         attn_out = attn_out.transpose(1, 2).reshape(batch_size, -1, self.hidden_dim)
 
