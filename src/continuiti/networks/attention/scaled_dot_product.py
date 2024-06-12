@@ -20,10 +20,14 @@ class ScaledDotProduct(Attention):
         value: torch,
         attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
+        if self.training:
+            dropout_p = self.dropout_p
+        else:
+            dropout_p = 0.0
         return scaled_dot_product_attention(
             query=query,
             key=key,
             value=value,
             attn_mask=attn_mask,
-            dropout_p=self.dropout_p,
+            dropout_p=dropout_p,
         )
