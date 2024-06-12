@@ -20,17 +20,17 @@ class Attention(nn.Module):
         dropout_p: dropout probability.
     """
 
-    def __init__(self, dropout_p: float = 0.):
+    def __init__(self, dropout_p: float = 0.0):
         super().__init__()
         self.dropout_p = dropout_p
 
     @abstractmethod
     def forward(
-            self,
-            query: torch.Tensor,
-            key: torch.Tensor,
-            value: torch,
-            attn_mask: torch.Tensor = None,
+        self,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch,
+        attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
         """Calculates the attention scores.
 
