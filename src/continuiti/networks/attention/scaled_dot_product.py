@@ -10,6 +10,14 @@ from torch.nn.functional import scaled_dot_product_attention
 
 
 class ScaledDotProduct(Attention):
+    """Scaled dot product attention module.
+
+    This module is a wrapper for the torch implementation of the scaled dot product attention mechanism as described in
+    the paper "Attention Is All You Need" by Vaswani et al. (2017). This attention mechanism computes the attention
+     weights based on the dot product of the query and key matrices, scaled by the square root of the dimension of the
+     key vectors. The weights are then applied to the value vectors to obtain the final output.
+    """
+
     def __init__(self, dropout_p: float = 0.0):
         super().__init__(dropout_p)
 
