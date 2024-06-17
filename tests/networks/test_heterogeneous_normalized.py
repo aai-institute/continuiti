@@ -1,6 +1,8 @@
 import pytest
 import torch
 from torch.nn.functional import scaled_dot_product_attention
+from random import randint
+
 from continuiti.networks.attention import HeterogeneousNormalized
 
 
@@ -52,6 +54,32 @@ class TestHeterogeneousNormalized:
     def test_zero_input(self, random_query_key_value_pair):
         query, key, value = random_query_key_value_pair
         attn = HeterogeneousNormalized()
-
-        out = attn(torch.zeros(query.shape), key, value)
+        out = attn(query, key, torch.zeros(value.shape))
         assert torch.allclose(torch.zeros(out.shape), out)
+
+    def test_mask_forward(self, random_query_key_value_pair):
+        query, key, value = random_query_key_value_pair
+        attn = HeterogeneousNormalized()
+
+        # masks in the operator setting should be always block tensors with the upper left block of the last two
+        # dimensions being True. The dimensions of the True block corresponds to the numbers of sensors and evaluations.
+        mask = []
+        for batch in range(query.size(0)):
+            n_q = randint(1, query.size(1) - 1)
+            n_kv = randint(1, key.size(1) - 1)
+
+            ul = torch.ones(n_q, n_kv, dtype=torch.bool)
+            ur = torch.zeros(n_q, key.size(1) - n_kv, dtype=torch.bool)
+            u = torch.cat([ul, ur], dim=1)
+
+            bl = torch.zeros(query.size(1) - n_q, n_kv, dtype=torch.bool)
+            br = torch.zeros(query.size(1) - n_q, key.size(1) - n_kv, dtype=torch.bool)
+            b = torch.cat([bl, br], dim=1)
+
+            mask.append(torch.cat([u, b], dim=0))
+
+        mask = torch.stack(mask, dim=0)
+
+        out = attn(query, key, value, mask)
+
+        assert isinstance(out, torch.Tensor)
