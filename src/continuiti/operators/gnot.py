@@ -1,3 +1,9 @@
+"""
+`continuiti.operators.gnot`
+
+The GNOT (General Neural Operator Transformer) architecture.
+"""
+
 import torch
 import torch.nn as nn
 from torch.nn.functional import softmax
@@ -8,6 +14,28 @@ from continuiti.networks import DeepResidualNetwork
 
 
 class GNOTBlock(nn.Module):
+    r"""GNOT block comprising the GNOT architecture.
+
+    The GNOT block is the core element of the GNOT architecture. The block consists of multi-head cross attention,
+    followed by residual expert networks, self attention, and a second block of expert networks. The expert networks
+    are weighed after each expert block, using a gating mechanism. The gating mechanism is based on mixture-of-experts.
+    The concept for this exact approach is described in Hao et al. The GNOT block is described in this paper as well.
+
+    *Reference:* Hao, Z., Wang, Z., Su, H., Ying, C., Dong, Y., Liu, S., Cheng, Z., Song, J. and Zhu, J., 2023, July.
+    Gnot: A general neural operator transformer for operator learning. In International Conference on Machine Learning
+    (pp. 12556-12569). PMLR.
+
+    Args:
+        width: Embedding dimension and width of the deep residual networks.
+        hidden_depth: Depth of each expert network.
+        act: Activation function.
+        n_heads: Number of attention heads.
+        dropout_p: Temperature parameter governing the dropout rate.
+        attention_class: Type of attention for both the cross and self attention.
+        n_experts: the number of expert networks in each expert block.
+
+    """
+
     def __init__(
         self,
         width: int,
@@ -15,7 +43,7 @@ class GNOTBlock(nn.Module):
         act: nn.Module,
         n_heads: int,
         dropout_p: float,
-        attention: type(nn.Module),
+        attention_class: type(nn.Module),
         n_experts: int,
     ):
         super().__init__()
@@ -23,7 +51,7 @@ class GNOTBlock(nn.Module):
         self.cross_attention = MultiHead(
             hidden_dim=width,
             n_heads=n_heads,
-            attention=attention(),
+            attention=attention_class(),
             dropout_p=dropout_p,
             bias=True,
         )
@@ -42,7 +70,7 @@ class GNOTBlock(nn.Module):
         self.self_attention = MultiHead(
             hidden_dim=width,
             n_heads=n_heads,
-            attention=attention(),
+            attention=attention_class(),
             dropout_p=dropout_p,
             bias=True,
         )
@@ -66,30 +94,51 @@ class GNOTBlock(nn.Module):
         attn_mask: torch.Tensor = None,
         gating_mask: torch.Tensor = None,
     ) -> torch.Tensor:
-        out_ca = self.cross_attention(query, key, value, attn_mask=attn_mask) + query
+        def gated_forward(
+            src: torch.Tensor,
+            ffn_module_list: nn.ModuleList,
+            gating_mask_: torch.Tensor,
+        ) -> torch.Tensor:
+            if gating_mask_ is not None:
+                res = torch.stack([expert(src) for expert in ffn_module_list], dim=0)
+                res = res * gating_mask_
+                res = torch.sum(res, dim=0)
+            else:
+                res = ffn_module_list[0](src)
 
-        if gating_mask is not None:
-            out = torch.stack([expert(out_ca) for expert in self.ffn_1], dim=0)
-            out = out * gating_mask
-            out = torch.sum(out, dim=0)
-        else:
-            out = self.ffn_1[0](out_ca)
-        out = out + out_ca
+            return res
 
-        out_sa = self.self_attention(out, out, out) + out
-
-        if gating_mask is not None:
-            out = torch.stack([expert(out_sa) for expert in self.ffn_2], dim=0)
-            out = out * gating_mask
-            out = torch.sum(out, dim=0)
-        else:
-            out = self.ffn_2[0](out_sa)
-        out = out + out_sa
-
-        return out
+        out = self.cross_attention(query, key, value, attn_mask=attn_mask) + query
+        out = gated_forward(out, self.ffn_1, gating_mask) + out
+        out = self.self_attention(out, out, out) + out
+        return gated_forward(out, self.ffn_2, gating_mask) + out
 
 
 class GNOT(Operator):
+    r"""General Neural Operator Transformer (GNOT).
+
+    The GNOT implementation uses GNOT blocks to compute the output of the operator. Each GNOT block consists of
+    cross-attention, a mixture-of-experts block of neural networks, self attention, again followed by a
+    mixture-of-experts neural network block.
+
+    *Reference:* Hao, Z., Wang, Z., Su, H., Ying, C., Dong, Y., Liu, S., Cheng, Z., Song, J. and Zhu, J., 2023, July.
+    Gnot: A general neural operator transformer for operator learning. In International Conference on Machine Learning
+    (pp. 12556-12569). PMLR.
+
+    Args:
+        shapes: Shapes of the operator.
+        encoding_depth: Depth of the encoding networks.
+        width: Width of networks and embedding dim.
+        hidden_depth: Depth of each hidden network.
+        act: Activation function.
+        n_blocks: Number of GNOT blocks in the operator.
+        attention_class: Attention mechanism.
+        n_heads: Number of attention heads.
+        dropout_p: Temperature parameter controlling dropout probability.
+        n_experts: Number of expert residual networks in every expert block.
+
+    """
+
     def __init__(
         self,
         shapes: OperatorShapes,
@@ -98,11 +147,10 @@ class GNOT(Operator):
         hidden_depth=8,
         act: nn.Module = None,
         n_blocks: int = 1,
-        attention: type(nn.Module) = HeterogeneousNormalized,
+        attention_class: type(nn.Module) = HeterogeneousNormalized,
         n_heads: int = 1,
         dropout_p: float = 0.0,
         n_experts: int = 1,
-        **kwargs,
     ):
         super().__init__()
 
@@ -154,7 +202,7 @@ class GNOT(Operator):
                     act=act,
                     n_heads=n_heads,
                     dropout_p=dropout_p,
-                    attention=attention,
+                    attention_class=attention_class,
                     n_experts=n_experts,
                 )
                 for _ in range(n_blocks)
