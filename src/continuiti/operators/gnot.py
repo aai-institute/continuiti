@@ -7,37 +7,6 @@ from continuiti.networks.attention import MultiHead, HeterogeneousNormalized
 from continuiti.networks import DeepResidualNetwork
 
 
-class Encoder(nn.Module):
-    def __init__(
-        self,
-        input_width: int,
-        width: int,
-        depth: int,
-        act: nn.Module = None,
-    ):
-        super().__init__()
-
-        if act is None:
-            act = nn.GELU()
-
-        self.model = nn.Sequential()
-
-        self.model.add_module("lift_1", nn.Linear(input_width, width))
-        self.model.add_module("norm_1", nn.LayerNorm(width))
-        self.model.add_module("activation_1", act)
-
-        for i in range(depth - 1):
-            self.model.add_module(f"lift_{i + 2}", nn.Linear(width, width))
-            self.model.add_module(f"norm_{i + 2}", nn.LayerNorm(width))
-            self.model.add_module(f"activation_{i + 2}", act)
-
-        self.model.add_module(f"lift_{depth + 1}", nn.Linear(width, width))
-        self.model.add_module(f"norm_{depth + 1}", nn.LayerNorm(width))
-
-    def forward(self, src: torch.Tensor) -> torch.Tensor:
-        return self.model(src)
-
-
 class GNOTBlock(nn.Module):
     def __init__(
         self,
@@ -130,7 +99,7 @@ class GNOT(Operator):
         act: nn.Module = None,
         n_blocks: int = 1,
         attention: type(nn.Module) = HeterogeneousNormalized,
-        n_heads: int = 4,
+        n_heads: int = 1,
         dropout_p: float = 0.0,
         n_experts: int = 1,
         **kwargs,
@@ -142,20 +111,38 @@ class GNOT(Operator):
         if act is None:
             act = nn.GELU()
 
-        self.query_encoder = Encoder(
-            width=width, input_width=shapes.y.dim, depth=encoding_depth
+        self.query_encoder = DeepResidualNetwork(
+            input_size=shapes.y.dim,
+            width=width,
+            output_size=width,
+            depth=encoding_depth,
+            act=act,
         )
-        self.key_encoder = Encoder(
-            width=width, input_width=shapes.x.dim + shapes.u.dim, depth=encoding_depth
+        self.key_encoder = DeepResidualNetwork(
+            input_size=shapes.x.dim + shapes.u.dim,
+            width=width,
+            output_size=width,
+            depth=encoding_depth,
+            act=act,
         )
-        self.value_encoder = Encoder(
-            width=width, input_width=shapes.x.dim + shapes.u.dim, depth=encoding_depth
+        self.value_encoder = DeepResidualNetwork(
+            input_size=shapes.x.dim + shapes.u.dim,
+            width=width,
+            output_size=width,
+            depth=encoding_depth,
+            act=act,
         )
 
         if n_experts > 1:
             self.expert_encoders = nn.ModuleList(
                 [
-                    Encoder(width=width, input_width=shapes.y.dim, depth=encoding_depth)
+                    DeepResidualNetwork(
+                        input_size=shapes.y.dim,
+                        width=width,
+                        output_size=width,
+                        depth=encoding_depth,
+                        act=act,
+                    )
                     for _ in range(n_experts)
                 ]
             )
