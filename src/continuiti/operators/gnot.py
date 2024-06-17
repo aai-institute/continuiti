@@ -156,6 +156,8 @@ class GNOT(Operator):
 
         self.n_experts = n_experts
 
+        self.shapes = shapes
+
         if act is None:
             act = nn.GELU()
 
@@ -214,9 +216,17 @@ class GNOT(Operator):
     def forward(
         self, x: torch.Tensor, u: torch.Tensor, y: torch.Tensor
     ) -> torch.Tensor:
+        # flatten inputs (as in vision transformers)
+        eval_shape = y.shape
+        y = y.flatten(start_dim=2)
+        x = x.flatten(start_dim=2)
+        u = u.flatten(start_dim=2)
+
+        # embeddings from stacked points
         y = y.transpose(1, 2)
         input_vec = torch.cat([x, u], dim=1).transpose(1, 2)
 
+        # generate gating mask
         gating_mask = None
         if self.n_experts > 1:
             gating_mask = torch.stack(
@@ -224,13 +234,18 @@ class GNOT(Operator):
             )
             gating_mask = softmax(gating_mask, dim=0)
 
+        # create embeddings
         out = self.query_encoder(y)
         key = self.key_encoder(input_vec)
         value = self.value_encoder(input_vec)
 
+        # pass through GNOT blocks
         for block in self.blocks:
             out = block(
                 query=out, key=key, value=value, attn_mask=None, gating_mask=gating_mask
             )
 
-        return self.project(out).transpose(1, 2)
+        out = self.project(out).transpose(1, 2)
+
+        # reshape to match output dimensions
+        return out.reshape(-1, self.shapes.v.dim, *eval_shape[2:])
