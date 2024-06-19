@@ -16,13 +16,10 @@ class Attention(nn.Module):
     components is designated using "soft" weights. These weights are assigned according to specific algorithms (e.g.
     scaled-dot-product attention).
 
-    Args:
-        dropout_p: dropout probability.
     """
 
-    def __init__(self, dropout_p: float = 0.0):
+    def __init__(self):
         super().__init__()
-        self.dropout_p = dropout_p
 
     @abstractmethod
     def forward(

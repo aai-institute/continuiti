@@ -19,7 +19,8 @@ class ScaledDotProductAttention(Attention):
     """
 
     def __init__(self, dropout_p: float = 0.0):
-        super().__init__(dropout_p)
+        super().__init__()
+        self.dropout_p = dropout_p
 
     def forward(
         self,
