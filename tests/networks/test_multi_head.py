@@ -2,22 +2,22 @@ import pytest
 import torch
 import torch.nn as nn
 
-from continuiti.networks import MultiHead, ScaledDotProduct
+from continuiti.networks import MultiHeadAttention, ScaledDotProductAttention
 
 
 @pytest.fixture(scope="session")
 def some_multi_head_attn():
-    return MultiHead(
+    return MultiHeadAttention(
         hidden_dim=32,
         n_heads=4,
-        attention=ScaledDotProduct(dropout_p=0.25),
+        attention=ScaledDotProductAttention(dropout_p=0.25),
         bias=True,
     )
 
 
 class TestMultiHeadAttention:
     def test_can_initialize(self, some_multi_head_attn):
-        assert isinstance(some_multi_head_attn, MultiHead)
+        assert isinstance(some_multi_head_attn, MultiHeadAttention)
 
     def test_output_shape(self, some_multi_head_attn):
         batch_size = 3
@@ -42,7 +42,7 @@ class TestMultiHeadAttention:
 
     def test_attention_correct(self):
         """Edge case testing for correctness."""
-        m_attn = MultiHead(4, 4, bias=False)
+        m_attn = MultiHeadAttention(4, 4, bias=False)
 
         batch_size = 3
         hidden_dim = 4
@@ -51,10 +51,10 @@ class TestMultiHeadAttention:
 
         query = torch.rand(batch_size, query_size, hidden_dim)
         key = torch.rand(batch_size, key_val_size, hidden_dim)
-        torch.rand(batch_size, key_val_size, hidden_dim)
+        value = torch.zeros(batch_size, key_val_size, hidden_dim)
 
         # V = 0 -> attn score == 0
-        out = m_attn(query, key, torch.zeros(batch_size, key_val_size, hidden_dim))
+        out = m_attn(query, key, value)
         assert torch.allclose(out, torch.zeros(out.shape))
 
     def test_gradient_flow(self, some_multi_head_attn):
@@ -84,10 +84,10 @@ class TestMultiHeadAttention:
         v = torch.rand(batch_size, source_length, embedding_dim)
 
         gt_attn = nn.MultiheadAttention(embedding_dim, heads, batch_first=True)
-        attn = MultiHead(
+        attn = MultiHeadAttention(
             hidden_dim=embedding_dim,
             n_heads=heads,
-            attention=ScaledDotProduct(dropout_p=0.0),
+            attention=ScaledDotProductAttention(dropout_p=0.0),
             bias=True,
         )
 

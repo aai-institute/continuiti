@@ -1,7 +1,7 @@
 import torch
 from torch.nn.functional import scaled_dot_product_attention
 
-from continuiti.networks.attention import ScaledDotProduct
+from continuiti.networks import ScaledDotProductAttention
 
 
 def test_forward_correct():
@@ -14,7 +14,7 @@ def test_forward_correct():
     key = torch.rand(batch_size, key_val_size, hidden_dim)
     value = torch.rand(batch_size, key_val_size, hidden_dim)
 
-    attn = ScaledDotProduct()
+    attn = ScaledDotProductAttention()
 
     out = attn(query, key, value)
     gt_out = scaled_dot_product_attention(query, key, value)
