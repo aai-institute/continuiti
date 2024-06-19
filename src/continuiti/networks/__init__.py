@@ -6,7 +6,12 @@ Networks in continuiti.
 
 from .fully_connected import FullyConnected
 from .deep_residual_network import DeepResidualNetwork
-from .attention import MultiHead
-from .attention import ScaledDotProduct
+from .multi_head_attention import MultiHeadAttention
+from .scaled_dot_product_attention import ScaledDotProductAttention
 
-__all__ = ["FullyConnected", "DeepResidualNetwork", "MultiHead", "ScaledDotProduct"]
+__all__ = [
+    "FullyConnected",
+    "DeepResidualNetwork",
+    "MultiHeadAttention",
+    "ScaledDotProductAttention",
+]

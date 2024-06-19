@@ -1,5 +1,5 @@
 """
-`continuiti.networks.multi_head`
+`continuiti.networks.multi_head_attention`
 
 Multi-Head-Attention in continuiti.
 """
@@ -8,10 +8,10 @@ import torch
 import torch.nn as nn
 
 from .attention import Attention
-from .scaled_dot_product import ScaledDotProduct
+from .scaled_dot_product_attention import ScaledDotProductAttention
 
 
-class MultiHead(Attention):
+class MultiHeadAttention(Attention):
     r"""Multi-Head Attention module.
 
     Module as described in the paper [Attention is All you Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
@@ -48,7 +48,7 @@ class MultiHead(Attention):
         self.bias = bias
 
         if attention is None:
-            attention = ScaledDotProduct()
+            attention = ScaledDotProductAttention()
         self.attention = attention
 
         self.head_dim = hidden_dim // n_heads

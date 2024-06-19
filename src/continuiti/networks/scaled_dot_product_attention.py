@@ -1,5 +1,5 @@
 """
-`continuiti.networks.attention.scaled_dot_product`
+`continuiti.networks.scaled_dot_product_attention`
 
 Scaled dot product attention module.
 """
@@ -9,7 +9,7 @@ from .attention import Attention
 from torch.nn.functional import scaled_dot_product_attention
 
 
-class ScaledDotProduct(Attention):
+class ScaledDotProductAttention(Attention):
     """Scaled dot product attention module.
 
     This module is a wrapper for the torch implementation of the scaled dot product attention mechanism as described in
