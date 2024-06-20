@@ -170,23 +170,22 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started:
-      - Installation: getting-started/installation.md
-      - First Steps: getting-started/first-steps.md
-  - Learning Operators:
-      - Introduction: operators/index.md
+  - Tutorials:
+      - First Steps: tutorials/index.md
       - Functions: examples/functions.ipynb
       - Training: examples/training.ipynb
-      - Architectures: operators/architectures.md
-  - Examples:
+      - FNO: examples/fno.ipynb
+  - How-to Guides:
       - Time Series: examples/timeseries.ipynb
       - Super-resolution: examples/superresolution.ipynb
       - Physics-informed: examples/physicsinformed.ipynb
-      - FNO: examples/fno.ipynb
       - Meshes: examples/meshes.ipynb
       - Self-supervised: examples/selfsupervised.ipynb
-  - Benchmarks: benchmarks/index.md
-  - Code:
+  - Background:
+      - Operator Learning: operators/index.md
+      - Architectures: operators/architectures.md
+  - Reference:
       - API: api/continuiti/
       - Changelog: CHANGELOG.md
       - Contributing: CONTRIBUTING.md
+  - Benchmarks: benchmarks/index.md
