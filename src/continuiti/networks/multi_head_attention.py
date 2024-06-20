@@ -70,11 +70,33 @@ class MultiHeadAttention(Attention):
         value: torch,
         attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
-        assert query.ndim == 3
-        assert key.ndim == 3
-        assert value.ndim == 3
+        r"""Compute the attention scores.
+
+        Args:
+            query: Query tensor of shape (batch_size, target_sequence_length, hidden_dim).
+            key: Key tensor of shape (batch_size, source_sequence_length, hidden_dim).
+            value: Value tensor of shape (batch_size, source_sequence_length, hidden_dim).
+            attn_mask: Attention mask of shape (batch_size, target_sequence_length, source_sequence_length).
+
+        Returns:
+            Attention scores of shape (batch_size, target_sequence_length, hidden_dim).
+        """
+        assert query.ndim == key.ndim == value.ndim == 3, (
+            "Query, key, and value need to have three dimensions (batch_size, ..., hidden_dim). This format ensures that"
+            "the module can correctly apply the multi-head attention mechanism, which includes splitting embeddings "
+            "into multiple heads, applying the internal attention implementation for each head, concatenating and "
+            "projecting results, while ensuring that the attention mask is applied correctly."
+        )
+        assert (
+            query.size(0) == key.size(0) == value.size(0)
+        ), "Batch size does not match for input tensors"
+        assert (
+            query.size(-1) == key.size(-1) == value.size(-1)
+        ), "Embedding/hidden dimension does not match for input tensors"
 
         batch_size = query.size(0)
+        src_len = key.size(1)
+        tgt_len = query.size(1)
 
         # project values
         query = self.query_project(query)
@@ -85,6 +107,21 @@ class MultiHeadAttention(Attention):
         query = query.view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
         key = key.view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
         value = value.view(batch_size, -1, self.n_heads, self.head_dim).transpose(1, 2)
+
+        # reshape attention mask to match heads
+        if attn_mask is not None:
+            assert (
+                attn_mask.size(0) == batch_size
+            ), "Attention mask batch size does not match input tensors."
+            assert (
+                attn_mask.size(1) == tgt_len
+            ), "First dimension of the attention mask needs to match target length."
+            assert (
+                attn_mask.size(2) == src_len
+            ), "Second dimension of the attention mask needs to match source length."
+
+            attn_mask = attn_mask.unsqueeze(1)  # mask for a single head
+            attn_mask = attn_mask.repeat(1, self.n_heads, 1, 1)  # mask for every head
 
         # perform attention
         attn_out = self.attention(

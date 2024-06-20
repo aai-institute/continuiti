@@ -15,6 +15,19 @@ def some_multi_head_attn():
     )
 
 
+@pytest.fixture(scope="class")
+def random_qkv():
+    batch_size = 3
+    target_length = 5
+    source_length = 7
+    embedding_dim = 8
+
+    q = torch.rand(batch_size, target_length, embedding_dim)
+    k = torch.rand(batch_size, source_length, embedding_dim)
+    v = torch.rand(batch_size, source_length, embedding_dim)
+    return q, k, v
+
+
 class TestMultiHeadAttention:
     def test_can_initialize(self, some_multi_head_attn):
         assert isinstance(some_multi_head_attn, MultiHeadAttention)
@@ -40,21 +53,15 @@ class TestMultiHeadAttention:
 
         assert out.shape == correct_out.shape
 
-    def test_attention_correct(self):
+    def test_zero_value(self, random_qkv):
         """Edge case testing for correctness."""
-        m_attn = MultiHeadAttention(4, 4, bias=False)
+        q, k, v = random_qkv
+        v = torch.zeros(v.shape)
 
-        batch_size = 3
-        hidden_dim = 4
-        query_size = 5
-        key_val_size = 7
-
-        query = torch.rand(batch_size, query_size, hidden_dim)
-        key = torch.rand(batch_size, key_val_size, hidden_dim)
-        value = torch.zeros(batch_size, key_val_size, hidden_dim)
+        m_attn = MultiHeadAttention(q.size(-1), 4, bias=False)
 
         # V = 0 -> attn score == 0
-        out = m_attn(query, key, value)
+        out = m_attn(q, k, v)
         assert torch.allclose(out, torch.zeros(out.shape))
 
     def test_gradient_flow(self, some_multi_head_attn):
@@ -72,20 +79,15 @@ class TestMultiHeadAttention:
         assert key.grad is not None, "Gradients not flowing to key"
         assert value.grad is not None, "Gradients not flowing to value"
 
-    def test_equal_to_torch(self):
+    def test_equal_to_torch(self, random_qkv):
+        q, k, v = random_qkv
+
         heads = 2
-        batch_size = 3
-        target_length = 5
-        source_length = 7
-        embedding_dim = 8
+        embedding_dim = q.size(-1)
 
-        q = torch.rand(batch_size, target_length, embedding_dim)
-        k = torch.rand(batch_size, source_length, embedding_dim)
-        v = torch.rand(batch_size, source_length, embedding_dim)
-
-        gt_attn = nn.MultiheadAttention(embedding_dim, heads, batch_first=True)
+        gt_attn = nn.MultiheadAttention(q.size(-1), heads, batch_first=True)
         attn = MultiHeadAttention(
-            hidden_dim=embedding_dim,
+            hidden_dim=q.size(-1),
             n_heads=heads,
             attention=ScaledDotProductAttention(dropout_p=0.0),
             bias=True,
@@ -120,3 +122,64 @@ class TestMultiHeadAttention:
         ground_truth, _ = gt_attn(q, k, v, need_weights=False)
 
         assert torch.allclose(out, ground_truth)
+
+    def test_full_mask_identical_to_none(self, random_qkv):
+        heads = 2
+        q, k, v = random_qkv
+
+        mask = torch.ones(q.size(0), q.size(1), k.size(1))
+
+        attn = MultiHeadAttention(
+            hidden_dim=q.size(-1),
+            n_heads=heads,
+            attention=ScaledDotProductAttention(dropout_p=0.0),
+            bias=True,
+        )
+
+        # forward pass
+        out_masked = attn(q, k, v, attn_mask=mask)
+        out_none = attn(q, k, v)
+
+        assert torch.allclose(out_masked, out_none)
+
+    def test_mask_all_but_one(self, random_qkv):
+        q, k, v = random_qkv
+        q.requires_grad = True
+        k.requires_grad = True
+        v.requires_grad = True
+
+        # Masks out the last kvs
+        mask = torch.ones(q.size(0), q.size(1), k.size(1), dtype=torch.bool)
+        mask[:, :, -1] = 0
+
+        attn = MultiHeadAttention(
+            hidden_dim=q.size(-1),
+            n_heads=2,
+            attention=ScaledDotProductAttention(dropout_p=0.0),
+            bias=True,
+        )
+        out = attn(q, k, v, attn_mask=mask)
+
+        eq = torch.sum(out)
+        eq.backward()
+
+        assert not torch.any(torch.isnan(q.grad))
+        assert not torch.any(
+            torch.isclose(q.grad, torch.zeros(q.shape))
+        )  # all queries have a non-zero gradient
+
+        assert not torch.any(torch.isnan(v.grad))
+        unmasked_rows = v.grad[:, :-1, :]  # gradient on unmasked values is non-zero
+        assert not torch.any(
+            torch.isclose(unmasked_rows, torch.zeros(unmasked_rows.shape))
+        )
+        masked_row = v.grad[:, -1, :]  # gradient on masked value is zero
+        assert torch.allclose(masked_row, torch.zeros(masked_row.shape))
+
+        assert not torch.any(torch.isnan(k.grad))
+        unmasked_rows = k.grad[:, :-1, :]  # gradient on unmasked keys is non-zero
+        assert not torch.any(
+            torch.isclose(unmasked_rows, torch.zeros(unmasked_rows.shape))
+        )
+        masked_row = k.grad[:, -1, :]  # gradient on masked key is zero
+        assert torch.allclose(masked_row, torch.zeros(masked_row.shape))
