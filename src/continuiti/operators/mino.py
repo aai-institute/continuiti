@@ -112,7 +112,7 @@ class MINO(Operator):
     The mesh-independent neural operator (MINO) is an attention-based neural
     operator that treats the input functions evaluations as an unordered set.
 
-    *Reference:* Seungjun Lee. Mesh-Independent Operator Learning forPartial
+    *Reference:* Seungjun Lee. Mesh-Independent Operator Learning for Partial
     Differential Equations. 2nd AI4Science Workshop, ICML (2022)
 
     Args:
