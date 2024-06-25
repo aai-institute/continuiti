@@ -3,7 +3,7 @@ import torch
 from torch.nn.functional import scaled_dot_product_attention
 from random import randint
 
-from continuiti.networks.attention import HeterogeneousNormalized
+from continuiti.networks import HeterogeneousNormalizedAttention
 
 
 @pytest.fixture(scope="module")
@@ -22,13 +22,13 @@ def random_query_key_value_pair():
 
 class TestHeterogeneousNormalized:
     def test_can_initialize(self):
-        _ = HeterogeneousNormalized()
+        _ = HeterogeneousNormalizedAttention()
         assert True
 
     def test_shape_correct(self, random_query_key_value_pair):
         query, key, value = random_query_key_value_pair
 
-        attn = HeterogeneousNormalized()
+        attn = HeterogeneousNormalizedAttention()
 
         out = attn(query, key, value)
         gt_out = scaled_dot_product_attention(query, key, value)
@@ -41,7 +41,7 @@ class TestHeterogeneousNormalized:
         key.requires_grad = True
         value.requires_grad = True
 
-        attn = HeterogeneousNormalized()
+        attn = HeterogeneousNormalizedAttention()
 
         out = attn(query, key, value)
 
@@ -53,13 +53,13 @@ class TestHeterogeneousNormalized:
 
     def test_zero_input(self, random_query_key_value_pair):
         query, key, value = random_query_key_value_pair
-        attn = HeterogeneousNormalized()
+        attn = HeterogeneousNormalizedAttention()
         out = attn(query, key, torch.zeros(value.shape))
         assert torch.allclose(torch.zeros(out.shape), out)
 
     def test_mask_forward(self, random_query_key_value_pair):
         query, key, value = random_query_key_value_pair
-        attn = HeterogeneousNormalized()
+        attn = HeterogeneousNormalizedAttention()
 
         # masks in the operator setting should be always block tensors with the upper left block of the last two
         # dimensions being True. The dimensions of the True block corresponds to the numbers of sensors and evaluations.
