@@ -9,7 +9,7 @@ import torch.nn as nn
 from torch.nn.functional import softmax
 
 from continuiti.operators import Operator, OperatorShapes
-from continuiti.networks.attention import MultiHead, HeterogeneousNormalized
+from continuiti.networks import MultiHeadAttention, HeterogeneousNormalizedAttention
 from continuiti.networks import DeepResidualNetwork
 
 
@@ -48,7 +48,7 @@ class GNOTBlock(nn.Module):
     ):
         super().__init__()
 
-        self.cross_attention = MultiHead(
+        self.cross_attention = MultiHeadAttention(
             hidden_dim=width,
             n_heads=n_heads,
             attention=attention_class(),
@@ -67,7 +67,7 @@ class GNOTBlock(nn.Module):
             ]
         )
 
-        self.self_attention = MultiHead(
+        self.self_attention = MultiHeadAttention(
             hidden_dim=width,
             n_heads=n_heads,
             attention=attention_class(),
@@ -147,7 +147,7 @@ class GNOT(Operator):
         hidden_depth=8,
         act: nn.Module = None,
         n_blocks: int = 1,
-        attention_class: type(nn.Module) = HeterogeneousNormalized,
+        attention_class: type(nn.Module) = HeterogeneousNormalizedAttention,
         n_heads: int = 1,
         dropout_p: float = 0.0,
         n_experts: int = 1,
