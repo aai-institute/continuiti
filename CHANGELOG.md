@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## 0.1
+## 0.2.0
+
+- Add `Attention` base class, `MultiHeadAttention`, and `ScaledDotProductAttention` classes.
+
+## 0.1.0
 
 - Move all content of `__init__.py` files to sub-modules.
 - Add `Trainer` class to replace `operator.fit` method.
