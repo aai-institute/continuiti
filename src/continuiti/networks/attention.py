@@ -12,10 +12,10 @@ import torch
 class Attention(nn.Module):
     """Base class for various attention implementations.
 
-    Attention assigns different parts of an input varying importance without set kernels. The importance of different
-    components is designated using "soft" weights. These weights are assigned according to specific algorithms (e.g.
+    Attention assigns different parts of an input varying importance without set
+    kernels. The importance of different components is designated using "soft"
+    weights. These weights are assigned according to specific algorithms (e.g.
     scaled-dot-product attention).
-
     """
 
     def __init__(self):
@@ -26,7 +26,7 @@ class Attention(nn.Module):
         self,
         query: torch.Tensor,
         key: torch.Tensor,
-        value: torch,
+        value: torch.Tensor,
         attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
         """Calculates the attention scores.

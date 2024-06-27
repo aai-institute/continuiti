@@ -14,9 +14,11 @@ from .scaled_dot_product_attention import ScaledDotProductAttention
 class MultiHeadAttention(Attention):
     r"""Multi-Head Attention module.
 
-    Module as described in the paper [Attention is All you Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
-    with optional bias for the projections. This implementation allows to use attention implementations other than the
-    standard scaled dot product attention implemented by the MultiheadAttention PyTorch module.
+    Module as described in the paper [Attention is All you
+    Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
+    with optional bias for the projections. This implementation allows to use
+    attention implementations other than the standard scaled dot product
+    attention implemented by the MultiheadAttention PyTorch module.
 
     $$MultiHead(Q,K,V)=Concat(head_1,\dots,head_n)W^O + b^O$$
 
@@ -67,7 +69,7 @@ class MultiHeadAttention(Attention):
         self,
         query: torch.Tensor,
         key: torch.Tensor,
-        value: torch,
+        value: torch.Tensor,
         attn_mask: torch.Tensor = None,
     ) -> torch.Tensor:
         r"""Compute the attention scores.
