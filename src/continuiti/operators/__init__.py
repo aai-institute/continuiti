@@ -11,7 +11,7 @@ v = operator(x, u, y)
 ```
 """
 
-from .operator import Operator
+from .operator import Operator, MaskedOperator, UnmaskedOperator
 from .neuraloperator import NeuralOperator
 from .deeponet import DeepONet
 from .belnet import BelNet
@@ -22,6 +22,8 @@ from .cnn import ConvolutionalNeuralNetwork
 
 __all__ = [
     "Operator",
+    "MaskedOperator",
+    "UnmaskedOperator",
     "OperatorShapes",
     "DeepONet",
     "NeuralOperator",
