@@ -7,7 +7,7 @@ PDEs and physics-informed loss functions.
 import torch
 from abc import abstractmethod
 
-from continuiti.operators.operator import Operator
+from continuiti.operators.operator import UnmaskedOperator
 
 
 class PDE:
@@ -63,7 +63,7 @@ class PhysicsInformedLoss:
 
     def __call__(
         self,
-        op: Operator,
+        op: UnmaskedOperator,
         x: torch.Tensor,
         u: torch.Tensor,
         y: torch.Tensor,

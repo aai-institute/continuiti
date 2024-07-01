@@ -9,11 +9,11 @@ import torch
 import torch.nn as nn
 from torch.fft import rfft, irfft, rfftn, irfftn
 from typing import Optional, Tuple, List
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.operators.shape import OperatorShapes
 
 
-class FourierLayer1d(Operator):
+class FourierLayer1d(UnmaskedOperator):
     """Fourier layer for `x.dim = 1`.
 
     Note:
@@ -85,7 +85,7 @@ class FourierLayer1d(Operator):
         return out
 
 
-class FourierLayer(Operator):
+class FourierLayer(UnmaskedOperator):
     """Fourier layer. This layer performs an integral kernel operation in Fourier space.
 
     The convolution with a kernel becomes an element-wise product in Fourier space,

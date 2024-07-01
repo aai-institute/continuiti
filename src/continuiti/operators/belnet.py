@@ -7,12 +7,12 @@ The BelNet architecture.
 import math
 import torch
 from typing import Optional
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.networks import DeepResidualNetwork
 from continuiti.operators.shape import OperatorShapes
 
 
-class BelNet(Operator):
+class BelNet(UnmaskedOperator):
     r"""
     The BelNet architecture is an extension of the DeepONet architecture that
     adds a learnable projection basis network to interpolate the sensor inputs.

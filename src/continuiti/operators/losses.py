@@ -16,7 +16,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from continuiti.operators.operator import Operator
+    from continuiti.operators.operator import UnmaskedOperator
 
 
 class Loss:
@@ -25,7 +25,7 @@ class Loss:
     @abstractmethod
     def __call__(
         self,
-        op: "Operator",
+        op: "UnmaskedOperator",
         x: torch.Tensor,
         u: torch.Tensor,
         y: torch.Tensor,
@@ -55,7 +55,7 @@ class MSELoss(Loss):
 
     def __call__(
         self,
-        op: "Operator",
+        op: "UnmaskedOperator",
         x: torch.Tensor,
         u: torch.Tensor,
         y: torch.Tensor,
@@ -93,7 +93,7 @@ class RelativeL1Error(Loss):
 
     def __call__(
         self,
-        op: "Operator",
+        op: "UnmaskedOperator",
         x: torch.Tensor,
         u: torch.Tensor,
         y: torch.Tensor,

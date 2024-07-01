@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 from typing import Optional, List, Union
 from continuiti.data import OperatorDataset
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.operators.losses import Loss, MSELoss
 from continuiti.trainer.device import get_device
 from .callbacks import Callback, PrintTrainingLoss
@@ -46,7 +46,7 @@ class Trainer:
 
     def __init__(
         self,
-        operator: Operator,
+        operator: UnmaskedOperator,
         optimizer: Optional[torch.optim.Optimizer] = None,
         lr: float = 1e-3,
         loss_fn: Optional[Loss] = None,

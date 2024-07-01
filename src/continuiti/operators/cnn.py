@@ -6,11 +6,11 @@ The ConvolutionalNeuralNetwork (CNN) architecture.
 
 import torch
 from typing import Optional
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.operators.shape import OperatorShapes
 
 
-class ConvolutionalNeuralNetwork(Operator):
+class ConvolutionalNeuralNetwork(UnmaskedOperator):
     """
     The `ConvolutionalNeuralNetwork` class is a convolutional neural network
     that can be viewed at as an operator on a fixed grid.
