@@ -7,12 +7,12 @@ The Deep Neural Operator (DNO) architecture.
 import math
 import torch
 from typing import Optional
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.networks import DeepResidualNetwork
 from continuiti.operators.shape import OperatorShapes
 
 
-class DeepNeuralOperator(Operator):
+class DeepNeuralOperator(UnmaskedOperator):
     """
     The `DeepNeuralOperator` class integrates a deep residual network within a neural operator framework. It uses all
     input locations, input values, and the evaluation point as input for a deep residual network.

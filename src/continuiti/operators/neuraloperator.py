@@ -7,11 +7,11 @@ stack of continuous convolutions with a lifting layer and a projection layer.
 
 import torch
 from typing import List, Optional
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.operators.shape import OperatorShapes
 
 
-class NeuralOperator(Operator):
+class NeuralOperator(UnmaskedOperator):
     r"""Neural operator architecture
 
     Maps continuous functions given as observation to another continuous function and returns point-wise evaluations.
@@ -32,7 +32,7 @@ class NeuralOperator(Operator):
     def __init__(
         self,
         shapes: OperatorShapes,
-        layers: List[Operator],
+        layers: List[UnmaskedOperator],
         act: Optional[torch.nn.Module] = None,
         device: Optional[torch.device] = None,
     ):

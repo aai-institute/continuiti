@@ -7,12 +7,12 @@ The DeepONet architecture.
 import math
 import torch
 from typing import Optional
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.networks import DeepResidualNetwork
 from continuiti.operators.shape import OperatorShapes
 
 
-class DeepONet(Operator):
+class DeepONet(UnmaskedOperator):
     r"""
     Maps continuous functions given as observation to another continuous function and returns point-wise evaluations.
     The architecture is inspired by the universal approximation theorem for operators.

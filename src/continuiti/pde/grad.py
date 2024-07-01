@@ -13,10 +13,10 @@ that simplify the definition of PDEs in physics-informed losses.
 import torch
 from torch import Tensor
 from typing import Optional, Callable
-from continuiti.operators.operator import Operator
+from continuiti.operators.operator import UnmaskedOperator
 
 
-class Grad(Operator):
+class Grad(UnmaskedOperator):
     """Gradient operator.
 
     The gradient is a function operator that maps a function to its gradient.
@@ -69,7 +69,7 @@ def grad(u: Callable[[Tensor], Tensor]) -> Callable[[Tensor], Tensor]:
     return lambda x: Grad()(x, u(x))
 
 
-class Div(Operator):
+class Div(UnmaskedOperator):
     """Divergence operator.
 
     The divergence is a function operator that maps a function to its divergence.

@@ -8,7 +8,7 @@ import math
 import torch
 from abc import ABC, abstractmethod
 from typing import Optional
-from continuiti.operators import Operator
+from continuiti.operators import UnmaskedOperator
 from continuiti.networks import DeepResidualNetwork
 from continuiti.operators.shape import OperatorShapes
 
@@ -139,7 +139,7 @@ class NeuralNetworkKernel(Kernel):
         return output
 
 
-class NaiveIntegralKernel(Operator):
+class NaiveIntegralKernel(UnmaskedOperator):
     r"""Naive integral kernel operator.
 
     Maps continuous functions via integral kernel application to another
