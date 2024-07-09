@@ -21,22 +21,20 @@ relevant benchmarks.
 
 ::cards:: cols=2
 
-- title: Installation
-  content: Steps to install and requirements
-  url: getting-started/installation.md
+- title: Tutorials
+  content: Getting started with continuiti
+  url: tutorials/index.md
 
-- title: Learning Operators
-  content: >
-    Basics of learning function operators
-  url: operators/index.md
-
-- title: Examples
-  content: >
-    Some notebooks using continuiti
+- title: How-to Guides
+  content: Solve your problem
   url: examples/index.md
 
-- title: Browse the API
-  content: Full class documentation
+- title: Background
+  content: Understanding operator learning
+  url: operators/index.md
+
+- title: Reference
+  content: API documentation
   url: api/continuiti/index.md
 
 ::/cards::

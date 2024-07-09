@@ -1,5 +1,5 @@
 ---
-title: Examples
+title: How-to Guides
 ---
 
 This is a collection of notebooks that showcase various applications of
