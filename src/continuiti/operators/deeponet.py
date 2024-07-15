@@ -30,8 +30,14 @@ class DeepONet(Operator):
         trunk_width: Width of trunk network.
         trunk_depth: Depth of trunk network.
         basis_functions: Number of basis functions.
-        act: Activation function.
+        act: Activation function used in default trunk and branch networks.
         device: Device.
+        branch_network: Custom branch network that maps input function
+            evaluations to `basis_functions` many coefficients (if set,
+            branch_width and branch_depth will be ignored).
+        trunk_network: Custom trunk network that maps `shapes.y.dim`-dimensional
+            evaluation coordinates to `basis_functions` many basis function
+            evaluations (if set, trunk_width and trunk_depth will be ignored).
     """
 
     def __init__(
@@ -44,30 +50,43 @@ class DeepONet(Operator):
         basis_functions: int = 8,
         act: Optional[torch.nn.Module] = None,
         device: Optional[torch.device] = None,
+        branch_network: torch.nn.Module = None,
+        trunk_network: torch.nn.Module = None,
     ):
         super().__init__(shapes, device)
 
         self.basis_functions = basis_functions
         self.dot_dim = shapes.v.dim * basis_functions
         # trunk network
-        self.trunk = DeepResidualNetwork(
-            input_size=shapes.y.dim,
-            output_size=self.dot_dim,
-            width=trunk_width,
-            depth=trunk_depth,
-            act=act,
-            device=device,
-        )
+        if trunk_network is not None:
+            self.trunk = trunk_network
+            self.trunk.to(device)
+        else:
+            self.trunk = DeepResidualNetwork(
+                input_size=shapes.y.dim,
+                output_size=self.dot_dim,
+                width=trunk_width,
+                depth=trunk_depth,
+                act=act,
+                device=device,
+            )
         # branch network
-        self.branch_input_dim = math.prod(shapes.u.size) * shapes.u.dim
-        self.branch = DeepResidualNetwork(
-            input_size=self.branch_input_dim,
-            output_size=self.dot_dim,
-            width=branch_width,
-            depth=branch_depth,
-            act=act,
-            device=device,
-        )
+        if branch_network is not None:
+            self.branch = branch_network
+            self.branch.to(device)
+        else:
+            branch_input_dim = math.prod(shapes.u.size) * shapes.u.dim
+            self.branch = torch.nn.Sequential(
+                torch.nn.Flatten(),
+                DeepResidualNetwork(
+                    input_size=branch_input_dim,
+                    output_size=self.dot_dim,
+                    width=branch_width,
+                    depth=branch_depth,
+                    act=act,
+                    device=device,
+                ),
+            )
 
     def forward(
         self, _: torch.Tensor, u: torch.Tensor, y: torch.Tensor
@@ -85,16 +104,20 @@ class DeepONet(Operator):
         assert u.size(0) == y.size(0)
         y_num = y.shape[2:]
 
-        # flatten inputs for both trunk and branch network
-        u = u.flatten(1, -1)
-        assert u.shape[1:] == torch.Size([self.branch_input_dim])
-
+        # flatten inputs for trunk network
         y = y.swapaxes(1, -1).flatten(0, -2)
         assert y.shape[-1:] == torch.Size([self.shapes.y.dim])
 
-        # Pass through branch and trunk networks
+        # Pass through branch network
         b = self.branch(u)
+        assert b.shape[1:] == torch.Size([self.dot_dim]), (
+            f"Branch network output has shape {b.shape[1:]}, "
+            f"but should be {torch.Size([self.dot_dim])}"
+        )
+
+        # Pass through trunk network
         t = self.trunk(y)
+        assert t.shape[1:] == torch.Size([self.dot_dim])
 
         # dot product
         b = b.reshape(-1, self.shapes.v.dim, self.basis_functions)
