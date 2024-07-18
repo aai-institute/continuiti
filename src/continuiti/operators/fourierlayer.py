@@ -227,7 +227,8 @@ class FourierLayer(Operator):
         return out
 
     def _contract_with_kernel(
-        self, fft_values: torch.Tensor,
+        self,
+        fft_values: torch.Tensor,
     ) -> torch.Tensor:
         """Contract kernel with input values.
 
