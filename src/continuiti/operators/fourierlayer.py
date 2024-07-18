@@ -195,7 +195,7 @@ class FourierLayer(Operator):
         )
 
         # perform kernel integral operation in Fourier space
-        out_fft = self._contract_with_kernel(u_fft, dim=fft_dimensions)
+        out_fft = self._contract_with_kernel(u_fft)
 
         # the output shape is determined by y.shape[2:] (num_evaluations...) and not x.shape[2:] (num_sensors...)
         target_shape = list(y.shape[2:])
@@ -227,13 +227,12 @@ class FourierLayer(Operator):
         return out
 
     def _contract_with_kernel(
-        self, fft_values: torch.Tensor, dim: Tuple[int]
+        self, fft_values: torch.Tensor,
     ) -> torch.Tensor:
         """Contract kernel with input values.
 
         Args:
             fft_values: Tensor with fft values.
-            dim: List of fft dimensions.
 
         Returns:
             Output tensor with shape = (batch_size, ..., v.dim)
