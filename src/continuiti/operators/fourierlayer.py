@@ -111,8 +111,6 @@ class FourierLayer(Operator):
 
     """
 
-    TENSOR_INDICES = "defghijklmnopqrstuvxyz"
-
     def __init__(
         self,
         shapes: OperatorShapes,
@@ -241,22 +239,9 @@ class FourierLayer(Operator):
             Output tensor with shape = (batch_size, ..., v.dim)
         """
 
-        num_fft_dimensions = len(dim)
-
-        assert (
-            len(self.TENSOR_INDICES) > num_fft_dimensions
-        ), f"Too many dimensions. The current limit for the number of dimensions is {len(self.TENSOR_INDICES)}."
-
-        # contraction equation for torch.einsum method
-        # d: v-dim, s: u-dim, b: batch-dim
-        frequency_indices = "".join(self.TENSOR_INDICES[: int(num_fft_dimensions)])
-        contraction_equation = "{}ac,b{}c->b{}a".format(
-            frequency_indices, frequency_indices, frequency_indices
-        )
-
         # perform kernel operation in Fourier space
         kernel = torch.view_as_complex(self.kernel)
-        out_fft = torch.einsum(contraction_equation, kernel, fft_values)
+        out_fft = torch.einsum("...ac,b...c->b...a", kernel, fft_values)
 
         return out_fft
 
