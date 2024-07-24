@@ -4,13 +4,14 @@
 Scaled dot product attention module.
 """
 import torch
+from typing import Optional
 
-from .attention import Attention
+from .attention import UniformMaskAttention
 from torch.nn.functional import scaled_dot_product_attention
 
 
-class ScaledDotProductAttention(Attention):
-    """Scaled dot product attention module.
+class ScaledDotProductAttention(UniformMaskAttention):
+    """Scaled dot product attention module with uniform mask.
 
     This module is a wrapper for the torch implementation of the scaled dot
     product attention mechanism as described in the paper "Attention Is All You
@@ -29,9 +30,26 @@ class ScaledDotProductAttention(Attention):
         query: torch.Tensor,
         key: torch.Tensor,
         value: torch.Tensor,
-        attn_mask: torch.Tensor = None,
+        attn_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        """Calculate attention scores.
+
+        Args:
+            query: query tensor; shape (batch_size, target_seq_length, hidden_dim).
+            key: key tensor; shape (batch_size, source_seq_length, hidden_dim).
+            value: value tensor; shape (batch_size, source_seq_length, hidden_dim).
+            attn_mask: tensor indicating which values are used to calculate the output; shape
+                (batch_size, source_seq_length). Defaults to None.
+
+        Returns:
+            tensor containing the outputs of the attention implementation; shape
+                (batch_size, target_seq_length, hidden_dim).
+        """
         dropout_p = self.dropout_p if self.training else 0.0
+
+        if attn_mask is not None:
+            attn_mask = attn_mask.unsqueeze(1)
+
         return scaled_dot_product_attention(
             query=query,
             key=key,
