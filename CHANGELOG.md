@@ -4,6 +4,7 @@
 
 - Add `Attention` base class, `MultiHeadAttention`, and `ScaledDotProductAttention` classes.
 - Remove `Attention` base class, add `UniformMaskAttention` base class.
+- Add `HeterogeneousNormalizedAttention` class.
 
 ## 0.1.0
 
