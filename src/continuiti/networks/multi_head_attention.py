@@ -6,19 +6,21 @@ Multi-Head-Attention in continuiti.
 
 import torch
 import torch.nn as nn
+from typing import Optional
 
-from .attention import Attention
+from .attention import UniformMaskAttention
 from .scaled_dot_product_attention import ScaledDotProductAttention
 
 
-class MultiHeadAttention(Attention):
-    r"""Multi-Head Attention module.
+class MultiHeadAttention(UniformMaskAttention):
+    r"""Multi-Head Attention module with uniform mask.
 
     Module as described in the paper [Attention is All you
     Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf)
-    with optional bias for the projections. This implementation allows to use
-    attention implementations other than the standard scaled dot product
-    attention implemented by the MultiheadAttention PyTorch module.
+    with optional bias for the projections. This implementation allows to use attention implementations other than the
+    standard scaled dot product attention implemented by the MultiheadAttention PyTorch module. Additionally assumes
+    this implementation that the attention mask is applied uniformly for every batch (the mask for every key-value pair
+    matches for all queries of one sample).
 
     $$MultiHead(Q,K,V)=Concat(head_1,\dots,head_n)W^O + b^O$$
 
@@ -39,7 +41,7 @@ class MultiHeadAttention(Attention):
         self,
         hidden_dim: int,
         n_heads: int,
-        attention: Attention = None,
+        attention: Optional[UniformMaskAttention] = None,
         dropout_p: float = 0,
         bias: bool = True,
     ):
@@ -70,7 +72,7 @@ class MultiHeadAttention(Attention):
         query: torch.Tensor,
         key: torch.Tensor,
         value: torch.Tensor,
-        attn_mask: torch.Tensor = None,
+        attn_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         r"""Compute the attention scores.
 
@@ -78,7 +80,7 @@ class MultiHeadAttention(Attention):
             query: Query tensor of shape (batch_size, target_sequence_length, hidden_dim).
             key: Key tensor of shape (batch_size, source_sequence_length, hidden_dim).
             value: Value tensor of shape (batch_size, source_sequence_length, hidden_dim).
-            attn_mask: Attention mask of shape (batch_size, target_sequence_length, source_sequence_length).
+            attn_mask: Attention mask of shape (batch_size, source_sequence_length).
 
         Returns:
             Attention scores of shape (batch_size, target_sequence_length, hidden_dim).
@@ -98,7 +100,6 @@ class MultiHeadAttention(Attention):
 
         batch_size = query.size(0)
         src_len = key.size(1)
-        tgt_len = query.size(1)
 
         # project values
         query = self.query_project(query)
@@ -113,17 +114,18 @@ class MultiHeadAttention(Attention):
         # reshape attention mask to match heads
         if attn_mask is not None:
             assert (
+                attn_mask.ndim == 2
+            ), "Expects exatly 2 dimensions in the mask, but found {attn_mask.ndim}."
+            assert (
                 attn_mask.size(0) == batch_size
             ), "Attention mask batch size does not match input tensors."
             assert (
-                attn_mask.size(1) == tgt_len
-            ), "First dimension of the attention mask needs to match target length."
-            assert (
-                attn_mask.size(2) == src_len
+                attn_mask.size(1) == src_len
             ), "Second dimension of the attention mask needs to match source length."
 
-            attn_mask = attn_mask.unsqueeze(1)  # mask for a single head
-            attn_mask = attn_mask.repeat(1, self.n_heads, 1, 1)  # mask for every head
+            attn_mask = attn_mask.unsqueeze(
+                1
+            )  # apply attention mask uniformly to all heads
 
         # perform attention
         attn_out = self.attention(

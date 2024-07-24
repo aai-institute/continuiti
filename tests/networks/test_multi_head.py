@@ -81,7 +81,7 @@ class TestMultiHeadAttention:
 
     def test_equal_to_torch(self, random_qkv):
         q, k, v = random_qkv
-        mask = torch.rand(q.size(0), q.size(1), k.size(1)) < 0.2
+        mask = torch.rand(q.size(0), k.size(1)) < 0.2
 
         heads = 2
         embedding_dim = q.size(-1)
@@ -122,7 +122,9 @@ class TestMultiHeadAttention:
         out = attn(q, k, v, attn_mask=mask)
 
         # torch applies masks differently to scaled-dot-product and multi-head attention (inversed).
-        gt_mask = torch.repeat_interleave(mask, heads, 0).logical_not()
+        gt_mask = torch.repeat_interleave(
+            mask.unsqueeze(1).repeat(1, q.size(1), 1), heads, 0
+        ).logical_not()
         ground_truth, _ = gt_attn(q, k, v, need_weights=False, attn_mask=gt_mask)
 
         assert torch.allclose(
@@ -133,7 +135,7 @@ class TestMultiHeadAttention:
         heads = 2
         q, k, v = random_qkv
 
-        mask = torch.ones(q.size(0), q.size(1), k.size(1))
+        mask = torch.ones(q.size(0), k.size(1), dtype=torch.bool)
 
         attn = MultiHeadAttention(
             hidden_dim=q.size(-1),
@@ -155,8 +157,8 @@ class TestMultiHeadAttention:
         v.requires_grad = True
 
         # Masks out the last kvs
-        mask = torch.ones(q.size(0), q.size(1), k.size(1), dtype=torch.bool)
-        mask[:, :, -1] = 0
+        mask = torch.ones(q.size(0), k.size(1), dtype=torch.bool)
+        mask[:, -1] = 0
 
         attn = MultiHeadAttention(
             hidden_dim=q.size(-1),
