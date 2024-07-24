@@ -74,3 +74,35 @@ class Operator(torch.nn.Module, ABC):
     def __str__(self):
         """Return string representation of the operator."""
         return self.__class__.__name__
+
+
+class MaskedOperator(Operator, ABC):
+    """Masked operator base class.
+
+    A masked operator can apply masks during the forward pass to selectively use or ignore parts of the input. Masked
+    operators allow for different numbers of sensors in addition to the common property of being able to handle
+    variing numbers of evaluations.
+
+    """
+
+    @abstractmethod
+    def forward(
+        self,
+        x: torch.Tensor,
+        u: torch.Tensor,
+        y: torch.Tensor,
+        sensor_mask: Optional[torch.Tensor] = None,
+        eval_mask: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """Forward pass through the operator.
+
+        Args:
+            x: Sensor positions of shape (batch_size, x_dim, num_sensors...).
+            u: Input function values of shape (batch_size, u_dim, num_sensors...).
+            y: Evaluation coordinates of shape (batch_size, y_dim, num_evaluations...).
+            sensor_mask: Boolean mask for x and u of shape (batch_size, 1, num_sensors...).
+            eval_mask: Boolean mask for y of shape (batch_size, 1, num_evaluations...).
+
+        Returns:
+            Evaluations of the mapped function with shape (batch_size, v_dim, num_evaluations...).
+        """
