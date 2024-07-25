@@ -48,3 +48,8 @@ def random_shape_operator_datasets() -> List[OperatorDataset]:
         )
 
     return datasets
+
+
+@pytest.fixture(scope="session")
+def random_operator_dataset(random_shape_operator_datasets) -> OperatorDataset:
+    return random_shape_operator_datasets[0]
