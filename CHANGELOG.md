@@ -3,6 +3,7 @@
 ## 0.2.0
 
 - Add `Attention` base class, `MultiHeadAttention`, and `ScaledDotProductAttention` classes.
+- Add `DeepCatOperator`.
 
 ## 0.1.0
 
