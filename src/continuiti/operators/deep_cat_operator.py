@@ -15,7 +15,20 @@ from continuiti.networks import DeepResidualNetwork
 class DeepCatOperator(Operator):
     """Deep Cat Operator.
 
-    The deep cat operator is a modification of the deep-o-net architecture. Here the branch network is called input network, and the trunk network is called eval network. These changes were made to highlight their purpose. After the pass through both of these networks the outputs are stacked and passed through a thrid network called cat network. This has three advantages: 1) The operator does not need to learn basis functions without having access to the evaluation locations. Integrating the evaluation locations earliear in theory allows for a higher level of adaptive abstration. 2) The hyper-parameters can be thought of as a control mechanism, dictating the flow of information. This can be further escalated by tweaking the input_cat_ratio parameter. 3) This operator does not need to learn basis functions functions at all. The level of abstraction gained by the cat-network can be much higher, not relying on a single operation only.
+    This class implements the DeepCatOperator, a neural operator inspired by the DeepONet. It consists of three main
+    parts:
+    1. **Input Network**: Analogous to the "branch network," it processes the sensor inputs (`u`).
+    2. **Eval Network**: Analogous to the "trunk network," it processes the evaluation locations (`y`).
+    3. **Cat Network**: Combines the outputs from the Input and Eval Networks to produce the final output.
+
+    The architecture offers three potential advantages:
+    1. It allows the operator to integrate evaluation locations earlier, enabling a higher level of adaptive
+        abstraction.
+    2. The hyperparameters can be thought of as a control mechanism, dictating the flow of information. The
+        `input_cat_ratio` hyperparameter provides a control mechanism for the information flow, allowing fine-tuning of
+        the contributions from the Input and Eval Networks.
+    3. It can achieve a high level of abstraction without relying on learning basis functions, evaluated in a single
+        operation (dot product).
 
     Args:
         shapes: Operator shapes.
@@ -23,7 +36,8 @@ class DeepCatOperator(Operator):
         input_net_depth: Depth of the input net (deep residual network). Defaults to 4.
         eval_net_width: Width of the eval net (deep residual network). Defaults to 32.
         eval_net_depth: Depth of the eval net (deep residual network). Defaults to 4.
-        input_cat_ratio: Ratio indicating how many values of the concatenated tensor originates from the input net. Controls flow of information into input- and eval-net. Defaults to 0.5.
+        input_cat_ratio: Ratio indicating how many values of the concatenated tensor originates from the input net.
+            Controls flow of information into input- and eval-net. Defaults to 0.5.
         cat_net_width: Width of the cat net (deep residual network). Defaults to 32.
         cat_net_depth: Depth of the cat net (deep residual network). Defaults to 4.
         act: Activation function. Defaults to Tanh.
