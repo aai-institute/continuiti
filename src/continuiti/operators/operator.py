@@ -81,7 +81,7 @@ class MaskedOperator(Operator, ABC):
 
     A masked operator can apply masks during the forward pass to selectively use or ignore parts of the input. Masked
     operators allow for different numbers of sensors in addition to the common property of being able to handle
-    variing numbers of evaluations.
+    varying numbers of evaluations.
 
     """
 
