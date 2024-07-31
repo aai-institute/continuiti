@@ -55,13 +55,6 @@ class DeepONet(Operator):
     ):
         super().__init__(shapes, device)
 
-        self.basis_functions = basis_functions
-        self.dot_dim = shapes.v.dim * basis_functions
-
-        # basis functions will be determined dynamically
-        if branch_network is not None and trunk_network is not None:
-            self.basis_functions = None
-
         # trunk network
         if trunk_network is not None:
             self.trunk = trunk_network
@@ -69,12 +62,13 @@ class DeepONet(Operator):
         else:
             self.trunk = DeepResidualNetwork(
                 input_size=shapes.y.dim,
-                output_size=self.dot_dim,
+                output_size=shapes.v.dim * basis_functions,
                 width=trunk_width,
                 depth=trunk_depth,
                 act=act,
                 device=device,
             )
+
         # branch network
         if branch_network is not None:
             self.branch = branch_network
@@ -85,7 +79,7 @@ class DeepONet(Operator):
                 torch.nn.Flatten(),
                 DeepResidualNetwork(
                     input_size=branch_input_dim,
-                    output_size=self.dot_dim,
+                    output_size=shapes.v.dim * basis_functions,
                     width=branch_width,
                     depth=branch_depth,
                     act=act,
@@ -119,32 +113,21 @@ class DeepONet(Operator):
         # Pass through trunk network
         t = self.trunk(y)
 
-        if self.basis_functions is None:
-            assert b.shape[1:] == t.shape[1:], (
-                f"Branch network output of shape {b.shape[1:]} does not match "
-                f"trunk network output of shape {t.shape[1:]}"
-            )
-            # determine basis functions dynamically
-            self.dot_dim = b.shape[1]
-            self.basis_functions = self.dot_dim // self.shapes.v.dim
+        assert b.shape[1:] == t.shape[1:], (
+            f"Branch network output of shape {b.shape[1:]} does not match "
+            f"trunk network output of shape {t.shape[1:]}"
+        )
 
-        else:
-            assert b.shape[1:] == torch.Size([self.dot_dim]), (
-                f"Branch network output has shape {b.shape[1:]}, "
-                f"but should be {torch.Size([self.dot_dim])}"
-            )
-            assert t.shape[1:] == torch.Size([self.dot_dim]), (
-                f"Trunk network output has shape {t.shape[1:]}, "
-                f"but should be {torch.Size([self.dot_dim])}"
-            )
+        # determine basis functions dynamically
+        basis_functions = b.shape[1] // self.shapes.v.dim
 
         # dot product
-        b = b.reshape(-1, self.shapes.v.dim, self.basis_functions)
+        b = b.reshape(-1, self.shapes.v.dim, basis_functions)
         t = t.reshape(
             b.size(0),
             -1,
             self.shapes.v.dim,
-            self.basis_functions,
+            basis_functions,
         )
         dot_prod = torch.einsum("abcd,acd->acb", t, b)
         dot_prod = dot_prod.reshape(-1, self.shapes.v.dim, *y_num)
