@@ -50,13 +50,18 @@ class DeepONet(Operator):
         basis_functions: int = 8,
         act: Optional[torch.nn.Module] = None,
         device: Optional[torch.device] = None,
-        branch_network: torch.nn.Module = None,
-        trunk_network: torch.nn.Module = None,
+        branch_network: Optional[torch.nn.Module] = None,
+        trunk_network: Optional[torch.nn.Module] = None,
     ):
         super().__init__(shapes, device)
 
         self.basis_functions = basis_functions
         self.dot_dim = shapes.v.dim * basis_functions
+
+        # basis functions will be determined dynamically
+        if branch_network is not None and trunk_network is not None:
+            self.basis_functions = None
+
         # trunk network
         if trunk_network is not None:
             self.trunk = trunk_network
@@ -110,14 +115,28 @@ class DeepONet(Operator):
 
         # Pass through branch network
         b = self.branch(u)
-        assert b.shape[1:] == torch.Size([self.dot_dim]), (
-            f"Branch network output has shape {b.shape[1:]}, "
-            f"but should be {torch.Size([self.dot_dim])}"
-        )
 
         # Pass through trunk network
         t = self.trunk(y)
-        assert t.shape[1:] == torch.Size([self.dot_dim])
+
+        if self.basis_functions is None:
+            assert b.shape[1:] == t.shape[1:], (
+                f"Branch network output of shape {b.shape[1:]} does not match "
+                f"trunk network output of shape {t.shape[1:]}"
+            )
+            # determine basis functions dynamically
+            self.dot_dim = b.shape[1]
+            self.basis_functions = self.dot_dim // self.shapes.v.dim
+
+        else:
+            assert b.shape[1:] == torch.Size([self.dot_dim]), (
+                f"Branch network output has shape {b.shape[1:]}, "
+                f"but should be {torch.Size([self.dot_dim])}"
+            )
+            assert t.shape[1:] == torch.Size([self.dot_dim]), (
+                f"Trunk network output has shape {t.shape[1:]}, "
+                f"but should be {torch.Size([self.dot_dim])}"
+            )
 
         # dot product
         b = b.reshape(-1, self.shapes.v.dim, self.basis_functions)
