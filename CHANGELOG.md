@@ -1,12 +1,12 @@
 # CHANGELOG
 
-## 0.2.0
+## 0.2.0 (2024-08-14)
 
 - Add `Attention` base class, `MultiHeadAttention`, and `ScaledDotProductAttention` classes.
 - Add `branch_network` and `trunk_network` arguments to `DeepONet` to allow for custom network architectures.
 - Add `MaskedOperator` base class.
 
-## 0.1.0
+## 0.1.0 (2024-04-23)
 
 - Move all content of `__init__.py` files to sub-modules.
 - Add `Trainer` class to replace `operator.fit` method.
