@@ -26,8 +26,8 @@ class TestDeepCatOperator:
     def test_can_initialize_default_networks(self, random_operator_dataset):
         operator = DeepCatOperator(shapes=random_operator_dataset.shapes)
 
-        assert isinstance(operator.input_net, DeepResidualNetwork)
-        assert isinstance(operator.eval_net, DeepResidualNetwork)
+        assert isinstance(operator.branch_net, DeepResidualNetwork)
+        assert isinstance(operator.trunk_net, DeepResidualNetwork)
         assert isinstance(operator.cat_net, DeepResidualNetwork)
 
     def test_forward_shapes_correct(self, dcos, random_shape_operator_datasets):
