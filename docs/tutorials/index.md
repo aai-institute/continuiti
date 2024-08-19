@@ -2,21 +2,34 @@
 title: Tutorials
 ---
 
-# Tutorials
+Welcome to the **continuiti** tutorials!
+These tutorials give an introduction to operator learning: from the basics of
+functions and discretization to the training of neural operators in **continuiti**.
 
-**continuiti** aims to implement recent advances in learning function operators,
-i.e., mappings of (continuous) functions.
+If you instead just want implement specific problems, directly jump to our
+<a href="../how-to-guides">How-to Guides</a>.
 
-In the following, we will kindly introduce you step-by-step to the concepts of
-operator learning. Let's start with installing **continuiti** and then move on
-to the basics of operator learning with simple examples.
 
-## Installing continuiti
+::cards:: cols=2
 
-Install the latest version of **continuiti** using pip:
-```
-pip install continuiti
-```
+- title: First Steps
+  content: First steps and installation
+  url: firststeps
 
-**continuiti** requires Python>=3.9 and is built on top of
-[PyTorch](https://pytorch.org/).
+- title: Operators
+  content: What is a function operator?
+  url: operators
+
+- title: Functions
+  content: How to implement functions
+  url: functions
+
+- title: Training
+  content: Learn to train neural operators in *continuiti*
+  url: training
+
+- title: FNO
+  content: Use Fourier Neural Operators
+  url: fno
+
+::/cards::

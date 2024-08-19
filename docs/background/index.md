@@ -1,11 +1,8 @@
 ---
-title: Architectures
-alias:
-  name: architectures
-  text: Neural Operator Architectures
+title: Background
 ---
 
-# Architectures
+## Architectures
 
 **continuiti** implements the following neural operator architectures:
 
@@ -14,6 +11,7 @@ alias:
 - [BelNet](../../api/continuiti/operators/belnet/)
 
 - [Deep Neural Operator (DNO)](../../api/continuiti/operators/dno/)
+- [Deep Cat Operator (DCO)](../../api/continuiti/operators/dco/)
 - [Convolutional Neural Network (CNN)](../../api/continuiti/operators/cnn/)
 - a generic [NeuralOperator](../../api/continuiti/operators/neuraloperator/) class
 

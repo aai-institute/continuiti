@@ -33,8 +33,9 @@ pip install -e .[dev]
 
 ## Usage
 Our [Documentation](https://aai-institute.github.io/continuiti/) contains a
-verbose introduction to operator learning, a collection of examples using
-continuiti, and a class documentation.
+collection of tutorials on how to learn operators using continuiti,
+a collection of how-to guides to solve specific problems, more background,
+and a class documentation.
 
 In general, the operator syntax in **continuiti** is
 ```python

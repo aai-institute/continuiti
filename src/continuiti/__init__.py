@@ -34,8 +34,8 @@ The package is structured into the following modules:
   url: trainer/index.md
 
 - title: Transforms
-  content: Transformations for operator inputs and outputs.
-  url: transform/index.md
+  content: Transformations for operator inputs/outputs.
+  url: transforms/index.md
 
 ::/cards::
 

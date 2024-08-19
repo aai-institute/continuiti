@@ -1,18 +1,11 @@
 ---
-title: Learning Operators
-alias:
-  name: operators
-  text: Learning Operators
+title: Operators
 ---
-
-# Introduction
 
 Function operators are ubiquitous in mathematics and physics: They are used to
 describe dynamics of physical systems, such as the Navier-Stokes equations in
 fluid dynamics. As solutions of these systems are functions, it is natural to
 transfer the concept of function mapping into machine learning.
-
-## Operators
 
 In mathematics, _operators_ are function mappings: they map functions to
 functions. Let
@@ -76,7 +69,7 @@ v(\mathbf{y}) = G(u)(\mathbf{y})
 \approx G_\theta(\mathbf{x}, \mathbf{u}, \mathbf{y}) = \mathbf{v}.
 $$
 
-In Python, we write the operator call as
+In Python, we will write the operator call as
 ```
 v = operator(x, u, y)
 ```
@@ -93,20 +86,10 @@ This is to provide the most general case for implementing operators, as
 some neural operators differ in the way they handle input and output values.
 
 ## Wrapping
+
 For convenience, the call can be wrapped to mimic the mathematical syntax.
 For instance, for a fixed set of collocation points `x`, we could define
 ```
 G = lambda y: lambda u: operator(x, u(x), y)
 v = G(u)(y)
 ```
-
-## Applications
-Neural operators extend the concept of neural networks to function mappings,
-which enables discretization-invariant and mesh-free mappings of data with
-applications to physics-informed training, super-resolution, and more.
-See our <a href="../examples">Examples</a> section for more on this.
-
-## Further Reading
-Follow our introduction to <a href="../examples/functions">Functions</a> in continuiti
-and proceed with the <a href="../examples/training">Training</a> example to learn
-more about operator learning in continuiti.

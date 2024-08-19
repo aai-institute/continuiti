@@ -8,10 +8,8 @@ remote_branch: gh-pages
 
 watch:
   - src/continuiti
-  - examples
 
 hooks:
-  - build_scripts/copy_notebooks.py
   - build_scripts/copy_changelog.py
   - build_scripts/copy_contributing.py
   - build_scripts/copy_benchmarks.py
@@ -171,19 +169,19 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Tutorials:
-      - First Steps: tutorials/index.md
-      - Functions: examples/functions.ipynb
-      - Training: examples/training.ipynb
-      - FNO: examples/fno.ipynb
+      - First Steps: tutorials/firststeps.md
+      - Operators: tutorials/operators.md
+      - Functions: tutorials/functions.ipynb
+      - Training: tutorials/training.ipynb
+      - FNO: tutorials/fno.ipynb
   - How-to Guides:
-      - Time Series: examples/timeseries.ipynb
-      - Super-resolution: examples/superresolution.ipynb
-      - Physics-informed: examples/physicsinformed.ipynb
-      - Meshes: examples/meshes.ipynb
-      - Self-supervised: examples/selfsupervised.ipynb
+      - Time Series: how-to-guides/timeseries.ipynb
+      - Super-resolution: how-to-guides/superresolution.ipynb
+      - Physics-informed: how-to-guides/physicsinformed.ipynb
+      - Meshes: how-to-guides/meshes.ipynb
+      - Self-supervised: how-to-guides/selfsupervised.ipynb
   - Background:
-      - Operator Learning: operators/index.md
-      - Architectures: operators/architectures.md
+      - Architectures: background/index.md
   - Reference:
       - API: api/continuiti/
       - Changelog: CHANGELOG.md

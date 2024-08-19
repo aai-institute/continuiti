@@ -51,8 +51,7 @@ pre-commit install
 
 ## Build documentation
 
-API documentation and examples from notebooks are built with
-[mkdocs](https://www.mkdocs.org/).
+API documentation is built with [mkdocs](https://www.mkdocs.org/).
 Notebooks are an integral part of the documentation as well.
 
 You can use this command to continuously rebuild documentation
@@ -92,15 +91,9 @@ pytest -m "not slow"
 
 ## Notebooks
 
-We use notebooks both as documentation (copied over to `docs/examples`) and as
-integration tests. All notebooks in the `examples` directory are executed
-during the test run.
-
+We use notebooks both as documentation and as integration tests.
 Because we want documentation to include the full dataset, we commit notebooks
-with their outputs running with full datasets to the repo. The notebooks are
-then added by CI to the section
-[Examples](https://aai-institute.github.io/continuiti/examples.html) of the
-documentation.
+with their outputs running with full datasets to the repo.
 
 ### Hiding cells in notebooks
 
@@ -134,6 +127,16 @@ To only hide the input and
 ]
 ```
 for hiding the output only.
+
+If a cell should be skipped in CI (e.g. because the full data set is missing),
+you can use:
+
+```yaml
+"tags": [
+  "skip-execution"
+]
+```
+
 
 ### Plots in Notebooks
 If you add a plot to a notebook, which should also render nicely in browser

@@ -27,11 +27,11 @@ relevant benchmarks.
 
 - title: How-to Guides
   content: Solve your problem
-  url: examples/index.md
+  url: how-to-guides/index.md
 
 - title: Background
-  content: Understanding operator learning
-  url: operators/index.md
+  content: More details on operator learning
+  url: background/index.md
 
 - title: Reference
   content: API documentation
