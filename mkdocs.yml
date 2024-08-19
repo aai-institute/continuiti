@@ -10,8 +10,6 @@ watch:
   - src/continuiti
 
 hooks:
-  - build_scripts/copy_changelog.py
-  - build_scripts/copy_contributing.py
   - build_scripts/copy_benchmarks.py
 
 plugins:

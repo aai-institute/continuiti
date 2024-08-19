@@ -61,3 +61,123 @@ def test_deeponet():
     # Check solution
     x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
     assert MSELoss()(operator, x, u, y, v) < 1e-2
+
+
+@pytest.mark.slow
+def test_custom_branch_network():
+    # Data set
+    n_sensors = 32
+    dataset = SineBenchmark(n_train=1, n_sensors=n_sensors).train_dataset
+
+    # CNN as branch network
+    basis_functions = 8
+    branch_network = torch.nn.Sequential(
+        torch.nn.Conv1d(1, 16, kernel_size=3, padding=1),
+        torch.nn.ReLU(),
+        torch.nn.Conv1d(16, 1, kernel_size=3, padding=1),
+        torch.nn.Flatten(),
+        torch.nn.Linear(n_sensors, basis_functions),
+    )
+
+    # Operator
+    operator = DeepONet(
+        dataset.shapes,
+        branch_network=branch_network,
+        basis_functions=basis_functions,
+    )
+
+    # Train
+    Trainer(operator).fit(dataset, tol=1e-3)
+
+    # Check solution
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-3
+
+
+@pytest.mark.slow
+def test_custom_trunk_network():
+    # Data set
+    n_sensors = 32
+    dataset = SineBenchmark(n_train=1, n_sensors=n_sensors).train_dataset
+
+    # MLP as trunk network
+    basis_functions = 32
+    trunk_network = torch.nn.Sequential(
+        torch.nn.Linear(1, 32),
+        torch.nn.LayerNorm(32),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(32, 32),
+        torch.nn.BatchNorm1d(32),
+        torch.nn.GELU(),
+        torch.nn.Linear(32, basis_functions),
+    )
+
+    # Operator
+    operator = DeepONet(
+        dataset.shapes,
+        trunk_network=trunk_network,
+        basis_functions=basis_functions,
+    )
+
+    # Train
+    Trainer(operator).fit(dataset, tol=1e-3)
+
+    # Check solution
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-3
+
+
+@pytest.mark.slow
+def test_custom_branch_and_trunk_network():
+    # Data set
+    n_sensors = 32
+    dataset = SineBenchmark(n_train=1, n_sensors=n_sensors).train_dataset
+
+    # CNN as branch network
+    basis_functions = 32
+    branch_network = torch.nn.Sequential(
+        torch.nn.Conv1d(1, 16, kernel_size=3, padding=1),
+        torch.nn.ReLU(),
+        torch.nn.Conv1d(16, 1, kernel_size=3, padding=1),
+        torch.nn.Flatten(),
+        torch.nn.Linear(n_sensors, basis_functions),
+    )
+
+    # Custom MLP as trunk network
+    trunk_network = torch.nn.Sequential(
+        torch.nn.Linear(1, 32),
+        torch.nn.LayerNorm(32),
+        torch.nn.Sigmoid(),
+        torch.nn.Linear(32, 32),
+        torch.nn.BatchNorm1d(32),
+        torch.nn.GELU(),
+        torch.nn.Linear(32, basis_functions),
+    )
+
+    # Operator
+    operator = DeepONet(
+        dataset.shapes,
+        branch_network=branch_network,
+        trunk_network=trunk_network,
+    )
+
+    # Train
+    Trainer(operator).fit(dataset, tol=1e-3)
+
+    # Check solution
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-3
+
+    # Operator
+    operator = DeepONet(
+        dataset.shapes,
+        trunk_network=trunk_network,
+        basis_functions=basis_functions,
+    )
+
+    # Train
+    Trainer(operator).fit(dataset, tol=1e-3)
+
+    # Check solution
+    x, u, y, v = dataset.x, dataset.u, dataset.y, dataset.v
+    assert MSELoss()(operator, x, u, y, v) < 1e-3
