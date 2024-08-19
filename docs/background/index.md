@@ -2,17 +2,15 @@
 title: Background
 ---
 
-## Architectures
+In this section, we provide more background on operator learning and
+its implementation in **continuiti**.
 
-**continuiti** implements the following neural operator architectures:
 
-- [DeepONet](../../api/continuiti/operators/deeponet/)
-- [Fourier Neural Operator (FNO)](../../api/continuiti/operators/fno/)
-- [BelNet](../../api/continuiti/operators/belnet/)
+::cards:: cols=2
 
-- [Deep Neural Operator (DNO)](../../api/continuiti/operators/dno/)
-- [Deep Cat Operator (DCO)](../../api/continuiti/operators/dco/)
-- [Convolutional Neural Network (CNN)](../../api/continuiti/operators/cnn/)
-- a generic [NeuralOperator](../../api/continuiti/operators/neuraloperator/) class
+- title: Architectures
+  content: >
+    Neural operator architectures in **continuiti**
+  url: architectures
 
-and more to come...
+::/cards::

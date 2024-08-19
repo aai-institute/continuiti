@@ -25,6 +25,7 @@ class DeepCatOperator(Operator):
 
     The architecture has the following structure:
 
+    ````
     ┌─────────────────────┐    ┌────────────────────┐
     │ *Branch Network*    │    │ *Trunk Network*    │
     │  Input (u)          │    │ Input (y)          │
@@ -41,7 +42,7 @@ class DeepCatOperator(Operator):
                   │  Input (c)       │
                   │  Output (v)      │
                   └──────────────────┘
-
+    ````
 
     This allows the operator to integrate evaluation locations earlier, while ensuring that both the sensor inputs and
     the evaluation location contribute in a predictable form to the flow of information. Directly stacking both the

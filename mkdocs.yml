@@ -179,7 +179,7 @@ nav:
       - Meshes: how-to-guides/meshes.ipynb
       - Self-supervised: how-to-guides/selfsupervised.ipynb
   - Background:
-      - Architectures: background/index.md
+      - Architectures: background/architectures.md
   - Reference:
       - API: api/continuiti/
       - Changelog: CHANGELOG.md
