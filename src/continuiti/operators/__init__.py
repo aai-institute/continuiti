@@ -19,7 +19,7 @@ from .dno import DeepNeuralOperator
 from .fno import FourierNeuralOperator
 from .shape import OperatorShapes
 from .cnn import ConvolutionalNeuralNetwork
-from .deep_cat_operator import DeepCatOperator
+from .dco import DeepCatOperator
 
 __all__ = [
     "Operator",
