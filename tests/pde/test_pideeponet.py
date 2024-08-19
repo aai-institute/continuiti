@@ -1,6 +1,5 @@
 import pytest
 import torch
-import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 import continuiti as cti
@@ -14,6 +13,10 @@ def test_pideeponet():
     Example from DeepXDE in *continuiti*.
     https://deepxde.readthedocs.io/en/latest/demos/operator/poisson.1d.pideeponet.html
     """
+
+    # deepxde sets the device context internally, which can conflict with the testing setup, when dealing with different
+    # devices (i.e. GPU and CPU). To ensure that the correct device is set the dependency is isolated.
+    import deepxde as dde  # noqa
 
     # Poisson equation: -v_xx = f
     mse = torch.nn.MSELoss()

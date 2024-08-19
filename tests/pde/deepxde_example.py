@@ -1,5 +1,4 @@
 import torch
-import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -11,6 +10,10 @@ def deepxde_example():
     Example from DeepXDE.
     https://deepxde.readthedocs.io/en/latest/demos/operator/poisson.1d.pideeponet.html
     """
+
+    # deepxde sets the device context internally, which can conflict with the testing setup, when dealing with different
+    # devices (i.e. GPU and CPU). To ensure that the correct device is set the dependency is isolated.
+    import deepxde as dde  # noqa
 
     # Poisson equation: -u_xx = f
     def equation(x, y, f):
