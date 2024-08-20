@@ -20,6 +20,9 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email github-actions[bot]@users.noreply.github.com
+      - name: Fetch gh-pages
+        run: |
+          git fetch origin gh-pages:gh-pages
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -39,4 +42,4 @@ jobs:
         run: mike deploy --push --update-aliases ${{ env.CURRENT_VERSION }} latest
       - name: Publish development
         if: ${{ github.event_name == 'push' }}
-        run: mike deploy development --push
+        run: mike deploy --push development
