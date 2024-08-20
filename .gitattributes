@@ -1,0 +1,2 @@
+# Make Linguist exclude data files from project's language stats
+data/** linguist-documentation
