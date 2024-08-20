@@ -23,5 +23,13 @@ Install the latest version of **continuiti** using pip:
 pip install continuiti
 ```
 
+Or install the latest development version from the repository:
+
+```
+git clone https://github.com/aai-institute/continuiti.git
+cd continuiti
+pip install -e ".[dev]"
+```
+
 **continuiti** requires Python>=3.9 and is built on top of
 [PyTorch](https://pytorch.org/).
