@@ -2322,12 +2322,12 @@
 
 
 <a id="continuiti.data.function.function_dataset"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.data.function.function_dataset</code></p>
 <p>Function data set implementation.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2343,169 +2343,169 @@
 
 
 <h2 id="continuiti.data.function.function_dataset.FunctionOperatorDataset" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">FunctionOperatorDataset</span><span class="p">(</span><span class="n">input_function_set</span><span class="p">,</span> <span class="n">x_sampler</span><span class="p">,</span> <span class="n">n_sensors</span><span class="p">,</span> <span class="n">output_function_set</span><span class="p">,</span> <span class="n">y_sampler</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="p">,</span> <span class="n">parameter_sampler</span><span class="p">,</span> <span class="n">n_observations</span><span class="p">,</span> <span class="n">x_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">FunctionOperatorDataset</span><span class="p">(</span><span class="n">input_function_set</span><span class="p">,</span> <span class="n">x_sampler</span><span class="p">,</span> <span class="n">n_sensors</span><span class="p">,</span> <span class="n">output_function_set</span><span class="p">,</span> <span class="n">y_sampler</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="p">,</span> <span class="n">parameter_sampler</span><span class="p">,</span> <span class="n">n_observations</span><span class="p">,</span> <span class="n">x_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#continuiti.data.function.function_dataset.FunctionOperatorDataset" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.data.OperatorDataset" href="../../#continuiti.data.OperatorDataset">OperatorDataset</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.data.OperatorDataset" href="../../#continuiti.data.OperatorDataset">OperatorDataset</a></code></p>
 
-  
+
       <p>A dataset class for generating samples from function sets.</p>
 <p>This class extends <code>OperatorDataset</code> to specifically handle scenarios where both inputs and outputs are known
 functions. It utilizes samplers to generate discrete representations of function spaces (input and output function
 sets) and physical spaces.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>input_function_set</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A function set representing the input space.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="continuiti.data.function.function_set.FunctionSet" href="../function_set/#continuiti.data.function.function_set.FunctionSet">FunctionSet</a></code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-        <tr>
-          <td><code>x_sampler</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A sampler for generating discrete representations of the domain.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="continuiti.discrete.sampler.Sampler" href="../../../discrete/sampler/#continuiti.discrete.sampler.Sampler">Sampler</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_sensors</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The number of sensors to sample in the input physical space.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>output_function_set</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A function set representing the output set of the underlying operator.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="continuiti.data.function.function_set.FunctionSet" href="../function_set/#continuiti.data.function.function_set.FunctionSet">FunctionSet</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>y_sampler</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A sampler for generating discrete representations of the codomain.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="continuiti.discrete.sampler.Sampler" href="../../../discrete/sampler/#continuiti.discrete.sampler.Sampler">Sampler</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_evaluations</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The number of evaluation points to sample in the output physical space.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>parameter_sampler</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A sampler for sampling parameters to instantiate functions from the function sets.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="continuiti.discrete.sampler.Sampler" href="../../../discrete/sampler/#continuiti.discrete.sampler.Sampler">Sampler</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_observations</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>The number of observations (=different sets of parameters) to generate.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>x_transform,</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Optional transformation functions applied to the
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>input_function_set</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A function set representing the input space.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-internal" title="continuiti.data.function.function_set.FunctionSet" href="../function_set/#continuiti.data.function.function_set.FunctionSet">FunctionSet</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>x_sampler</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A sampler for generating discrete representations of the domain.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-internal" title="continuiti.discrete.sampler.Sampler" href="../../../discrete/sampler/#continuiti.discrete.sampler.Sampler">Sampler</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>n_sensors</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The number of sensors to sample in the input physical space.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>output_function_set</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A function set representing the output set of the underlying operator.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-internal" title="continuiti.data.function.function_set.FunctionSet" href="../function_set/#continuiti.data.function.function_set.FunctionSet">FunctionSet</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>y_sampler</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A sampler for generating discrete representations of the codomain.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-internal" title="continuiti.discrete.sampler.Sampler" href="../../../discrete/sampler/#continuiti.discrete.sampler.Sampler">Sampler</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>n_evaluations</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The number of evaluation points to sample in the output physical space.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>parameter_sampler</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A sampler for sampling parameters to instantiate functions from the function sets.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-internal" title="continuiti.discrete.sampler.Sampler" href="../../../discrete/sampler/#continuiti.discrete.sampler.Sampler">Sampler</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>n_observations</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The number of observations (=different sets of parameters) to generate.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>x_transform,</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional transformation functions applied to the
 sampled physical spaces and function evaluations, respectively.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code>(u_transform, y_transform, v_transform)</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code>(u_transform, y_transform, v_transform)</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
 
 <details class="note" open>
   <summary>Note</summary>
   <p>The input_function_set and the output_function_set are evaluated on the same set of parameters.
 Therefore, the order of parameters need to be taken into consideration when defining both function sets.</p>
 </details>
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/data/function/function_dataset.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-41">41</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/data/function/function_dataset.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
 <span class="normal"><a href="#__codelineno-0-44">44</a></span>
@@ -2579,9 +2579,9 @@ Therefore, the order of parameters need to be taken into consideration when defi
 </span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a>        <span class="n">v_transform</span><span class="o">=</span><span class="n">v_transform</span><span class="p">,</span>
 </span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2597,8 +2597,7 @@ Therefore, the order of parameters need to be taken into consideration when defi
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2607,7 +2606,7 @@ Therefore, the order of parameters need to be taken into consideration when defi
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2776,5 +2775,7 @@ Therefore, the order of parameters need to be taken into consideration when defi
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

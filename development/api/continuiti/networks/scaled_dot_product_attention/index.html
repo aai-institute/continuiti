@@ -2320,12 +2320,12 @@
 
 
 <a id="continuiti.networks.scaled_dot_product_attention"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.networks.scaled_dot_product_attention</code></p>
 <p>Scaled dot product attention module.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2341,16 +2341,16 @@
 
 
 <h2 id="continuiti.networks.scaled_dot_product_attention.ScaledDotProductAttention" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">ScaledDotProductAttention</span><span class="p">(</span><span class="n">dropout_p</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">ScaledDotProductAttention</span><span class="p">(</span><span class="n">dropout_p</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span></code>
 
 <a href="#continuiti.networks.scaled_dot_product_attention.ScaledDotProductAttention" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.networks.attention.Attention" href="../attention/#continuiti.networks.attention.Attention">Attention</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.networks.attention.Attention" href="../attention/#continuiti.networks.attention.Attention">Attention</a></code></p>
 
-  
+
       <p>Scaled dot product attention module.</p>
 <p>This module is a wrapper for the torch implementation of the scaled dot
 product attention mechanism as described in the paper "Attention Is All You
@@ -2359,17 +2359,17 @@ attention weights based on the dot product of the query and key matrices,
 scaled by the square root of the dimension of the key vectors. The weights
 are then applied to the value vectors to obtain the final output.</p>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/networks/scaled_dot_product_attention.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23">23</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/networks/scaled_dot_product_attention.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23">23</a></span>
 <span class="normal"><a href="#__codelineno-0-24">24</a></span>
 <span class="normal"><a href="#__codelineno-0-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">dropout_p</span> <span class="o">=</span> <span class="n">dropout_p</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2385,8 +2385,7 @@ are then applied to the value vectors to obtain the final output.</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2395,7 +2394,7 @@ are then applied to the value vectors to obtain the final output.</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2564,5 +2563,7 @@ are then applied to the value vectors to obtain the final output.</p>
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

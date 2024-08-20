@@ -2346,12 +2346,12 @@
 
 
 <a id="continuiti.operators.dco"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.operators.dco</code></p>
 <p>The DeepCatOperator (DCO) architecture.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2367,16 +2367,16 @@
 
 
 <h2 id="continuiti.operators.dco.DeepCatOperator" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">DeepCatOperator</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="n">branch_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">branch_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">trunk_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">trunk_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">branch_cat_ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">cat_net_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">cat_net_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">DeepCatOperator</span><span class="p">(</span><span class="n">shapes</span><span class="p">,</span> <span class="n">branch_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">branch_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">trunk_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">trunk_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">branch_cat_ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">cat_net_width</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">cat_net_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">act</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#continuiti.operators.dco.DeepCatOperator" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.operators.operator.Operator" href="../operator/#continuiti.operators.operator.Operator">Operator</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.operators.operator.Operator" href="../operator/#continuiti.operators.operator.Operator">Operator</a></code></p>
 
-  
+
       <p>Deep Cat Operator.</p>
 <p>This class implements the DeepCatOperator, a neural operator inspired by the DeepONet.</p>
 <p>It consists of three main parts:</p>
@@ -2411,198 +2411,197 @@ neural operator to learn good basis functions with the trunk network only. The i
 the evaluation locations can be taken into account early, allowing for better abstraction.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>shapes</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Operator shapes.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="continuiti.operators.operator.OperatorShapes" href="../shape/#continuiti.operators.shape.OperatorShapes">OperatorShapes</a></code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-        <tr>
-          <td><code>branch_width</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Width of the branch net (deep residual network). Defaults to 32.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>32</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>branch_depth</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Depth of the branch net (deep residual network). Defaults to 4.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>4</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>trunk_width</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Width of the trunk net (deep residual network). Defaults to 32.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>32</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>trunk_depth</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Depth of the trunk net (deep residual network). Defaults to 4.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>4</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>branch_cat_ratio</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Ratio indicating which fraction of the concatenated tensor originates from the branch net.
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>shapes</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Operator shapes.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-internal" title="continuiti.operators.operator.OperatorShapes" href="../shape/#continuiti.operators.shape.OperatorShapes">OperatorShapes</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>branch_width</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Width of the branch net (deep residual network). Defaults to 32.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>32</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>branch_depth</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Depth of the branch net (deep residual network). Defaults to 4.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>4</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>trunk_width</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Width of the trunk net (deep residual network). Defaults to 32.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>32</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>trunk_depth</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Depth of the trunk net (deep residual network). Defaults to 4.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>4</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>branch_cat_ratio</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Ratio indicating which fraction of the concatenated tensor originates from the branch net.
 Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>0.5</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>cat_net_width</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Width of the cat net (deep residual network). Defaults to 32.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>32</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>cat_net_depth</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Depth of the cat net (deep residual network). Defaults to 4.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>4</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>act</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Activation function. Defaults to Tanh.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="torch.nn.Module" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>device</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Device.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="torch.device" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device">device</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>0.5</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>cat_net_width</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Width of the cat net (deep residual network). Defaults to 32.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>32</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>cat_net_depth</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Depth of the cat net (deep residual network). Defaults to 4.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>4</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>act</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Activation function. Defaults to Tanh.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="torch.nn.Module" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">Module</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>device</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Device.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="torch.device" href="https://pytorch.org/docs/stable/tensor_attributes.html#torch.device">device</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/operators/dco.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/operators/dco.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
 <span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
 <span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
 <span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
@@ -2714,12 +2713,11 @@ Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
 </span><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a>        <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
 </span><span id="__span-0-124"><a id="__codelineno-0-124" name="__codelineno-0-124"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
-
 
 
 
@@ -2732,100 +2730,97 @@ Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
 <div class="doc doc-object doc-function">
 
 
-
 <h3 id="continuiti.operators.dco.DeepCatOperator.forward" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></code>
 
 <a href="#continuiti.operators.dco.DeepCatOperator.forward" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Forward pass through the operator.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>_</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Tensor containing sensor locations. Ignored.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>_</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Tensor containing sensor locations. Ignored.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>u</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Tensor containing values of sensors of shape (batch_size, u_dim, num_sensors...).</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>y</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Tensor containing evaluation locations of shape (batch_size, y_dim, num_evaluations...).</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
                     <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
                 </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>u</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Tensor containing values of sensors of shape (batch_size, u_dim, num_sensors...).</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>y</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Tensor containing evaluation locations of shape (batch_size, y_dim, num_evaluations...).</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>Tensor of predicted evaluation values of shape (batch_size, v_dim, num_evaluations...).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
-              </span>
-          </td>
-          <td class="doc-returns-details">
-            <div class="doc-md-description">
-              <p>Tensor of predicted evaluation values of shape (batch_size, v_dim, num_evaluations...).</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>src/continuiti/operators/dco.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-126">126</a></span>
+            <details class="quote">
+              <summary>Source code in <code>src/continuiti/operators/dco.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-126">126</a></span>
 <span class="normal"><a href="#__codelineno-0-127">127</a></span>
 <span class="normal"><a href="#__codelineno-0-128">128</a></span>
 <span class="normal"><a href="#__codelineno-0-129">129</a></span>
@@ -2877,8 +2872,8 @@ Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
 </span><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a>
 </span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a>    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shapes</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="o">*</span><span class="n">y_num</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
 
@@ -2886,8 +2881,7 @@ Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2896,7 +2890,7 @@ Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -3065,5 +3059,7 @@ Controls flow of information into branch- and trunk-net. Defaults to 0.5.</p>
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

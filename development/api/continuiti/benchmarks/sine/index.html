@@ -2348,12 +2348,12 @@
 
 
 <a id="continuiti.benchmarks.sine"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.benchmarks.sine</code></p>
 <p>Sine benchmarks.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2369,16 +2369,16 @@
 
 
 <h2 id="continuiti.benchmarks.sine.SineBenchmark" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">SineBenchmark</span><span class="p">(</span><span class="n">n_sensors</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">n_train</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">n_test</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">SineBenchmark</span><span class="p">(</span><span class="n">n_sensors</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">n_evaluations</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">n_train</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">n_test</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#continuiti.benchmarks.sine.SineBenchmark" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.Benchmark" href="../#continuiti.benchmarks.Benchmark">Benchmark</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.Benchmark" href="../#continuiti.benchmarks.Benchmark">Benchmark</a></code></p>
 
-  
+
       <p>Sine benchmark.</p>
 <p>The <code>SineBenchmark</code> contains a dataset of trigonometric functions</p>
 <div class="arithmatex">\[
@@ -2394,111 +2394,110 @@
 </ul>
 
 
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>n_sensors</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of sensors.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>32</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>n_evaluations</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of evaluations.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>32</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>n_train</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of observations in the train dataset.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>1024</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>n_test</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>number of observations in the test dataset.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>32</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>uniform</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>whether to sample the domain and co-domain random uniformly.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>False</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>n_sensors</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>number of sensors.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>32</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_evaluations</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>number of evaluations.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>32</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_train</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>number of observations in the train dataset.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>1024</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_test</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>number of observations in the test dataset.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>32</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>uniform</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>whether to sample the domain and co-domain random uniformly.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>False</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/benchmarks/sine.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-39">39</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/benchmarks/sine.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-39">39</a></span>
 <span class="normal"><a href="#__codelineno-0-40">40</a></span>
 <span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
@@ -2564,9 +2563,9 @@
 </span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70"></a>
 </span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="p">[</span><span class="n">MSELoss</span><span class="p">()])</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2582,8 +2581,7 @@
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2592,16 +2590,16 @@
 
 
 <h2 id="continuiti.benchmarks.sine.SineRegular" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">SineRegular</span><span class="p">()</span></code>
+              <code class="highlight language-python"><span class="n">SineRegular</span><span class="p">()</span></code>
 
 <a href="#continuiti.benchmarks.sine.SineRegular" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.sine.SineBenchmark" href="#continuiti.benchmarks.sine.SineBenchmark">SineBenchmark</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.sine.SineBenchmark" href="#continuiti.benchmarks.sine.SineBenchmark">SineBenchmark</a></code></p>
 
-  
+
       <p>Sine benchmark with the domain and co-domain sampled on a regular grid.</p>
 <p>The <code>SineRegular</code> benchmark is a <code>SineBenchmark</code> with the following
 properties:</p>
@@ -2617,9 +2615,9 @@ properties:</p>
 </figure>
 </p>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/benchmarks/sine.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-90">90</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/benchmarks/sine.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-90">90</a></span>
 <span class="normal"><a href="#__codelineno-0-91">91</a></span>
 <span class="normal"><a href="#__codelineno-0-92">92</a></span>
 <span class="normal"><a href="#__codelineno-0-93">93</a></span>
@@ -2635,9 +2633,9 @@ properties:</p>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="n">uniform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2653,8 +2651,7 @@ properties:</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2663,16 +2660,16 @@ properties:</p>
 
 
 <h2 id="continuiti.benchmarks.sine.SineUniform" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">SineUniform</span><span class="p">()</span></code>
+              <code class="highlight language-python"><span class="n">SineUniform</span><span class="p">()</span></code>
 
 <a href="#continuiti.benchmarks.sine.SineUniform" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.sine.SineBenchmark" href="#continuiti.benchmarks.sine.SineBenchmark">SineBenchmark</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.sine.SineBenchmark" href="#continuiti.benchmarks.sine.SineBenchmark">SineBenchmark</a></code></p>
 
-  
+
       <p>Sine benchmark with the domain and co-domain sampled random uniformly.</p>
 <p>The <code>SineRegular</code> benchmark is a <code>SineBenchmark</code> with the following
 properties:</p>
@@ -2688,9 +2685,9 @@ properties:</p>
 </figure>
 </p>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/benchmarks/sine.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-116">116</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/benchmarks/sine.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-116">116</a></span>
 <span class="normal"><a href="#__codelineno-0-117">117</a></span>
 <span class="normal"><a href="#__codelineno-0-118">118</a></span>
 <span class="normal"><a href="#__codelineno-0-119">119</a></span>
@@ -2706,9 +2703,9 @@ properties:</p>
 </span><span id="__span-0-122"><a id="__codelineno-0-122" name="__codelineno-0-122"></a>        <span class="n">uniform</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2724,8 +2721,7 @@ properties:</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2734,7 +2730,7 @@ properties:</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2903,5 +2899,7 @@ properties:</p>
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

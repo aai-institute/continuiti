@@ -2320,12 +2320,12 @@
 
 
 <a id="continuiti.data.selfsupervised"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.data.selfsupervised</code></p>
 <p>Self-supervised data set.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2341,16 +2341,16 @@
 
 
 <h2 id="continuiti.data.selfsupervised.SelfSupervisedOperatorDataset" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">SelfSupervisedOperatorDataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">SelfSupervisedOperatorDataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span></code>
 
 <a href="#continuiti.data.selfsupervised.SelfSupervisedOperatorDataset" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.data.dataset.OperatorDataset" href="../dataset/#continuiti.data.dataset.OperatorDataset">OperatorDataset</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.data.dataset.OperatorDataset" href="../dataset/#continuiti.data.dataset.OperatorDataset">OperatorDataset</a></code></p>
 
-  
+
       <p>A <code>SelfSupervisedOperatorDataset</code> is a data set that contains data for self-supervised learning.
 Every data point is created by taking one sensor as a label.</p>
 <p>Every observation consists of tuples <code>(x, u, y, v)</code>, where <code>x</code> contains the sensor
@@ -2358,49 +2358,48 @@ positions, <code>u</code> the sensor values, and <code>y = x_i</code> and <code>
 the label's coordinate its value for all <code>i</code>.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>x</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Sensor positions of shape (num_observations, coordinate_dim, num_sensors...)</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-        <tr>
-          <td><code>u</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Sensor values of shape (num_observations, num_channels, num_sensors...)</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>x</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Sensor positions of shape (num_observations, coordinate_dim, num_sensors...)</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>u</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Sensor values of shape (num_observations, num_channels, num_sensors...)</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/data/selfsupervised.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27">27</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/data/selfsupervised.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27">27</a></span>
 <span class="normal"><a href="#__codelineno-0-28">28</a></span>
 <span class="normal"><a href="#__codelineno-0-29">29</a></span>
 <span class="normal"><a href="#__codelineno-0-30">30</a></span>
@@ -2474,9 +2473,9 @@ the label's coordinate its value for all <code>i</code>.</p>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">us</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">vs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2492,8 +2491,7 @@ the label's coordinate its value for all <code>i</code>.</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2502,7 +2500,7 @@ the label's coordinate its value for all <code>i</code>.</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2671,5 +2669,7 @@ the label's coordinate its value for all <code>i</code>.</p>
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

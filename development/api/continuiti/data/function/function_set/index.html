@@ -2348,12 +2348,12 @@
 
 
 <a id="continuiti.data.function.function_set"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.data.function.function_set</code></p>
 <p>Function set.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2369,14 +2369,14 @@
 
 
 <h2 id="continuiti.data.function.function_set.FunctionSet" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">FunctionSet</span><span class="p">(</span><span class="n">parameterized_mapping</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">FunctionSet</span><span class="p">(</span><span class="n">parameterized_mapping</span><span class="p">)</span></code>
 
 <a href="#continuiti.data.function.function_set.FunctionSet" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
-  
+
       <p>Function set class.</p>
 <p>For a domain X supported on a field K1, and the codomain Y supported on a field K2, a function space is the set of
 functions F(X, Y) that map from X to Y and is closed with respect to addition
@@ -2385,32 +2385,32 @@ In practice, we consider subsets of function spaces (where in general, these pro
 therefore, this class implements a (parametrized) function set.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>parameterized_mapping</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>A two level nested callable that takes a single parameter in the outer callable as
-argument and vectors x as inputs to the second callable.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>parameterized_mapping</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>A two level nested callable that takes a single parameter in the outer callable as
+argument and vectors x as inputs to the second callable.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
 
 <details class="example" open>
   <summary>Example</summary>
@@ -2427,18 +2427,17 @@ Out:
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>&lt;class<span class="w"> </span><span class="s1">&#39;continuiti.data.function.function.Function&#39;</span>&gt;
 </span></code></pre></div></p>
 </details>
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/data/function/function_set.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-43">43</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/data/function/function_set.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-43">43</a></span>
 <span class="normal"><a href="#__codelineno-0-44">44</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameterized_mapping</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
 </span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">parameterized_mapping</span> <span class="o">=</span> <span class="n">parameterized_mapping</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
-
 
 
 
@@ -2451,50 +2450,48 @@ Out:
 <div class="doc doc-object doc-function">
 
 
-
 <h3 id="continuiti.data.function.function_set.FunctionSet.__call__" class="doc doc-heading">
-          <code class="highlight language-python"><span class="fm">__call__</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="fm">__call__</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span></code>
 
 <a href="#continuiti.data.function.function_set.FunctionSet.__call__" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
-  <div class="doc doc-contents ">
-  
+    <div class="doc doc-contents ">
+
       <p>Evaluates the function set for a specific discrete instance of parameters.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>parameters</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Parameters for which the mapping class argument will be evaluated of shape
-(n_parameters, n_functions).</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>parameters</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Parameters for which the mapping class argument will be evaluated of shape
+(n_parameters, n_functions).</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.Tensor" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor">Tensor</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
       <p>Returns:
     List of Function instances for the given parameters of this function set instance.</p>
 
-          <details class="quote">
-            <summary>Source code in <code>src/continuiti/data/function/function_set.py</code></summary>
-            <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
+            <details class="quote">
+              <summary>Source code in <code>src/continuiti/data/function/function_set.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-46">46</a></span>
 <span class="normal"><a href="#__codelineno-0-47">47</a></span>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
@@ -2542,8 +2539,8 @@ Out:
 </span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68"></a>
 </span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="k">return</span> <span class="n">funcs</span>
 </span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
+            </details>
+    </div>
 
 </div>
 
@@ -2551,8 +2548,7 @@ Out:
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2561,7 +2557,7 @@ Out:
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2730,5 +2726,7 @@ Out:
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

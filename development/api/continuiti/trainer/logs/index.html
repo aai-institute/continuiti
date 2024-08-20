@@ -2320,11 +2320,11 @@
 
 
 <a id="continuiti.trainer.logs"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.trainer.logs</code></p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2340,8 +2340,8 @@
 
 
 <h2 id="continuiti.trainer.logs.Logs" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">Logs</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">loss_train</span><span class="p">,</span> <span class="n">loss_test</span><span class="p">)</span></code>
-  
+              <code class="highlight language-python"><span class="n">Logs</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">loss_train</span><span class="p">,</span> <span class="n">loss_test</span><span class="p">)</span></code>
+
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
   </span>
@@ -2349,82 +2349,81 @@
 <a href="#continuiti.trainer.logs.Logs" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
+    <div class="doc doc-contents ">
 
-  
+
       <p>Logs for callbacks and criteria within Trainer in continuiti.</p>
 
 
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">ATTRIBUTE</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="continuiti.trainer.logs.Logs.epoch">epoch</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Current epoch.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="continuiti.trainer.logs.Logs.step">step</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Current step.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="continuiti.trainer.logs.Logs.loss_train">loss_train</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Training loss.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="continuiti.trainer.logs.Logs.loss_test">loss_test</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Test loss.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-  <table>
-    <thead>
-      <tr>
-        <th><b>ATTRIBUTE</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code><span title="continuiti.trainer.logs.Logs.epoch">epoch</span></code></td>
-          <td class="doc-attribute-details">
-            <div class="doc-md-description">
-              <p>Current epoch.</p>
-            </div>
-            <p>
-                <span class="doc-attribute-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code><span title="continuiti.trainer.logs.Logs.step">step</span></code></td>
-          <td class="doc-attribute-details">
-            <div class="doc-md-description">
-              <p>Current step.</p>
-            </div>
-            <p>
-                <span class="doc-attribute-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code><span title="continuiti.trainer.logs.Logs.loss_train">loss_train</span></code></td>
-          <td class="doc-attribute-details">
-            <div class="doc-md-description">
-              <p>Training loss.</p>
-            </div>
-            <p>
-                <span class="doc-attribute-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code><span title="continuiti.trainer.logs.Logs.loss_test">loss_test</span></code></td>
-          <td class="doc-attribute-details">
-            <div class="doc-md-description">
-              <p>Test loss.</p>
-            </div>
-            <p>
-                <span class="doc-attribute-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
 
 
-  
 
   <div class="doc doc-children">
 
@@ -2440,8 +2439,7 @@
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2450,7 +2448,7 @@
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2619,5 +2617,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

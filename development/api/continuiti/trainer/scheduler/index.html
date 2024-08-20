@@ -2320,12 +2320,12 @@
 
 
 <a id="continuiti.trainer.scheduler"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.trainer.scheduler</code></p>
 <p>Learning rate scheduler for Trainer in continuiti.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2341,65 +2341,64 @@
 
 
 <h2 id="continuiti.trainer.scheduler.LinearLRScheduler" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">LinearLRScheduler</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">max_epochs</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">LinearLRScheduler</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">max_epochs</span><span class="p">)</span></code>
 
 <a href="#continuiti.trainer.scheduler.LinearLRScheduler" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.trainer.callbacks.Callback" href="../callbacks/#continuiti.trainer.callbacks.Callback">Callback</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.trainer.callbacks.Callback" href="../callbacks/#continuiti.trainer.callbacks.Callback">Callback</a></code></p>
 
-  
+
       <p>Callback for a linear learning rate scheduler.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>lr(epoch) = lr0 * (1 - epoch / max_epochs)
 </span></code></pre></div>
 <p>where <code>lr0</code> is the initial learning rate of the optimizer.</p>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>optimizer</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Optimizer. The learning rate of the first parameter group will be updated.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="torch.optim.Optimizer" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-        <tr>
-          <td><code>max_epochs</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Maximum number of epochs.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>optimizer</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optimizer. The learning rate of the first parameter group will be updated.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="torch.optim.Optimizer" href="https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer">Optimizer</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>max_epochs</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Maximum number of epochs.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/trainer/scheduler.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-26">26</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/trainer/scheduler.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-26">26</a></span>
 <span class="normal"><a href="#__codelineno-0-27">27</a></span>
 <span class="normal"><a href="#__codelineno-0-28">28</a></span>
 <span class="normal"><a href="#__codelineno-0-29">29</a></span>
@@ -2411,9 +2410,9 @@
 </span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="n">lr0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">param_groups</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;lr&quot;</span><span class="p">]</span>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">epoch</span><span class="p">:</span> <span class="n">lr0</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">epoch</span> <span class="o">/</span> <span class="n">max_epochs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2429,8 +2428,7 @@
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2439,7 +2437,7 @@
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2608,5 +2606,7 @@
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>

@@ -2320,12 +2320,12 @@
 
 
 <a id="continuiti.benchmarks.navierstokes"></a>
-  <div class="doc doc-contents first">
-  
+    <div class="doc doc-contents first">
+
       <p><code>continuiti.benchmarks.navier_stokes</code></p>
 <p>Navier-Stokes benchmark.</p>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2341,16 +2341,16 @@
 
 
 <h2 id="continuiti.benchmarks.navierstokes.NavierStokes" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">NavierStokes</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">NavierStokes</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#continuiti.benchmarks.navierstokes.NavierStokes" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
-  <div class="doc doc-contents ">
-          <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.Benchmark" href="../#continuiti.benchmarks.Benchmark">Benchmark</a></code></p>
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="continuiti.benchmarks.Benchmark" href="../#continuiti.benchmarks.Benchmark">Benchmark</a></code></p>
 
-  
+
       <p>Navier-Stokes benchmark.</p>
 <p>This benchmark contains a dataset of turbulent flow samples taken from
 <a href="https://github.com/neuraloperator/graph-pde">neuraloperator/graph-pde</a>
@@ -2383,40 +2383,39 @@ field at the following ten time steps <span class="arithmatex">\((0.1, 0.2, ...,
 </span></code></pre></div>
 
 
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b> DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
+<table>
+      <thead>
         <tr>
-          <td><code>dir</code></td>
-          <td class="doc-param-details">
-            <div class="doc-md-description">
-              <p>Path to data set. Default is <code>data/navierstokes</code>
-in the root directory of the repository.</p>
-            </div>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
         </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>dir</code></td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Path to data set. Default is <code>data/navierstokes</code>
+in the root directory of the repository.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
-                <details class="quote">
-                  <summary>Source code in <code>src/continuiti/benchmarks/navierstokes.py</code></summary>
-                  <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-60"> 60</a></span>
+                  <details class="quote">
+                    <summary>Source code in <code>src/continuiti/benchmarks/navierstokes.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-60"> 60</a></span>
 <span class="normal"><a href="#__codelineno-0-61"> 61</a></span>
 <span class="normal"><a href="#__codelineno-0-62"> 62</a></span>
 <span class="normal"><a href="#__codelineno-0-63"> 63</a></span>
@@ -2526,9 +2525,9 @@ in the root directory of the repository.</p>
 </span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>
 </span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">test_dataset</span><span class="p">,</span> <span class="p">[</span><span class="n">RelativeL1Error</span><span class="p">()])</span>
 </span></code></pre></div></td></tr></table></div>
-                </details>
+                  </details>
 
-  
+
 
   <div class="doc doc-children">
 
@@ -2544,8 +2543,7 @@ in the root directory of the repository.</p>
 
   </div>
 
-  </div>
-
+    </div>
 
 </div>
 
@@ -2554,7 +2552,7 @@ in the root directory of the repository.</p>
 
   </div>
 
-  </div>
+    </div>
 
 </div>
 
@@ -2723,5 +2721,7 @@ in the root directory of the repository.</p>
         <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       
     
-  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(() => { lightbox.reload() });
+</script></body>
 </html>
