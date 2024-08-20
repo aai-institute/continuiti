@@ -3,10 +3,11 @@ title: Tutorials
 ---
 
 Welcome to the **continuiti** tutorials!
-These tutorials give an introduction to operator learning: from the basics of
+
+The following pages give an introduction to operator learning: from the basics of
 functions and discretization to the training of neural operators in **continuiti**.
 
-If you instead just want implement specific problems, directly jump to our
+If you want to solve specific problems, directly jump to our
 <a href="../how-to-guides">How-to Guides</a>.
 
 
