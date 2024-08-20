@@ -2391,11 +2391,11 @@
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="super-resolution">Super-resolution<a class="headerlink" href="#super-resolution" title="Permanent link">&para;</a></h1>
-<p>In this example, we expand upon the basics of operator learning and
-demonstrate the use of neural operators for super-resolution.</p>
-<p>We will employ the FLAME dataset, a set of flow samples of resolution 32x32 that
-should be up-sampled to 128x128. You can download the data set from
-<a href="https://www.kaggle.com/competitions/2023-flame-ai-challenge/data">Kaggle</a>
+<p>Neural operators, being agnostic to a specific discretization, can be used for
+super-resolution tasks, where the goal is to increase the resolution of an image.</p>
+<p>In this example, we will employ the FLAME dataset, a set of flow samples of
+resolution 32x32 that should be up-sampled to 128x128. You can download the data
+set from <a href="https://www.kaggle.com/competitions/2023-flame-ai-challenge/data">Kaggle</a>
 and put it into the <code>data/flame</code> directory to reproduce this example.</p>
 </div>
 </div>
@@ -2557,7 +2557,7 @@ with 128 positions (or any other resolution), aka super-resolution!</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2024-08-19</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2024-08-20</span>
       
         <br>
         Created:
