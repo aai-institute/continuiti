@@ -8,10 +8,8 @@ remote_branch: gh-pages
 
 watch:
   - src/continuiti
-  - examples
 
 hooks:
-  - build_scripts/copy_notebooks.py
   - build_scripts/copy_benchmarks.py
 
 plugins:
@@ -168,23 +166,22 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started:
-      - Installation: getting-started/installation.md
-      - First Steps: getting-started/first-steps.md
-  - Learning Operators:
-      - Introduction: operators/index.md
-      - Functions: examples/functions.ipynb
-      - Training: examples/training.ipynb
-      - Architectures: operators/architectures.md
-  - Examples:
-      - Time Series: examples/timeseries.ipynb
-      - Super-resolution: examples/superresolution.ipynb
-      - Physics-informed: examples/physicsinformed.ipynb
-      - FNO: examples/fno.ipynb
-      - Meshes: examples/meshes.ipynb
-      - Self-supervised: examples/selfsupervised.ipynb
-  - Benchmarks: benchmarks/index.md
-  - Code:
+  - Tutorials:
+      - First Steps: tutorials/firststeps.md
+      - Operators: tutorials/operators.md
+      - Functions: tutorials/functions.ipynb
+      - Training: tutorials/training.ipynb
+      - FNO: tutorials/fno.ipynb
+  - How-to Guides:
+      - Time Series: how-to-guides/timeseries.ipynb
+      - Super-resolution: how-to-guides/superresolution.ipynb
+      - Physics-informed: how-to-guides/physicsinformed.ipynb
+      - Meshes: how-to-guides/meshes.ipynb
+      - Self-supervised: how-to-guides/selfsupervised.ipynb
+  - Background:
+      - Architectures: background/architectures.md
+  - Reference:
       - API: api/continuiti/
       - Changelog: CHANGELOG.md
       - Contributing: CONTRIBUTING.md
+  - Benchmarks: benchmarks/index.md

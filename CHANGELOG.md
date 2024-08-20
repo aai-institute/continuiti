@@ -6,6 +6,7 @@
 - Add `branch_network` and `trunk_network` arguments to `DeepONet` to allow for custom network architectures.
 - Add `MaskedOperator` base class.
 - Add `DeepCatOperator`.
+- Restructure documentation, separating notebooks into tutorials and how-to guides.
 
 ## 0.1.0
 

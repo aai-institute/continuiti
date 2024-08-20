@@ -17,6 +17,10 @@ The package is structured into the following modules:
   content: Discretization utilities like samplers.
   url: discrete/index.md
 
+- title: Networks
+  content: Neural network implementations.
+  url: networks/index.md
+
 - title: Operators
   content: Neural operator implementations.
   url: operators/index.md
@@ -30,8 +34,8 @@ The package is structured into the following modules:
   url: trainer/index.md
 
 - title: Transforms
-  content: Transformations for operator inputs and outputs.
-  url: transform/index.md
+  content: Transformations for operator inputs/outputs.
+  url: transforms/index.md
 
 ::/cards::
 
@@ -41,19 +45,20 @@ __all__ = [
     "benchmarks",
     "data",
     "discrete",
+    "networks",
     "operators",
     "pde",
     "trainer",
     "transforms",
-    "Trainer",
 ]
 
 from . import benchmarks
 from . import data
 from . import discrete
+from . import networks
 from . import operators
 from . import pde
 from . import trainer
 from . import transforms
 
-from .trainer import Trainer
+from .trainer import Trainer  # noqa

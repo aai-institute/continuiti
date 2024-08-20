@@ -32,11 +32,11 @@ def on_pre_build(config):
         )
         target_filepath.symlink_to(file)
 
-    logger.info("Finished copying notebooks to examples directory")
+    logger.info("Finished copying notebooks to benchmarks directory")
 
 
 @mkdocs.plugins.event_priority(-100)
 def on_shutdown():
-    logger.info("Removing temporary examples directory")
+    logger.info("Removing temporary benchmarks directory")
     for file in docs_benchmarks_dir.glob("*.json"):
         file.unlink()

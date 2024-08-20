@@ -64,7 +64,7 @@ jobs:
           sudo apt install libglu1
       - name: Test notebooks
         run: |
-          pytest --nbmake examples/
+          pytest --nbmake docs/**/*ipynb
 
   # upload code coverage report
   code-coverage:
