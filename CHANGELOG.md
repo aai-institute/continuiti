@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.3.0
+
+- Add support typing information according to PEP 561.
+
 ## 0.2.0
 
 - Add `Attention` base class, `MultiHeadAttention`, and `ScaledDotProductAttention` classes.

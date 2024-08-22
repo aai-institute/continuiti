@@ -82,6 +82,9 @@ dev = [
 where = ["src"]
 include = ["continuiti*"]
 
+[tool.setuptools.package-data]
+"continuiti" = ["py.typed"]
+
 [project.urls]
 Repository = "https://github.com/aai-institute/continuiti.git"
 Documentation = "https://aai-institute.github.io/continuiti/"
