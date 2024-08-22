@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.3.0
+
+- Add support typing information according to PEP 561.
+
 ## 0.2.0
 
 - Add `Attention` base class, `MultiHeadAttention`, and `ScaledDotProductAttention` classes.
@@ -7,7 +11,6 @@
 - Add `MaskedOperator` base class.
 - Add `DeepCatOperator`.
 - Restructure documentation, separating notebooks into tutorials and how-to guides.
-- Add support typing information according to PEP 561.
 
 ## 0.1.0
 
