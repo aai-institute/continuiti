@@ -57,4 +57,4 @@ def test_neuraloperator():
     logs = Trainer(operator).fit(dataset, tol=1e-2)
 
     # Check solution
-    logs.loss_train < 1e-2
+    assert logs.loss_train < 1e-2
